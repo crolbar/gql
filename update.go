@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"gql/util"
+
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -16,7 +19,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "q", "ctrl+c":
 			return m, tea.Quit
+
+        case " ":
+            util.Logg(fmt.Sprintf("%v", m.table.GetSelectedRows()))
         }
+
 	}
 
     m.table.Dbg = ""

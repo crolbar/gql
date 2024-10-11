@@ -68,10 +68,10 @@ func (t *Table) renderRow(r, rEnd int) string {
 	return lipgloss.JoinHorizontal(lipgloss.Top, s...)
 }
 
-func (t Table) generateStyleHeader(i, end int) lipgloss.Style {
-    topLeftBorder       :=  iff(i == t.XOffset, "┌", "┬")
-    topRightBorder      :=  iff(i == end - 1, "┐", "")
-    disableRightBorder  :=  i == end - 1
+func (t Table) generateStyleHeader(colI, end int) lipgloss.Style {
+    topLeftBorder       :=  iff(colI == t.XOffset, "┌", "┬")
+    topRightBorder      :=  iff(colI == end - 1, "┐", "")
+    enableRightBorder   :=  colI == end - 1
 
 
     return lipgloss.NewStyle().
@@ -83,20 +83,20 @@ func (t Table) generateStyleHeader(i, end int) lipgloss.Style {
         TopRight: topRightBorder,
     }). 
     BorderBottom(false).
-    BorderRight(disableRightBorder).
+    BorderRight(enableRightBorder).
     BorderForeground(lipgloss.Color("240")).
     Bold(true)
 }
 
-func (t Table) generateStyleRow(i, end, r, rEnd int) lipgloss.Style {
-    disableRightBorder  := i == end - 1
-    disableBottomBorder := r == rEnd - 1
+func (t Table) generateStyleRow(colI, cEnd, rowI, rEnd int) lipgloss.Style {
+    enableRightBorder   := colI == cEnd - 1
+    enableBottomBorder  := rowI == rEnd - 1
 
-    topLeftBorder    := iff(i == t.XOffset, "├", "┼")
-    topRightBorder   := iff(i == end - 1, "┤", "")
-    BottomLeftBorder := iff(i == t.XOffset, "└", "┴")
-    RightBorder      := iff(end == len(t.cols), "│", ">")
-    LeftBorder       := iff(i == t.XOffset && i != 0, "<", "│")
+    topLeftBorder    := iff(colI == t.XOffset, "├", "┼")
+    topRightBorder   := iff(colI == cEnd - 1, "┤", "")
+    BottomLeftBorder := iff(colI == t.XOffset, "└", "┴")
+    RightBorder      := iff(cEnd == len(t.cols), "│", ">")
+    LeftBorder       := iff(colI == t.XOffset && colI != 0, "<", "│")
 
 
     style := lipgloss.NewStyle().
@@ -110,31 +110,26 @@ func (t Table) generateStyleRow(i, end, r, rEnd int) lipgloss.Style {
         TopLeft:     topLeftBorder,
         TopRight:    topRightBorder,
     }). 
-    BorderBottom(disableBottomBorder).
-    BorderRight(disableRightBorder).
+    BorderBottom(enableBottomBorder).
+    BorderRight(enableRightBorder).
     BorderForeground(lipgloss.Color("240"))
     
 
     cursorX := t.Cursor.x
     cursorY := t.Cursor.y
 
-    switch {
-    case cursorX == i && cursorY != r && t.columnSelect:// column
-        style = style.Background(lipgloss.Color("57"))
+    if (t.selectionStart != -1 ) {
+        if (t.rowSelect && isBetween(rowI, cursorY, t.selectionStart)) {
+            style = style.Background(lipgloss.Color("58"))
+        }
+        if (t.columnSelect && isBetween(colI, cursorX, t.selectionStart)) {
+            style = style.Background(lipgloss.Color("58"))
+        }
+    }
 
-    case cursorX == i && cursorY == r:                  // single
+    if cursorX == colI && cursorY == rowI {
         style = style.Background(lipgloss.Color("57")) 
-
-    case cursorX != i && cursorY == r && t.rowSelect:   // row
-        style = style.Background(lipgloss.Color("57"))
     }
 
     return style
-}
-
-func iff(cond bool, t, f string) string {
-    if (cond) {
-        return t
-    }
-    return f
 }

@@ -29,8 +29,9 @@ type Table struct {
 
     Dbg string
 
-    columnSelect bool
-    rowSelect    bool
+    columnSelect   bool
+    rowSelect      bool
+    selectionStart int
 }
 
 
@@ -58,6 +59,7 @@ func New(cols []Column, rows []Row, height int, width int) Table {
 
         columnSelect: false,
         rowSelect:    false,
+        selectionStart:  -1,
     }
 }
 
@@ -65,6 +67,28 @@ func (t *Table) GetCursor() Cursor {
     return t.Cursor
 }
 
+// returns nil if we aren't in selection
+func (t *Table) GetSelectedRows() []Row {
+    if (t.rowSelect && t.selectionStart >= 0) {
+        start := min(t.selectionStart, t.Cursor.y)
+        end := max(t.selectionStart, t.Cursor.y)
+        return t.rows[start:end+1]
+    }
+    return nil
+}
+
+// returns nil if we aren't in selection
+func (t *Table) GetSelectedColumns() []Column {
+    if (t.columnSelect && t.selectionStart >= 0) {
+        start := min(t.selectionStart, t.Cursor.x)
+        end := max(t.selectionStart, t.Cursor.x)
+        return t.cols[start:end+1]
+    }
+    return nil
+}
+
+// Must be called when the width of the terminal changes 
+// or there is an update to cursor.x
 func (t *Table) UpdateRenderedColums() {
     width := 0
     for i := t.XOffset; i < len(t.cols); i++ {
@@ -82,6 +106,8 @@ func (t *Table) UpdateRenderedColums() {
     }
 }
 
+// Must be called when the width of the terminal changes 
+// or there is an update to the cursor
 func (t *Table) UpdateOffset()  {
     lines_till_sow := t.Cursor.y - t.YOffset
     lines_till_eow := ((t.Height / 2) - 1) - lines_till_sow
@@ -113,8 +139,4 @@ func (t *Table) UpdateOffset()  {
         cols_till_sow = t.Cursor.x - t.XOffset
         cols_till_eow = (t.renderedColumns - 1) - cols_till_sow
     }
-}
-
-func clamp(v, low, high int) int {
-	return min(max(v, low), high)
 }

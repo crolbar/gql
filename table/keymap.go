@@ -23,6 +23,8 @@ type KeyMap struct {
 
     SelectRow    key.Binding
     SelectColumn key.Binding
+
+    EndSelection key.Binding
 }
 
 func DefaultKeyMap() KeyMap {
@@ -67,6 +69,8 @@ func DefaultKeyMap() KeyMap {
 
         SelectRow: key.NewBinding(key.WithKeys("V")),
         SelectColumn: key.NewBinding(key.WithKeys("ctrl+v")),
+
+        EndSelection: key.NewBinding(key.WithKeys("esc")),
 	}
 }
 
@@ -102,6 +106,9 @@ func (t Table) Update(msg tea.Msg) (Table, tea.Cmd) {
             t.SelectRow()
 		case key.Matches(msg, t.KeyMap.SelectColumn):
             t.SelectColumn()
+
+		case key.Matches(msg, t.KeyMap.EndSelection):
+            t.columnSelect, t.rowSelect = false, false
 		}
 	}
 
@@ -146,9 +153,21 @@ func (t *Table) MoveRight(i int) {
 func (t *Table) SelectRow() {
     t.rowSelect    = !t.rowSelect
     t.columnSelect = false
+
+    if (t.rowSelect) {
+        t.selectionStart = t.Cursor.y
+    } else if (t.selectionStart >= 0) {
+        t.selectionStart = -1
+    }
 }
 
 func (t *Table) SelectColumn() {
     t.columnSelect = !t.columnSelect
     t.rowSelect    = false
+
+    if (t.columnSelect) {
+        t.selectionStart = t.Cursor.x
+    } else if (t.selectionStart >= 0) {
+        t.selectionStart = -1
+    }
 }
