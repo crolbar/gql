@@ -4,15 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
-
-	"github.com/charmbracelet/lipgloss"
 )
-
-type Styles struct {
-	Header   lipgloss.Style
-	Cell     lipgloss.Style
-	Selected lipgloss.Style
-}
 
 type Cursor struct {
     x int
@@ -26,7 +18,7 @@ type Table struct {
 	Cursor Cursor
 
     Height int
-    Width int
+    Width  int
 
     KeyMap KeyMap
 
@@ -36,6 +28,9 @@ type Table struct {
     renderedColumns int
 
     Dbg string
+
+    columnSelect bool
+    rowSelect    bool
 }
 
 
@@ -48,10 +43,10 @@ type Column struct {
 
 func New(cols []Column, rows []Row, height int, width int) Table {
     return Table {
-        cols: cols,
-        rows: rows,
+        cols:   cols,
+        rows:   rows,
         Height: height - 2,
-        Width: width,
+        Width:  width,
 
         XOffset: 0,
         YOffset: 0,
@@ -60,6 +55,9 @@ func New(cols []Column, rows []Row, height int, width int) Table {
 
         KeyMap: DefaultKeyMap(),
         Cursor: Cursor{0, 0},
+
+        columnSelect: false,
+        rowSelect:    false,
     }
 }
 

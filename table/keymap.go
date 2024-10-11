@@ -10,6 +10,7 @@ type KeyMap struct {
 	LineDown     key.Binding
 	LineLeft     key.Binding
 	LineRight    key.Binding
+
 	PageUp       key.Binding
 	PageDown     key.Binding
 	HalfPageUp   key.Binding
@@ -19,6 +20,9 @@ type KeyMap struct {
 
 	ScrollDown   key.Binding
     ScrollUp     key.Binding
+
+    SelectRow    key.Binding
+    SelectColumn key.Binding
 }
 
 func DefaultKeyMap() KeyMap {
@@ -33,20 +37,20 @@ func DefaultKeyMap() KeyMap {
 		),
 		LineLeft: key.NewBinding(
 			key.WithKeys("left", "h"),
-			key.WithHelp("↑/h", "left"),
+			key.WithHelp("←/h", "left"),
 		),
 		LineRight: key.NewBinding(
 			key.WithKeys("right", "l"),
-			key.WithHelp("↓/l", "right"),
+			key.WithHelp("→/l", "right"),
 		),
 
 		HalfPageUp: key.NewBinding(
-			key.WithKeys("u", "ctrl+u"),
-			key.WithHelp("u", "½ page up"),
+			key.WithKeys("pgup", "ctrl+u"),
+			key.WithHelp("ctrl+u/pgup", "½ page up"),
 		),
 		HalfPageDown: key.NewBinding(
-			key.WithKeys("d", "ctrl+d"),
-			key.WithHelp("d", "½ page down"),
+			key.WithKeys("pgdown", "ctrl+d"),
+			key.WithHelp("ctrl+d/pgdown", "½ page down"),
 		),
 
 		GotoTop: key.NewBinding(
@@ -60,6 +64,9 @@ func DefaultKeyMap() KeyMap {
 
         ScrollUp: key.NewBinding(key.WithKeys("ctrl+y")),
         ScrollDown: key.NewBinding(key.WithKeys("ctrl+e")),
+
+        SelectRow: key.NewBinding(key.WithKeys("V")),
+        SelectColumn: key.NewBinding(key.WithKeys("ctrl+v")),
 	}
 }
 
@@ -91,6 +98,10 @@ func (t Table) Update(msg tea.Msg) (Table, tea.Cmd) {
 		case key.Matches(msg, t.KeyMap.ScrollDown):
 			t.ScrollDown()
 
+        case key.Matches(msg, t.KeyMap.SelectRow):
+            t.SelectRow()
+		case key.Matches(msg, t.KeyMap.SelectColumn):
+            t.SelectColumn()
 		}
 	}
 
@@ -130,4 +141,14 @@ func (t *Table) MoveLeft(i int) {
 func (t *Table) MoveRight(i int) {
     t.Cursor.x = clamp(t.Cursor.x+i, 0, len(t.cols)-1)
     t.UpdateOffset()
+}
+
+func (t *Table) SelectRow() {
+    t.rowSelect    = !t.rowSelect
+    t.columnSelect = false
+}
+
+func (t *Table) SelectColumn() {
+    t.columnSelect = !t.columnSelect
+    t.rowSelect    = false
 }

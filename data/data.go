@@ -11,7 +11,7 @@ var Columns = []table.Column{
     {Title: "Population", Width: 10},
 }
 
-var rows = []table.Row{
+var Rows = []table.Row{
     {"1", "Tokyo", "Japan", "37,274,000"},
     {"2", "Delhi", "India", "32,065,760"},
     {"3", "Shanghai", "China", "28,516,904"},
