@@ -4,8 +4,9 @@ import "fmt"
 
 func (m model) View() string {
     log := fmt.Sprintf(
-        "Height: %d, yOff: %d, xOff: %d, cursor: %d, dbg: %s",
+        "Height: %d, Width: %d, yOff: %d, xOff: %d, cursor: %d, dbg: %s",
         m.table.Height,
+        m.table.Width,
         m.table.YOffset,
         m.table.XOffset,
         m.table.Cursor,

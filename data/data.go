@@ -1,10 +1,10 @@
-package main
+package data
 
 import (
     "gql/table"
 )
 
-var columns = []table.Column{
+var Columns = []table.Column{
     {Title: "Rank", Width: 4},
     {Title: "City", Width: 10},
     {Title: "Country", Width: 10},
@@ -115,7 +115,7 @@ var rows = []table.Row{
 }
 
 
-var columnsBig = []table.Column{
+var ColumnsBig = []table.Column{
     {Title: "Rank", Width: 40},
     {Title: "City", Width: 50},
     {Title: "Country", Width: 60},
@@ -130,7 +130,7 @@ var columnsBig = []table.Column{
     {Title: "Population", Width: 20},
 }
 
-var rowsBig = []table.Row{
+var RowsBig = []table.Row{
     {
         "1",
         "Tokyo",

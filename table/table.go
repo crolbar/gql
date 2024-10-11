@@ -63,6 +63,10 @@ func New(cols []Column, rows []Row, height int, width int) Table {
     }
 }
 
+func (t *Table) GetCursor() Cursor {
+    return t.Cursor
+}
+
 func (t *Table) UpdateRenderedColums() {
     width := 0
     for i := t.XOffset; i < len(t.cols); i++ {

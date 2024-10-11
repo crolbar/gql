@@ -5,6 +5,7 @@ import (
 	"os"
 
     "gql/table"
+    "gql/data"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -20,7 +21,7 @@ func (m model) Init() tea.Cmd { return nil }
 
 
 func main() {
-    t := table.New(columnsBig, rowsBig, 32, 200)
+    t := table.New(data.ColumnsBig, data.RowsBig, 32, 148)
     m := model{ t, }
 
     if _, err := tea.NewProgram(m).Run(); err != nil {
