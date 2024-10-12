@@ -123,7 +123,7 @@ func (t *Table) ScrollDown() {
 }
 
 func (t *Table) GotoTop() {
-    t.MoveUp(t.Cursor.y)
+    t.MoveUp(t.Cursor.Y)
 }
 
 func (t *Table) GotoBottom() {
@@ -131,22 +131,22 @@ func (t *Table) GotoBottom() {
 }
 
 func (t *Table) MoveUp(i int) {
-    t.Cursor.y = clamp(t.Cursor.y-i, 0, len(t.rows)-1)
+    t.Cursor.Y = clamp(t.Cursor.Y-i, 0, len(t.rows)-1)
     t.UpdateOffset()
 }
 
 func (t *Table) MoveDown(i int) {
-    t.Cursor.y = clamp(t.Cursor.y+i, 0, len(t.rows)-1)
+    t.Cursor.Y = clamp(t.Cursor.Y+i, 0, len(t.rows)-1)
     t.UpdateOffset()
 }
 
 func (t *Table) MoveLeft(i int) {
-    t.Cursor.x = clamp(t.Cursor.x-i, 0, len(t.cols)-1)
+    t.Cursor.X = clamp(t.Cursor.X-i, 0, len(t.cols)-1)
     t.UpdateOffset()
 }
 
 func (t *Table) MoveRight(i int) {
-    t.Cursor.x = clamp(t.Cursor.x+i, 0, len(t.cols)-1)
+    t.Cursor.X = clamp(t.Cursor.X+i, 0, len(t.cols)-1)
     t.UpdateOffset()
 }
 
@@ -155,7 +155,7 @@ func (t *Table) SelectRow() {
     t.columnSelect = false
 
     if (t.rowSelect) {
-        t.selectionStart = t.Cursor.y
+        t.selectionStart = t.Cursor.Y
     } else if (t.selectionStart >= 0) {
         t.selectionStart = -1
     }
@@ -166,7 +166,7 @@ func (t *Table) SelectColumn() {
     t.rowSelect    = false
 
     if (t.columnSelect) {
-        t.selectionStart = t.Cursor.x
+        t.selectionStart = t.Cursor.X
     } else if (t.selectionStart >= 0) {
         t.selectionStart = -1
     }

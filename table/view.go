@@ -115,8 +115,8 @@ func (t Table) generateStyleRow(colI, cEnd, rowI, rEnd int) lipgloss.Style {
     BorderForeground(lipgloss.Color("240"))
     
 
-    cursorX := t.Cursor.x
-    cursorY := t.Cursor.y
+    cursorX := t.Cursor.X
+    cursorY := t.Cursor.Y
 
     if (t.selectionStart != -1 ) {
         if (t.rowSelect && isBetween(rowI, cursorY, t.selectionStart)) {

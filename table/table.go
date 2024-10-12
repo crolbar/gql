@@ -7,8 +7,8 @@ import (
 )
 
 type Cursor struct {
-    x int
-    y int
+    X int
+    Y int
 }
 
 type Table struct {
@@ -67,11 +67,15 @@ func (t *Table) GetCursor() Cursor {
     return t.Cursor
 }
 
+func (t *Table) GetSelectedRow() Row {
+    return t.rows[t.Cursor.Y]
+}
+
 // returns nil if we aren't in selection
 func (t *Table) GetSelectedRows() []Row {
     if (t.rowSelect && t.selectionStart >= 0) {
-        start := min(t.selectionStart, t.Cursor.y)
-        end := max(t.selectionStart, t.Cursor.y)
+        start := min(t.selectionStart, t.Cursor.Y)
+        end := max(t.selectionStart, t.Cursor.Y)
         return t.rows[start:end+1]
     }
     return nil
@@ -80,8 +84,8 @@ func (t *Table) GetSelectedRows() []Row {
 // returns nil if we aren't in selection
 func (t *Table) GetSelectedColumns() []Column {
     if (t.columnSelect && t.selectionStart >= 0) {
-        start := min(t.selectionStart, t.Cursor.x)
-        end := max(t.selectionStart, t.Cursor.x)
+        start := min(t.selectionStart, t.Cursor.X)
+        end := max(t.selectionStart, t.Cursor.X)
         return t.cols[start:end+1]
     }
     return nil
@@ -109,7 +113,7 @@ func (t *Table) UpdateRenderedColums() {
 // Must be called when the width of the terminal changes 
 // or there is an update to the cursor
 func (t *Table) UpdateOffset()  {
-    lines_till_sow := t.Cursor.y - t.YOffset
+    lines_till_sow := t.Cursor.Y - t.YOffset
     lines_till_eow := ((t.Height / 2) - 1) - lines_till_sow
 
     if (lines_till_eow < 0) {
@@ -120,7 +124,7 @@ func (t *Table) UpdateOffset()  {
         t.YOffset -= int(math.Abs(float64(lines_till_sow)))
     }
 
-    cols_till_sow := t.Cursor.x - t.XOffset
+    cols_till_sow := t.Cursor.X - t.XOffset
     cols_till_eow := (t.renderedColumns - 1) - cols_till_sow
 
     //t.Dbg = fmt.Sprintf("cols_t_sow: %d, cols_t_eow: %d, rc: %d", cols_till_sow, cols_till_eow, t.renderedColumns)
@@ -136,7 +140,7 @@ func (t *Table) UpdateOffset()  {
 
         t.UpdateRenderedColums()
 
-        cols_till_sow = t.Cursor.x - t.XOffset
+        cols_till_sow = t.Cursor.X - t.XOffset
         cols_till_eow = (t.renderedColumns - 1) - cols_till_sow
     }
 }
