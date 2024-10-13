@@ -131,21 +131,37 @@ func (t *Table) GotoBottom() {
 }
 
 func (t *Table) MoveUp(i int) {
+    if (len(t.rows) == 0) {
+        return;
+    }
+
     t.Cursor.Y = clamp(t.Cursor.Y-i, 0, len(t.rows)-1)
     t.UpdateOffset()
 }
 
 func (t *Table) MoveDown(i int) {
+    if (len(t.rows) == 0) {
+        return;
+    }
+
     t.Cursor.Y = clamp(t.Cursor.Y+i, 0, len(t.rows)-1)
     t.UpdateOffset()
 }
 
 func (t *Table) MoveLeft(i int) {
+    if (len(t.rows) == 0) {
+        return;
+    }
+
     t.Cursor.X = clamp(t.Cursor.X-i, 0, len(t.cols)-1)
     t.UpdateOffset()
 }
 
 func (t *Table) MoveRight(i int) {
+    if (len(t.rows) == 0) {
+        return;
+    }
+
     t.Cursor.X = clamp(t.Cursor.X+i, 0, len(t.cols)-1)
     t.UpdateOffset()
 }
