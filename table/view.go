@@ -1,6 +1,8 @@
 package table
 
 import (
+	"gql/table/scrollbar"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mattn/go-runewidth"
 )
@@ -37,14 +39,21 @@ func (t *Table) renderRows() string {
     start := clamp(t.YOffset, 0, len(t.rows))
     end   := clamp(t.YOffset + t.Height / 2, 0, len(t.rows))
 
+    scrollbar := scrollbar.New(
+        t.Height,
+        len(t.rows),
+        end,
+        t.YOffset,
+    )
+
 	for i := start; i < end; i++ {
-		rows = append(rows, t.renderRow(i, end))
+		rows = append(rows, t.renderRow(i, end, &scrollbar))
     }
 
     return lipgloss.JoinVertical(lipgloss.Left, rows...)
 }
 
-func (t *Table) renderRow(r, rEnd int) string {
+func (t *Table) renderRow(r, rEnd int, sb *scrollbar.Scrollbar) string {
 	s := make([]string, 0, len(t.cols))
 
     start := clamp(t.XOffset, 0, len(t.cols))
@@ -57,8 +66,7 @@ func (t *Table) renderRow(r, rEnd int) string {
 			continue
 		}
 
-        style := t.generateStyleRow(i, end, r, rEnd)
-
+        style        := t.generateStyleRow(i, end, r, rEnd, sb.IsScrollbarRow(r))
         trunc        := runewidth.Truncate(value, t.cols[i].Width, "…")
 		renderedCell := style.Width(t.cols[i].Width).Render(trunc)
 
@@ -69,9 +77,9 @@ func (t *Table) renderRow(r, rEnd int) string {
 }
 
 func (t Table) generateStyleHeader(colI, end int) lipgloss.Style {
-    topLeftBorder       :=  iff(colI == t.XOffset, "┌", "┬")
-    topRightBorder      :=  iff(colI == end - 1, "┐", "")
-    enableRightBorder   :=  colI == end - 1
+    topLeftBorder       := iff(colI == t.XOffset, "┌", "┬")
+    topRightBorder      := iff(colI == end - 1, "┐", "")
+    enableRightBorder   := colI == end - 1
 
 
     return lipgloss.NewStyle().
@@ -88,14 +96,14 @@ func (t Table) generateStyleHeader(colI, end int) lipgloss.Style {
     Bold(true)
 }
 
-func (t Table) generateStyleRow(colI, cEnd, rowI, rEnd int) lipgloss.Style {
+func (t Table) generateStyleRow(colI, cEnd, rowI, rEnd int, isScrollbarRow bool) lipgloss.Style {
     enableRightBorder   := colI == cEnd - 1
     enableBottomBorder  := rowI == rEnd - 1
 
     topLeftBorder    := iff(colI == t.XOffset, "├", "┼")
     topRightBorder   := iff(colI == cEnd - 1, "┤", "")
     BottomLeftBorder := iff(colI == t.XOffset, "└", "┴")
-    RightBorder      := iff(cEnd == len(t.cols), "│", ">")
+    RightBorder      := iff(isScrollbarRow, "█", "│")
     LeftBorder       := iff(colI == t.XOffset && colI != 0, "<", "│")
     BottomBorder     := iff(rowI == rEnd - 1 && rEnd != len(t.rows), "˯", "─") // kidna ugly. replace with scrollbar ?
     TopBorder        := iff(rowI == t.YOffset && t.YOffset != 0, "˄", "─")
