@@ -52,7 +52,7 @@ func New(cols []Column, rows []Row, height int, width int) Table {
         XOffset: 0,
         YOffset: 0,
 
-        renderedColumns: len(cols),
+        renderedColumns: 1,
 
         KeyMap: DefaultKeyMap(),
         Cursor: Cursor{0, 0},
@@ -64,12 +64,16 @@ func New(cols []Column, rows []Row, height int, width int) Table {
 }
 
 func (t *Table) SetColumns(cols []Column) {
-    t.cols = cols
+    t.cols     = cols
+    t.Cursor.X = 0
+
     t.UpdateOffset()
 }
 
 func (t *Table) SetRows(rows []Row) {
-    t.rows = rows
+    t.rows     = rows
+    t.Cursor.Y = 0
+
     t.UpdateOffset()
 }
 
