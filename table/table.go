@@ -63,6 +63,16 @@ func New(cols []Column, rows []Row, height int, width int) Table {
     }
 }
 
+func (t *Table) SetColumns(cols []Column) {
+    t.cols = cols
+    t.UpdateOffset()
+}
+
+func (t *Table) SetRows(rows []Row) {
+    t.rows = rows
+    t.UpdateOffset()
+}
+
 func (t *Table) GetCursor() Cursor {
     return t.Cursor
 }
@@ -100,7 +110,7 @@ func (t *Table) UpdateRenderedColums() {
         width += currColWidth
 
         if currColWidth > t.Width {
-            log.Fatal(fmt.Sprintf("Column %d's width is bigger than the table's width", i))
+            log.Fatal(fmt.Sprintf("Column %d's width is bigger than the table's width %d", i, t.Width))
         }
 
         if width > t.Width {
@@ -143,4 +153,6 @@ func (t *Table) UpdateOffset()  {
         cols_till_sow = t.Cursor.X - t.XOffset
         cols_till_eow = (t.renderedColumns - 1) - cols_till_sow
     }
+
+    t.UpdateRenderedColums()
 }

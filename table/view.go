@@ -12,8 +12,8 @@ func (t Table) View() string {
 func (t Table) headersView() string {
 	s := make([]string, 0, len(t.cols))
 
-    start := t.XOffset
-    end   := t.renderedColumns + t.XOffset
+    start := clamp(t.XOffset, 0, len(t.cols))
+    end   := clamp(t.renderedColumns + t.XOffset, 0, len(t.cols))
 
     for i := start; i < end; i++ {
         col := t.cols[i]
@@ -34,7 +34,7 @@ func (t Table) headersView() string {
 func (t *Table) renderRows() string {
 	rows := make([]string, 0, len(t.rows))
 
-    start := t.YOffset
+    start := clamp(t.YOffset, 0, len(t.rows))
     end   := clamp(t.YOffset + t.Height / 2, 0, len(t.rows))
 
 	for i := start; i < end; i++ {
@@ -47,8 +47,8 @@ func (t *Table) renderRows() string {
 func (t *Table) renderRow(r, rEnd int) string {
 	s := make([]string, 0, len(t.cols))
 
-    start := t.XOffset
-    end   := t.renderedColumns + t.XOffset
+    start := clamp(t.XOffset, 0, len(t.cols))
+    end   := clamp(t.renderedColumns + t.XOffset, 0, len(t.cols))
 
     for i := start; i < end; i++ {
         value := t.rows[r][i]
