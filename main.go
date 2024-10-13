@@ -28,10 +28,10 @@ type model struct {
     currTable     string
 
     db            *sql.DB
-	DBTable       *table.Table
-	DBTablesTable *table.Table
+	DBTable       table.Table
+	DBTablesTable table.Table
 
-	mainTable     *table.Table
+	mainTable     table.Table
 }
 
 type dbConnectMsg struct {db *sql.DB}
@@ -40,9 +40,9 @@ func (m model) Init() tea.Cmd { return OpenMysql }
 func main() {
     m := model {
         selectedPane:  DB,
-        DBTablesTable: nil,
-        DBTable:       nil,
-        mainTable:     nil,
+        DBTablesTable: table.New(nil, nil, 32, 100),
+        DBTable:       table.New(nil, nil, 32, 100),
+        mainTable:     table.New(nil, nil, 32, 100),
         db:            nil,
     }
 

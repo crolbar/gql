@@ -11,14 +11,14 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func (m *model) CreateMainTable() {
+func (m *model) UpdateMainTable() {
     cols, rows := GetTable(m.db, m.currDB, m.currTable)
 
-    t := table.New(cols, rows, 32, 100)
-    m.mainTable = &t
+    m.mainTable.SetColumns(cols)
+    m.mainTable.SetRows(rows)
 }
 
-func (m *model) CreateDBTablesTable() {
+func (m *model) UpdateDBTablesTable() {
     tables := GetTables(m.db, m.currDB)
     rows := make([]table.Row, 0, len(tables))
     cols := []table.Column { {Title: fmt.Sprintf("tables in %s", m.currDB), Width: 20}, }
@@ -27,11 +27,11 @@ func (m *model) CreateDBTablesTable() {
         rows = append(rows, []string{tables[i]})
     }
 
-    t := table.New(cols, rows, 32, 20)
-    m.DBTablesTable = &t
+    m.DBTablesTable.SetColumns(cols)
+    m.DBTablesTable.SetRows(rows)
 }
 
-func (m *model) CreateDBTable() {
+func (m *model) UpdateDBTable() {
     dbs := GetDatabases(m.db)
     rows := make([]table.Row, 0, len(dbs))
     cols := []table.Column { {Title: "Databases", Width: 20}, }
@@ -40,8 +40,8 @@ func (m *model) CreateDBTable() {
         rows = append(rows, []string{dbs[i]})
     }
 
-    t := table.New(cols, rows, 32, 20)
-    m.DBTable = &t
+    m.DBTable.SetColumns(cols)
+    m.DBTable.SetRows(rows)
 }
 
 const uri = "crolbar:@tcp(127.0.0.1:3306)/"

@@ -6,13 +6,13 @@ import (
 
 func (m *model) updateCurrDB() {
     m.currDB = m.DBTable.GetSelectedRow()[0]
-    m.CreateDBTablesTable()
+    m.UpdateDBTablesTable()
     m.updateMainTable()
 }
 
 func (m *model) updateMainTable() {
     m.currTable = m.DBTablesTable.GetSelectedRow()[0]
-    m.CreateMainTable()
+    m.UpdateMainTable()
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -21,24 +21,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     case dbConnectMsg:
         m.db = msg.db
         if (m.db != nil) {
-            m.CreateDBTable()
+            m.UpdateDBTable()
             m.updateCurrDB()
-            m.updateMainTable()
         }
 
     case tea.WindowSizeMsg:
-        if (m.mainTable != nil) {
-            //m.mainTable.Width = msg.Width
-            m.mainTable.UpdateRenderedColums()
-        }
-
-        if (m.DBTablesTable != nil) {
-            m.DBTablesTable.UpdateRenderedColums()
-        }
-
-        if (m.DBTable != nil) {
-            m.DBTable.UpdateRenderedColums()
-        }
+        //m.mainTable.UpdateRenderedColums()
+        //m.DBTablesTable.UpdateRenderedColums()
+        //m.DBTable.UpdateRenderedColums()
 
     case tea.KeyMsg:
 		switch msg.String() {
@@ -57,9 +47,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
     switch m.selectedPane {
     case DB:
-        if (m.DBTable != nil) {
-            *m.DBTable, cmd = m.DBTable.Update(msg)
-        }
+        m.DBTable, cmd = m.DBTable.Update(msg)
 
         if key, ok := msg.(tea.KeyMsg); ok {
             switch key.String() {
@@ -69,9 +57,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         }
 
     case DBTables:
-        if (m.DBTablesTable != nil) {
-            *m.DBTablesTable, cmd = m.DBTablesTable.Update(msg)
-        }
+        m.DBTablesTable, cmd = m.DBTablesTable.Update(msg)
 
         if key, ok := msg.(tea.KeyMsg); ok {
             switch key.String() {
@@ -80,9 +66,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
             }
         }
     case Table:
-        if (m.mainTable != nil) {
-            *m.mainTable, cmd = m.mainTable.Update(msg)
-        }
+        m.mainTable, cmd = m.mainTable.Update(msg)
     }
 
 	return m, cmd
