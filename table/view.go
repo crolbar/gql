@@ -97,14 +97,16 @@ func (t Table) generateStyleRow(colI, cEnd, rowI, rEnd int) lipgloss.Style {
     BottomLeftBorder := iff(colI == t.XOffset, "└", "┴")
     RightBorder      := iff(cEnd == len(t.cols), "│", ">")
     LeftBorder       := iff(colI == t.XOffset && colI != 0, "<", "│")
+    BottomBorder     := iff(rowI == rEnd - 1 && rEnd != len(t.rows), "˯", "─") // kidna ugly. replace with scrollbar ?
+    TopBorder        := iff(rowI == t.YOffset && t.YOffset != 0, "˄", "─")
 
 
     style := lipgloss.NewStyle().
     Border(lipgloss.Border{
-        Top:         "─",
+        Top:         TopBorder,
         Left:        LeftBorder,
         Right:       RightBorder,
-        Bottom:      "─",
+        Bottom:      BottomBorder,
         BottomRight: "┘",
         BottomLeft : BottomLeftBorder,
         TopLeft:     topLeftBorder,
