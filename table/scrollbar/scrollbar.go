@@ -35,7 +35,10 @@ func New(
 }
 
 func (s *Scrollbar) IsScrollbarRow(i int) bool {
-    isScrollbarRow := (i - s.YOffset == s.scrollbarStartPos && s.shouldShowScrollbar) ||
+    if (!s.shouldShowScrollbar) {
+        return false
+    }
+    isScrollbarRow := (i - s.YOffset == s.scrollbarStartPos) ||
         s.currScrollbarHeight > 0 && s.currScrollbarHeight < s.scrollbarHeight
 
     if (isScrollbarRow) {
