@@ -119,9 +119,11 @@ func (t *Table) UpdateRenderedColums() {
 
         if width > t.Width {
             t.renderedColumns = i - t.XOffset
-            break;
+            return;
         }
     }
+
+    t.renderedColumns = len(t.cols) - t.XOffset
 }
 
 // Must be called when the width of the terminal changes 
@@ -137,6 +139,8 @@ func (t *Table) UpdateOffset()  {
     if (lines_till_sow < 0) {
         t.YOffset -= int(math.Abs(float64(lines_till_sow)))
     }
+
+    t.UpdateRenderedColums()
 
     cols_till_sow := t.Cursor.X - t.XOffset
     cols_till_eow := (t.renderedColumns - 1) - cols_till_sow
@@ -157,6 +161,4 @@ func (t *Table) UpdateOffset()  {
         cols_till_sow = t.Cursor.X - t.XOffset
         cols_till_eow = (t.renderedColumns - 1) - cols_till_sow
     }
-
-    t.UpdateRenderedColums()
 }
