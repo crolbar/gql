@@ -39,22 +39,24 @@ func (t *Table) renderRows() string {
     start := clamp(t.YOffset, 0, len(t.rows))
     end   := clamp(t.YOffset + t.Height / 2, 0, len(t.rows))
 
-    scrollbar := scrollbar.New(t.Height, len(t.rows), end, t.YOffset)
+    vScrollbar := scrollbar.New(t.Height / 2, len(t.rows), t.YOffset)
 
 	for i := start; i < end; i++ {
-		rows = append(rows, t.renderRow(i, end, &scrollbar))
+		rows = append(rows, t.renderRow(i, end, &vScrollbar))
     }
 
     return lipgloss.JoinVertical(lipgloss.Left, rows...)
 }
 
-func (t *Table) renderRow(r, rEnd int, sb *scrollbar.Scrollbar) string {
+func (t *Table) renderRow(r, rEnd int, vScrollbar *scrollbar.Scrollbar) string {
 	s := make([]string, 0, len(t.cols))
 
     start := clamp(t.XOffset, 0, len(t.cols))
     end   := clamp(t.renderedColumns + t.XOffset, 0, len(t.cols))
 
-    isScrollbarRow := sb.IsScrollbarRow(r)
+    isScrollbarRow := vScrollbar.IsScrollbarItem(r)
+
+    hScrollbar := scrollbar.New(t.renderedColumns, len(t.cols), t.XOffset)
 
     for i := start; i < end; i++ {
         value := t.rows[r][i]
@@ -63,7 +65,9 @@ func (t *Table) renderRow(r, rEnd int, sb *scrollbar.Scrollbar) string {
 			continue
 		}
 
-        style        := t.generateStyleRow(i, end, r, rEnd, isScrollbarRow)
+        isScrollbarCol := hScrollbar.IsScrollbarItem(i)
+
+        style        := t.generateStyleRow(i, end, r, rEnd, isScrollbarRow, isScrollbarCol)
         trunc        := runewidth.Truncate(value, t.cols[i].Width, "…")
 		renderedCell := style.Width(t.cols[i].Width).Render(trunc)
 
@@ -93,7 +97,14 @@ func (t Table) generateStyleHeader(colI, end int) lipgloss.Style {
     Bold(true)
 }
 
-func (t Table) generateStyleRow(colI, cEnd, rowI, rEnd int, isScrollbarRow bool) lipgloss.Style {
+func (t Table) generateStyleRow(
+    colI,
+    cEnd,
+    rowI,
+    rEnd int,
+    isScrollbarRow,
+    isScrollbarCol bool,
+) lipgloss.Style {
     enableRightBorder   := colI == cEnd - 1
     enableBottomBorder  := rowI == rEnd - 1
 
@@ -101,13 +112,18 @@ func (t Table) generateStyleRow(colI, cEnd, rowI, rEnd int, isScrollbarRow bool)
     topRightBorder   := iff(colI == cEnd - 1, "┤", "")
     BottomLeftBorder := iff(colI == t.XOffset, "└", "┴")
     RightBorder      := "│"
-    LeftBorder       := iff(colI == t.XOffset && colI != 0, "<", "│")
-    BottomBorder     := iff(rowI == rEnd - 1 && rEnd != len(t.rows), "˯", "─") // kidna ugly. replace with scrollbar ?
-    TopBorder        := iff(rowI == t.YOffset && t.YOffset != 0, "˄", "─")
+    LeftBorder       := "│"
+    BottomBorder     := "─"
+    TopBorder        := "─"
 
     if (isScrollbarRow) {
         topRightBorder = "█"
         RightBorder    = "█"
+    }
+
+    if (isScrollbarCol) {
+        BottomBorder     = "▄"
+        BottomLeftBorder = "▄"
     }
 
     style := lipgloss.NewStyle().

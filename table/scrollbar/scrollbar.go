@@ -1,49 +1,56 @@
 package scrollbar
 
 type Scrollbar struct {
-    scrollbarHeight int
+    scrollbarSize int
     scrollbarStartPos int
-    currScrollbarHeight int
+    currScrollbarSize int
     shouldShowScrollbar bool
 
-    YOffset int
+    offset int
 }
 
-
 func New(
-    height int,
-    rowsLen int,
-    end int,
-    YOffset int,
+    itemsInView int,
+    itemsLen int,
+    offset int,
 ) Scrollbar {
-    rowsInView      := height / 2
-	viewRatio       := float64(rowsInView) / float64(rowsLen)
-	scrollbarHeight := int(viewRatio * float64(rowsInView))
+	viewRatio       := float64(itemsInView) / float64(itemsLen)
+	scrollbarHeight := int(viewRatio * float64(itemsInView))
 
 	if scrollbarHeight < 1 {
 		scrollbarHeight = 1
 	}
 
-    scrollbarStartPos := int((float64(YOffset) / float64(rowsLen - height / 2)) * float64((height / 2) - scrollbarHeight))
+    scrollbarStartPos := int(
+        (float64(offset) / float64(itemsLen - itemsInView)) *
+        float64(itemsInView - scrollbarHeight),
+    )
+
+    lastItemInViewIdx := clamp(itemsInView + offset, 0, itemsLen)
     return Scrollbar {
-        scrollbarHeight:     scrollbarHeight,
-        shouldShowScrollbar: end != rowsLen || YOffset > 0,
+        shouldShowScrollbar: offset > 0 || lastItemInViewIdx != itemsLen,
+        scrollbarSize:       scrollbarHeight,
+        currScrollbarSize:   0,
         scrollbarStartPos:   scrollbarStartPos,
-        currScrollbarHeight: 0,
-        YOffset:             YOffset,
+        offset:              offset,
     }
 }
 
-func (s *Scrollbar) IsScrollbarRow(i int) bool {
+func (s *Scrollbar) IsScrollbarItem(i int) bool {
     if (!s.shouldShowScrollbar) {
         return false
     }
-    isScrollbarRow := (i - s.YOffset == s.scrollbarStartPos) ||
-        s.currScrollbarHeight > 0 && s.currScrollbarHeight < s.scrollbarHeight
+
+    isScrollbarRow := (i - s.offset == s.scrollbarStartPos) ||
+        s.currScrollbarSize > 0 && s.currScrollbarSize < s.scrollbarSize
 
     if (isScrollbarRow) {
-        s.currScrollbarHeight++;
+        s.currScrollbarSize++;
     }
 
     return isScrollbarRow
+}
+
+func clamp(v, low, high int) int {
+	return min(max(v, low), high)
 }
