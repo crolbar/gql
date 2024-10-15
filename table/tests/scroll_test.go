@@ -1,9 +1,6 @@
 package tests
 
 import (
-	//"fmt"
-	//"gql/util"
-
 	"gql/data"
 	"gql/table"
 	"os"
