@@ -4,17 +4,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func (m *model) updateCurrDB() {
-    m.currDB = m.DBTable.GetSelectedRow()[0]
-    m.UpdateDBTablesTable()
-    m.updateMainTable()
-}
-
-func (m *model) updateMainTable() {
-    m.currTable = m.DBTablesTable.GetSelectedRow()[0]
-    m.UpdateMainTable()
-}
-
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {

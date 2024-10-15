@@ -11,7 +11,15 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func (m *model) UpdateMainTable() {
+func (m *model) updateCurrDB() {
+    m.currDB = m.DBTable.GetSelectedRow()[0]
+    m.UpdateDBTablesTable()
+    m.updateMainTable()
+}
+
+func (m *model) updateMainTable() {
+    m.currTable = m.DBTablesTable.GetSelectedRow()[0]
+
     cols, rows := GetTable(m.db, m.currDB, m.currTable)
 
     m.mainTable.SetColumns(cols)

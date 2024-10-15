@@ -1,4 +1,4 @@
--   [ ] table scrollbar
+-   [x] table scrollbar
 -   [x] show that there are more rows to the bottom/top
 -   [x] fix crash on cursor move in empty table
 -   [x] fix horizontal scroll not worky

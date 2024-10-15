@@ -30,4 +30,3 @@ func (m model) View() string {
 
     return log + "\n" + full + "\n"// + m.table.HelpView() + "\n" 
 }
-
