@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"strings"
 )
 
 type Cursor struct {
@@ -96,6 +97,16 @@ func (t *Table) SetRows(rows []Row) {
 
 func (t *Table) GetCursor() Cursor {
     return t.Cursor
+}
+
+func (t Table) GetSelectedCell() string {
+    if (len(t.rows) == 0) {
+        return ""
+    }
+
+    selCell := t.rows[t.Cursor.Y][t.Cursor.X]
+
+    return strings.ReplaceAll(selCell, "\\n", "\n")
 }
 
 func (t *Table) GetSelectedRow() Row {
