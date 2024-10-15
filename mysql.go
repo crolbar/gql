@@ -139,8 +139,12 @@ func GetTable(db *sql.DB, currDB, selTable string) ([]table.Column, []table.Row)
                 text := string(val)
                 text = strings.ReplaceAll(text, "\n", "\\n")
                 currRow = append(currRow, text)
+            case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+                currRow = append(currRow, fmt.Sprintf("%d", val))
+            case float32, float64:
+                currRow = append(currRow, fmt.Sprintf("%f", val))
 			default:
-                currRow = append(currRow, "")
+                log.Fatalf("Found type that's not supported, val: %v, type: %T", val, val)
 			}
         }
 
