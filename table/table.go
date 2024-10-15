@@ -32,6 +32,8 @@ type Table struct {
     columnSelect   bool
     rowSelect      bool
     selectionStart int
+
+    focused bool
 }
 
 
@@ -57,10 +59,25 @@ func New(cols []Column, rows []Row, height int, width int) Table {
         KeyMap: DefaultKeyMap(),
         Cursor: Cursor{0, 0},
 
-        columnSelect: false,
-        rowSelect:    false,
-        selectionStart:  -1,
+        columnSelect:   false,
+        rowSelect:      false,
+        selectionStart: -1,
+
+
+        focused: false,
     }
+}
+
+func (t Table) IsFocused() bool {
+    return t.focused
+}
+
+func (t *Table) Focus() {
+    t.focused = true
+}
+
+func (t *Table) DeFocus() {
+    t.focused = false
 }
 
 func (t *Table) SetColumns(cols []Column) {

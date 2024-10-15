@@ -155,7 +155,9 @@ func (t Table) generateStyleRow(
     }
 
     if cursorX == colI && cursorY == rowI {
-        style = style.Background(lipgloss.Color("57")) 
+        style = style.Background(
+            lipgloss.Color(iff(t.IsFocused(), "57", "240")),
+        )
     }
 
     return style
