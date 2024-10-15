@@ -1,6 +1,8 @@
 package main
 
 import (
+	"gql/util"
+
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -25,6 +27,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "q", "ctrl+c":
 			return m, tea.Quit
+
+        case "s":
+            util.DeleteCache()
+            uri := getCridentials()
+
+            if uri == "" {
+                return m, tea.Quit
+            }
+
+            m.uri = uri
+            return m, m.OpenMysql
         }
 	}
 

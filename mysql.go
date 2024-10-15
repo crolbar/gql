@@ -53,11 +53,9 @@ func (m *model) UpdateDBTable() {
     m.DBTable.SetRows(rows)
 }
 
-const uri = "crolbar:@tcp(127.0.0.1:3306)/"
-
 // TODO: make error msgs (wrong creds for eg)
-func OpenMysql() tea.Msg {
-    db, err := sql.Open("mysql", uri)
+func (m model) OpenMysql() tea.Msg {
+    db, err := sql.Open("mysql", m.uri)
 	if err != nil {
 		log.Fatal(err)
 	}

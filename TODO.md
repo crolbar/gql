@@ -3,3 +3,4 @@
 -   [x] fix crash on cursor move in empty table
 -   [x] fix horizontal scroll not worky
 -   [ ] don't hardcode width's and height's
+-   [ ] auth fix errors with switching database from a keybing
