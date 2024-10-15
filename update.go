@@ -12,6 +12,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         if (m.db != nil) {
             m.UpdateDBTable()
             m.updateCurrDB()
+            m.DBTable.Focus()
         }
 
     case tea.WindowSizeMsg:
@@ -24,13 +25,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "q", "ctrl+c":
 			return m, tea.Quit
-
-        case "1":
-            m.selectedPane = DB
-        case "2":
-            m.selectedPane = DBTables
-        case "3":
-            m.selectedPane = Table
         }
 	}
 
@@ -40,7 +34,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
         if key, ok := msg.(tea.KeyMsg); ok {
             switch key.String() {
-            case "enter", "j", "k":
+            case "enter":
+                m.selectDBTablespane()
+                fallthrough
+            case "j", "k":
                 m.updateCurrDB()
             }
         }
@@ -50,12 +47,24 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
         if key, ok := msg.(tea.KeyMsg); ok {
             switch key.String() {
-            case "enter", "j", "k":
+            case "esc":
+                m.selectDBpane()
+            case "enter":
+                m.selectMainpane()
+                fallthrough
+            case "j", "k":
                 m.updateMainTable()
             }
         }
-    case Table:
+    case Main:
         m.mainTable, cmd = m.mainTable.Update(msg)
+
+        if key, ok := msg.(tea.KeyMsg); ok {
+            switch key.String() {
+            case "esc":
+                m.selectDBTablespane()
+            }
+        }
     }
 
 	return m, cmd

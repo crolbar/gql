@@ -17,7 +17,7 @@ type Pane int
 const (
     DB Pane = iota
     DBTables
-    Table
+    Main
 )
 
 
@@ -36,6 +36,26 @@ type model struct {
 
 type dbConnectMsg struct {db *sql.DB}
 func (m model) Init() tea.Cmd { return OpenMysql }
+
+func (m *model) selectDBpane() {
+    m.selectedPane = DB
+
+    m.DBTable.Focus()
+    m.DBTablesTable.DeFocus()
+}
+func (m *model) selectDBTablespane() {
+    m.selectedPane = DBTables
+
+    m.DBTable.DeFocus()
+    m.mainTable.DeFocus()
+    m.DBTablesTable.Focus()
+}
+func (m *model) selectMainpane() {
+    m.selectedPane = Main
+
+    m.DBTablesTable.DeFocus()
+    m.mainTable.Focus()
+}
 
 func main() {
     m := model {

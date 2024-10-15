@@ -2,14 +2,24 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/charmbracelet/lipgloss"
 )
 
+
+func (m model) renderLeftTable() string {
+    if (m.selectedPane != DB) {
+        return m.DBTablesTable.View()
+    } else {
+        return lipgloss.JoinHorizontal(lipgloss.Top,
+            m.DBTable.View(),
+            m.DBTablesTable.View(),
+        )
+    }
+}
+
 func (m model) View() string {
-    dbTableView      := m.DBTable.View()
-    dbTableTableView := m.DBTablesTable.View()
-    mainTableView    := m.mainTable.View()
+    leftTable     := m.renderLeftTable()
+    mainTableView := m.mainTable.View()
 
     log := fmt.Sprintf(
         "Height: %d, Width: %d, yOff: %d, xOff: %d, cursor: %d, dbg: %s",
@@ -22,8 +32,7 @@ func (m model) View() string {
     )
 
     full := lipgloss.JoinHorizontal(lipgloss.Top, 
-        baseStyle.Render(dbTableView),
-        baseStyle.Render(dbTableTableView),
+        baseStyle.Render(leftTable),
         baseStyle.Render(mainTableView),
     )
 
