@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"strings"
 
 	"gql/table"
 
@@ -135,7 +136,9 @@ func GetTable(db *sql.DB, currDB, selTable string) ([]table.Column, []table.Row)
 			case nil:
                 currRow = append(currRow, "NULL")
 			case []byte:
-                currRow = append(currRow, string(val))
+                text := string(val)
+                text = strings.ReplaceAll(text, "\n", "\\n")
+                currRow = append(currRow, text)
 			default:
                 currRow = append(currRow, "")
 			}

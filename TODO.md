@@ -2,3 +2,4 @@
 -   [x] show that there are more rows to the bottom/top
 -   [x] fix crash on cursor move in empty table
 -   [x] fix horizontal scroll not worky
+-   [ ] don't hardcode width's and height's

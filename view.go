@@ -17,6 +17,31 @@ func (m model) renderLeftTable() string {
     }
 }
 
+func (m model) renderRight() string {
+    var width int
+
+    if (m.selectedPane != DB) {
+        width = 40
+    } else {
+        width = 20
+    }
+
+    style := lipgloss.NewStyle().
+        Align(lipgloss.Left).
+        MarginLeft(3).
+        Width(width)
+
+    header := style.Align(lipgloss.Center).
+        Render("Selected Cell")
+
+    view := style.
+        Border(lipgloss.NormalBorder()).
+        BorderForeground(lipgloss.Color("240")).
+        Render(m.selectedTable().GetSelectedCell())
+
+    return header + "\n" + view
+}
+
 func (m model) View() string {
     leftTable     := m.renderLeftTable()
     mainTableView := m.mainTable.View()
@@ -33,7 +58,8 @@ func (m model) View() string {
 
     full := lipgloss.JoinHorizontal(lipgloss.Top, 
         baseStyle.Render(leftTable),
-        baseStyle.Render(mainTableView),
+        baseStyle.Width(m.mainTable.Width).Render(mainTableView),
+        m.renderRight(),
     )
 
 
