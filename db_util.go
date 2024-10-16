@@ -11,22 +11,25 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func (m *model) updateCurrDB() {
-    m.currDB = m.DBTable.GetSelectedRow()[0]
-    m.UpdateDBTablesTable()
-    m.updateMainTable()
+func (m *model) updateDBTable() {
+    dbs := mysql.GetDatabases(m.db)
+
+    rows := make([]table.Row, 0, len(dbs))
+    cols := []table.Column { {Title: "Databases", Width: 20}, }
+
+    for i := 0; i < len(dbs); i++ {
+        rows = append(rows, []string{dbs[i]})
+    }
+
+    m.dbPane.table.SetColumns(cols)
+    m.dbPane.table.SetRows(rows)
+
+    m.updateDBTablesTable()
 }
 
-func (m *model) updateMainTable() {
-    m.currTable = m.DBTablesTable.GetSelectedRow()[0]
+func (m *model) updateDBTablesTable() {
+    m.currDB = m.dbPane.table.GetSelectedRow()[0]
 
-    cols, rows := mysql.GetTable(m.db, m.currDB, m.currTable)
-
-    m.mainTable.SetColumns(cols)
-    m.mainTable.SetRows(rows)
-}
-
-func (m *model) UpdateDBTablesTable() {
     tables := mysql.GetTables(m.db, m.currDB)
     rows := make([]table.Row, 0, len(tables))
     cols := []table.Column { {Title: fmt.Sprintf("tables in %s", m.currDB), Width: 20}, }
@@ -35,24 +38,22 @@ func (m *model) UpdateDBTablesTable() {
         rows = append(rows, []string{tables[i]})
     }
 
-    m.DBTablesTable.SetColumns(cols)
-    m.DBTablesTable.SetRows(rows)
+    m.dbTablesPane.table.SetColumns(cols)
+    m.dbTablesPane.table.SetRows(rows)
+
+    m.updateMainTable()
 }
 
-func (m *model) UpdateDBTable() {
-    dbs := mysql.GetDatabases(m.db)
-    rows := make([]table.Row, 0, len(dbs))
-    cols := []table.Column { {Title: "Databases", Width: 20}, }
+func (m *model) updateMainTable() {
+    m.currDBTable = m.dbTablesPane.table.GetSelectedRow()[0]
 
-    for i := 0; i < len(dbs); i++ {
-        rows = append(rows, []string{dbs[i]})
-    }
+    cols, rows := mysql.GetTable(m.db, m.currDB, m.currDBTable)
 
-    m.DBTable.SetColumns(cols)
-    m.DBTable.SetRows(rows)
+    m.mainPane.table.SetColumns(cols)
+    m.mainPane.table.SetRows(rows)
 }
 
-func (m model) OpenMysql() tea.Msg {
+func (m model) openMysql() tea.Msg {
     if m.requiresAuth() {
         return nil
     }
@@ -81,9 +82,8 @@ func (m *model) changeCreds() {
 func (m *model) onDBConnect(db *sql.DB) {
     m.db = db
     if (m.db != nil) {
-        m.UpdateDBTable()
-        m.updateCurrDB()
-        m.DBTable.Focus()
+        m.updateDBTable()
+        m.dbPane.table.Focus()
     }
 }
 

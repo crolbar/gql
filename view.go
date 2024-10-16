@@ -16,11 +16,11 @@ func (m model) View() string {
 
 func (m model) renderLeftTable() string {
     if (m.selectedPane != DB) {
-        return m.DBTablesTable.View()
+        return m.dbTablesPane.table.View()
     } else {
         return lipgloss.JoinHorizontal(lipgloss.Top,
-            m.DBTable.View(),
-            m.DBTablesTable.View(),
+            m.dbPane.table.View(),
+            m.dbTablesPane.table.View(),
         )
     }
 }
@@ -45,30 +45,30 @@ func (m model) renderRight() string {
     view := style.
         Border(lipgloss.NormalBorder()).
         BorderForeground(lipgloss.Color("240")).
-        Render(m.selectedTable().GetSelectedCell())
+        Render(m.getSelectedPane().table.GetSelectedCell())
 
     return header + "\n" + view
 }
 
 func (m model) mainView() string {
     leftTable     := m.renderLeftTable()
-    mainTableView := m.mainTable.View()
+    mainTable     := m.mainPane.table.View()
 
     log := fmt.Sprintf(
         "Height: %d, Width: %d, yOff: %d, xOff: %d, cursor: %d, dbg: %s",
-        m.mainTable.Height,
-        m.mainTable.Width,
-        m.mainTable.YOffset,
-        m.mainTable.XOffset,
-        m.mainTable.Cursor,
-        m.mainTable.Dbg,
+        m.mainPane.table.Height,
+        m.mainPane.table.Width,
+        m.mainPane.table.YOffset,
+        m.mainPane.table.XOffset,
+        m.mainPane.table.Cursor,
+        m.mainPane.table.Dbg,
     )
 
     s := lipgloss.NewStyle()
 
     full := lipgloss.JoinHorizontal(lipgloss.Top, 
         s.Render(leftTable),
-        s.Width(m.mainTable.Width).Render(mainTableView),
+        s.Width(m.mainPane.table.Width).Render(mainTable),
         m.renderRight(),
     )
 

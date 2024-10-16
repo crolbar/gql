@@ -8,32 +8,51 @@ import (
 	"gql/auth"
 	"gql/table"
 
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type model struct {
-    selectedPane  Pane
+type pane struct {
+    table  table.Table
+    KeyMap interface{}
+    Help   help.Model
+    Update func(m model, msg tea.Msg) (model, tea.Cmd)
+}
 
-    uri           string
-    currDB        string
-    currTable     string
+type model struct {
+    keyMap        KeyMap
+
+
+    selectedPane  Pane
+    dbPane        pane
+    dbTablesPane  pane
+    mainPane      pane
 
     db            *sql.DB
-	DBTable       table.Table
-	DBTablesTable table.Table
-	mainTable     table.Table
-
+    uri           string
     auth          auth.Auth
+
+    currDB        string
+    currDBTable     string
 }
 
 type dbConnectMsg struct {db *sql.DB}
 
+type KeyMap struct {
+    Quit        key.Binding
+    ChangeCreds key.Binding
+}
+
 func main() {
     m := model {
+        keyMap:        defaultKeyMap(),
+
         selectedPane:  DB,
-        DBTablesTable: table.New(nil, nil, 32, 100),
-        DBTable:       table.New(nil, nil, 32, 100),
-        mainTable:     table.New(nil, nil, 32, 100),
+        dbPane:        dbPaneNew(),
+        dbTablesPane:  dbTablesPaneNew(),
+        mainPane:      mainPaneNew(),
+
         db:            nil,
         uri:           getDBUriFromCache(),
         auth:          auth.InitialAuth(),
@@ -46,5 +65,5 @@ func main() {
 }
 
 func (m model) Init() tea.Cmd {
-    return m.OpenMysql
+    return m.openMysql
 }

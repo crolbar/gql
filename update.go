@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -19,10 +20,21 @@ func (m model) authUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
     if (uri != "") {
         m.uri = uri
 
-        return m, m.OpenMysql
+        return m, m.openMysql
     }
 
     return m, cmd
+}
+
+func defaultKeyMap() KeyMap {
+    return KeyMap {
+        Quit: key.NewBinding(
+            key.WithKeys("q", "ctrl+c"),
+        ),
+        ChangeCreds: key.NewBinding(
+            key.WithKeys("s"),
+        ),
+    }
 }
 
 func (m model) mainUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -37,55 +49,16 @@ func (m model) mainUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
         //m.DBTable.UpdateRenderedColums()
 
     case tea.KeyMsg:
-		switch msg.String() {
-
-		case "q", "ctrl+c":
-			return m, tea.Quit
-
-        case "s":
+        switch {
+        case key.Matches(msg, m.keyMap.Quit):
+            return m, tea.Quit
+        case key.Matches(msg, m.keyMap.ChangeCreds):
             m.changeCreds()
             return m, nil
         }
 	}
 
-    switch m.selectedPane {
-    case DB:
-        m.DBTable, cmd = m.DBTable.Update(msg)
-
-        if key, ok := msg.(tea.KeyMsg); ok {
-            switch key.String() {
-            case "enter":
-                m.selectDBTablespane()
-                fallthrough
-            case "j", "k":
-                m.updateCurrDB()
-            }
-        }
-
-    case DBTables:
-        m.DBTablesTable, cmd = m.DBTablesTable.Update(msg)
-
-        if key, ok := msg.(tea.KeyMsg); ok {
-            switch key.String() {
-            case "esc":
-                m.selectDBpane()
-            case "enter":
-                m.selectMainpane()
-                fallthrough
-            case "j", "k":
-                m.updateMainTable()
-            }
-        }
-    case Main:
-        m.mainTable, cmd = m.mainTable.Update(msg)
-
-        if key, ok := msg.(tea.KeyMsg); ok {
-            switch key.String() {
-            case "esc":
-                m.selectDBTablespane()
-            }
-        }
-    }
+    m, cmd = m.getSelectedPane().Update(m, msg)
 
 	return m, cmd
 }
