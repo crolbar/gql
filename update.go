@@ -29,12 +29,7 @@ func (m model) mainUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
     case dbConnectMsg:
-        m.db = msg.db
-        if (m.db != nil) {
-            m.UpdateDBTable()
-            m.updateCurrDB()
-            m.DBTable.Focus()
-        }
+        m.onDBConnect(msg.db)
 
     case tea.WindowSizeMsg:
         //m.mainTable.UpdateRenderedColums()

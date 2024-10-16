@@ -64,9 +64,11 @@ func (m model) mainView() string {
         m.mainTable.Dbg,
     )
 
+    s := lipgloss.NewStyle()
+
     full := lipgloss.JoinHorizontal(lipgloss.Top, 
-        baseStyle.Render(leftTable),
-        baseStyle.Width(m.mainTable.Width).Render(mainTableView),
+        s.Render(leftTable),
+        s.Width(m.mainTable.Width).Render(mainTableView),
         m.renderRight(),
     )
 
