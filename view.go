@@ -6,6 +6,14 @@ import (
 )
 
 
+func (m model) View() string {
+    if (m.requiresAuth()) {
+        return m.auth.View()
+    }
+
+    return m.mainView()
+}
+
 func (m model) renderLeftTable() string {
     if (m.selectedPane != DB) {
         return m.DBTablesTable.View()
@@ -42,7 +50,7 @@ func (m model) renderRight() string {
     return header + "\n" + view
 }
 
-func (m model) View() string {
+func (m model) mainView() string {
     leftTable     := m.renderLeftTable()
     mainTableView := m.mainTable.View()
 
@@ -56,9 +64,11 @@ func (m model) View() string {
         m.mainTable.Dbg,
     )
 
+    s := lipgloss.NewStyle()
+
     full := lipgloss.JoinHorizontal(lipgloss.Top, 
-        baseStyle.Render(leftTable),
-        baseStyle.Width(m.mainTable.Width).Render(mainTableView),
+        s.Render(leftTable),
+        s.Width(m.mainTable.Width).Render(mainTableView),
         m.renderRight(),
     )
 

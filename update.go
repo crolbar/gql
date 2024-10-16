@@ -5,15 +5,31 @@ import (
 )
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    if (m.requiresAuth()) {
+        return m.authUpdate(msg)
+    }
+
+    return m.mainUpdate(msg)
+}
+
+func (m model) authUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
+    a, cmd, uri := m.auth.Update(msg)
+    m.auth = a;
+
+    if (uri != "") {
+        m.uri = uri
+
+        return m, m.OpenMysql
+    }
+
+    return m, cmd
+}
+
+func (m model) mainUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
     case dbConnectMsg:
-        m.db = msg.db
-        if (m.db != nil) {
-            m.UpdateDBTable()
-            m.updateCurrDB()
-            m.DBTable.Focus()
-        }
+        m.onDBConnect(msg.db)
 
     case tea.WindowSizeMsg:
         //m.mainTable.UpdateRenderedColums()
@@ -25,6 +41,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "q", "ctrl+c":
 			return m, tea.Quit
+
+        case "s":
+            m.changeCreds()
+            return m, nil
         }
 	}
 

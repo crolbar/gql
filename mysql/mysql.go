@@ -1,4 +1,4 @@
-package main
+package mysql
 
 import (
 	"database/sql"
@@ -8,66 +8,8 @@ import (
 
 	"gql/table"
 
-	tea "github.com/charmbracelet/bubbletea"
 	_ "github.com/go-sql-driver/mysql"
 )
-
-func (m *model) updateCurrDB() {
-    m.currDB = m.DBTable.GetSelectedRow()[0]
-    m.UpdateDBTablesTable()
-    m.updateMainTable()
-}
-
-func (m *model) updateMainTable() {
-    m.currTable = m.DBTablesTable.GetSelectedRow()[0]
-
-    cols, rows := GetTable(m.db, m.currDB, m.currTable)
-
-    m.mainTable.SetColumns(cols)
-    m.mainTable.SetRows(rows)
-}
-
-func (m *model) UpdateDBTablesTable() {
-    tables := GetTables(m.db, m.currDB)
-    rows := make([]table.Row, 0, len(tables))
-    cols := []table.Column { {Title: fmt.Sprintf("tables in %s", m.currDB), Width: 20}, }
-
-    for i := 0; i < len(tables); i++ {
-        rows = append(rows, []string{tables[i]})
-    }
-
-    m.DBTablesTable.SetColumns(cols)
-    m.DBTablesTable.SetRows(rows)
-}
-
-func (m *model) UpdateDBTable() {
-    dbs := GetDatabases(m.db)
-    rows := make([]table.Row, 0, len(dbs))
-    cols := []table.Column { {Title: "Databases", Width: 20}, }
-
-    for i := 0; i < len(dbs); i++ {
-        rows = append(rows, []string{dbs[i]})
-    }
-
-    m.DBTable.SetColumns(cols)
-    m.DBTable.SetRows(rows)
-}
-
-const uri = "crolbar:@tcp(127.0.0.1:3306)/"
-
-// TODO: make error msgs (wrong creds for eg)
-func OpenMysql() tea.Msg {
-    db, err := sql.Open("mysql", uri)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-    err = db.Ping()
-	if err != nil {
-		return dbConnectMsg {nil}
-	}
-    return dbConnectMsg {db}
-}
 
 func GetDatabases(db *sql.DB) []string {
     rows, err := db.Query("show databases;")
