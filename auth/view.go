@@ -1,22 +1,24 @@
 package auth
 
-import "fmt"
+import (
+	"fmt"
+)
 
-func (m model) View() string {
+func (a Auth) View() string {
     err := ""
 
-    if m.err != nil {
-        err = "\nError: " + m.err.Error()
+    if a.err != nil {
+        err = "\nError: " + a.err.Error()
     }
 
     fields := fmt.Sprintf(
-		"\n%s\n%s\n%s\n%s\n\n%s",
-		m.username.View(),
-		m.password.View(),
-		m.host.View(),
-		m.port.View(),
-		"([shift]tab for prev/next | esc to quit)",
-	)
+        "\n%s\n%s\n%s\n%s\n\n%s",
+        a.username.View(),
+        a.password.View(),
+        a.host.View(),
+        a.port.View(),
+        "([shift]tab for prev/next | esc to quit)",
+    )
 
     return err + "\n" + fields + "\n"
 }

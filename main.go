@@ -34,10 +34,14 @@ type model struct {
 	DBTable       table.Table
 	DBTablesTable table.Table
 	mainTable     table.Table
+
+    auth          auth.Auth
 }
 
 type dbConnectMsg struct {db *sql.DB}
-func (m model) Init() tea.Cmd { return m.OpenMysql }
+func (m model) Init() tea.Cmd {
+    return m.OpenMysql
+}
 
 func (m *model) selectedTable() table.Table {
     switch (m.selectedPane) {
@@ -72,36 +76,37 @@ func (m *model) selectMainpane() {
     m.mainTable.Focus()
 }
 
-func getCridentials() string {
+func (m *model) requiresAuth() bool {
+    return m.uri == ""
+}
+
+func (m *model) changeCreds() {
+    m.uri = ""
+    m.auth.ResetAll()
+}
+
+func getDBUriFromCache() string {
     if util.CacheFileExists() {
         if uri := util.ReatFromCacheFile(); util.CheckMysql(uri) == nil {
             return uri
         }
     }
 
-    uri := auth.Init()
-    tea.ClearScreen()
-
-    return uri
+    return ""
 }
 
 func main() {
-    dbUri := getCridentials()
-
-    if dbUri == "" {
-        os.Exit(0)
-    }
-
     m := model {
         selectedPane:  DB,
         DBTablesTable: table.New(nil, nil, 32, 100),
         DBTable:       table.New(nil, nil, 32, 100),
         mainTable:     table.New(nil, nil, 32, 100),
         db:            nil,
-        uri:           dbUri,
+        uri:           getDBUriFromCache(),
+        auth:          auth.InitialAuth(),
     }
 
-    if _, err := tea.NewProgram(m).Run(); err != nil {
+    if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
         fmt.Println("Error running program:", err)
         os.Exit(1)
     }

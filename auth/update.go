@@ -6,52 +6,61 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-
+func (a Auth) Update(msg tea.Msg) (Auth, tea.Cmd, string) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
+		case tea.KeyCtrlC, tea.KeyEsc:
+			return a, tea.Quit, ""
+
         case tea.KeyEnter:
-            uri := m.createUri()
+            uri := a.createUri()
             err := util.CheckMysql(uri);
 
             if err == nil {
                 util.WriteToCacheFile(uri)
-                m.accept = true
-                return m, tea.Quit
+                return a, nil, uri
             }
 
-            m.err = err
-		case tea.KeyCtrlC, tea.KeyEsc:
-			return m, tea.Quit
+            a.err = err
 
         case tea.KeyTab:
-            if (m.port.Focused()) {
-                m.focusUsername()
-            } else if (m.username.Focused()) {
-                m.focusPassword()
-            } else if (m.password.Focused()) {
-                m.focusHost()
-            } else if (m.host.Focused()) {
-                m.focusPort()
+            if (a.port.Focused()) {
+                a.focusUsername()
+            } else if (a.username.Focused()) {
+                a.focusPassword()
+            } else if (a.password.Focused()) {
+                a.focusHost()
+            } else if (a.host.Focused()) {
+                a.focusPort()
             }
         case tea.KeyShiftTab:
-            if (m.port.Focused()) {
-                m.focusHost()
-            } else if (m.username.Focused()) {
-                m.focusPort()
-            } else if (m.password.Focused()) {
-                m.focusUsername()
-            } else if (m.host.Focused()) {
-                m.focusPassword()
+            if (a.port.Focused()) {
+                a.focusHost()
+            } else if (a.username.Focused()) {
+                a.focusPort()
+            } else if (a.password.Focused()) {
+                a.focusUsername()
+            } else if (a.host.Focused()) {
+                a.focusPassword()
             }
 		}
     }
 
-	m.username, cmd = m.username.Update(msg)
-	m.password, cmd = m.password.Update(msg)
-	m.host, cmd = m.host.Update(msg)
-	m.port, cmd = m.port.Update(msg)
-	return m, cmd
+	var cmds []tea.Cmd
+	var cmd tea.Cmd
+
+	a.username, cmd = a.username.Update(msg)
+    cmds = append(cmds, cmd)
+
+	a.password, cmd = a.password.Update(msg)
+    cmds = append(cmds, cmd)
+
+	a.host, cmd = a.host.Update(msg)
+    cmds = append(cmds, cmd)
+
+	a.port, cmd = a.port.Update(msg)
+    cmds = append(cmds, cmd)
+
+	return a, tea.Batch(cmds...), ""
 }

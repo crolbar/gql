@@ -1,12 +1,31 @@
 package main
 
 import (
-	"gql/util"
-
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    if (m.requiresAuth()) {
+        return m.authUpdate(msg)
+    }
+
+    return m.mainUpdate(msg)
+}
+
+func (m model) authUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
+    a, cmd, uri := m.auth.Update(msg)
+    m.auth = a;
+
+    if (uri != "") {
+        m.uri = uri
+
+        return m, m.OpenMysql
+    }
+
+    return m, cmd
+}
+
+func (m model) mainUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
     case dbConnectMsg:
@@ -29,15 +48,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
         case "s":
-            util.DeleteCache()
-            uri := getCridentials()
-
-            if uri == "" {
-                return m, tea.Quit
-            }
-
-            m.uri = uri
-            return m, m.OpenMysql
+            m.changeCreds()
+            return m, nil
         }
 	}
 
