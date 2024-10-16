@@ -2,5 +2,17 @@
 -   [x] show that there are more rows to the bottom/top
 -   [x] fix crash on cursor move in empty table
 -   [x] fix horizontal scroll not worky
--   [ ] don't hardcode width's and height's
 -   [x] auth fix errors with switching database from a keybing
+-   [ ] don't hardcode width's and height's
+-   [ ] describe pane
+-   [ ] curr table info (columns rows)
+-   [ ] show curr user
+-   [ ] help view
+
+-   [ ] errors (eg: no permisions to access table)
+
+-   [ ] filter (where clause)
+-   [ ] update
+-   [ ] insert
+-   [ ] delete / drop
+-   [ ] create
