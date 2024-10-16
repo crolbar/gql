@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 	"github.com/charmbracelet/bubbles/textinput"
+    "github.com/charmbracelet/bubbles/help"
 )
 
 type Auth struct {
@@ -11,6 +12,8 @@ type Auth struct {
 	host      textinput.Model
 	port      textinput.Model
 
+    KeyMap    KeyMap
+    Help      help.Model
 	err       error
 }
 
@@ -28,11 +31,17 @@ func InitialAuth() Auth {
     unameInput := initTextInput("username")
     unameInput.Focus()
 
+    help := help.New()
+    help.ShowAll = true
+
 	return Auth {
 		username:  unameInput,
 		password:  initTextInput("password"),
 		host:      initTextInput("host"),
 		port:      initTextInput("port"),
+
+        KeyMap:    DefaultKeyMap(),
+        Help:      help,
 		err:       nil,
 	}
 }

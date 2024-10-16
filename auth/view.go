@@ -2,7 +2,21 @@ package auth
 
 import (
 	"fmt"
+
+	"github.com/charmbracelet/bubbles/key"
 )
+
+
+func (km KeyMap) ShortHelp() []key.Binding {
+    return []key.Binding { km.Accept, km.Next, km.Prev, km.Quit }
+}
+
+func (km KeyMap) FullHelp() [][]key.Binding {
+    return [][]key.Binding {
+        {km.Accept, km.Next},
+        {km.Quit, km.Prev},
+    }
+}
 
 func (a Auth) View() string {
     err := ""
@@ -12,13 +26,14 @@ func (a Auth) View() string {
     }
 
     fields := fmt.Sprintf(
-        "\n%s\n%s\n%s\n%s\n\n%s",
+        "\n%s\n%s\n%s\n%s\n\n",
         a.username.View(),
         a.password.View(),
         a.host.View(),
         a.port.View(),
-        "([shift]tab for prev/next | esc to quit)",
     )
 
-    return err + "\n" + fields + "\n"
+    help := a.Help.View(a.KeyMap)
+
+    return err + "\n" + fields + "\n" + help + "\n"
 }
