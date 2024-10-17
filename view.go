@@ -15,20 +15,20 @@ func (m model) View() string {
 }
 
 func (m model) renderLeftTable() string {
-    if (m.selectedPane != DB) {
-        return m.dbTablesPane.table.View()
-    } else {
-        return lipgloss.JoinHorizontal(lipgloss.Top,
-            m.dbPane.table.View(),
-            m.dbTablesPane.table.View(),
-        )
+    if (!m.panes.IsDbSelected()) {
+        return m.panes.DbTables.Table.View()
     }
+
+    return lipgloss.JoinHorizontal(lipgloss.Top,
+        m.panes.Db.Table.View(),
+        m.panes.DbTables.Table.View(),
+    )
 }
 
 func (m model) renderRight() string {
     var width int
 
-    if (m.selectedPane != DB) {
+    if (!m.panes.IsDbSelected()) {
         width = 40
     } else {
         width = 20
@@ -45,14 +45,14 @@ func (m model) renderRight() string {
     view := style.
         Border(lipgloss.NormalBorder()).
         BorderForeground(lipgloss.Color("240")).
-        Render(m.getSelectedPane().table.GetSelectedCell())
+        Render(m.panes.GetSelected().Table.GetSelectedCell())
 
     return header + "\n" + view
 }
 
 func (m model) mainView() string {
     leftTable     := m.renderLeftTable()
-    mainTable     := m.mainPane.table.View()
+    mainTable     := m.panes.Main.Table.View()
 
     log := fmt.Sprintf(
         "Height: %d, Width: %d, yOff: %d, xOff: %d, cursor: %d",

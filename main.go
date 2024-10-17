@@ -6,35 +6,26 @@ import (
 	"os"
 
 	"gql/auth"
-	"gql/table"
+	"gql/panes/db_pane"
+	"gql/panes/db_tables_pane"
+	"gql/panes/main_pane"
+
+	"gql/panes"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type pane struct {
-    table  table.Table
-    KeyMap interface{}
-    Help   help.Model
-    Update func(m model, msg tea.Msg) (model, tea.Cmd)
-}
-
 type model struct {
-    keyMap        KeyMap
+    keyMap KeyMap
+    help   help.Model
 
+    panes panes.Panes
 
-    selectedPane  Pane
-    dbPane        pane
-    dbTablesPane  pane
-    mainPane      pane
-
-    db            *sql.DB
-    uri           string
-    auth          auth.Auth
-
-    currDB        string
-    currDBTable     string
+    auth auth.Auth
+    uri  string
+    db   *sql.DB
 }
 
 type dbConnectMsg struct {db *sql.DB}
@@ -46,16 +37,18 @@ type KeyMap struct {
 
 func main() {
     m := model {
-        keyMap:        defaultKeyMap(),
+        keyMap: defaultKeyMap(),
+        help:   help.New(),
 
-        selectedPane:  DB,
-        dbPane:        dbPaneNew(),
-        dbTablesPane:  dbTablesPaneNew(),
-        mainPane:      mainPaneNew(),
+        panes: panes.New(
+            panes.WithDBPane(db_pane.New()),
+            panes.WithDBTablesPane(db_tables_pane.New()),
+            panes.WithMainPane(main_pane.New()),
+        ),
 
-        db:            nil,
-        uri:           getDBUriFromCache(),
-        auth:          auth.InitialAuth(),
+        auth: auth.InitialAuth(),
+        uri:  getDBUriFromCache(),
+        db:   nil,
     }
 
     if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {

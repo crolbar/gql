@@ -64,7 +64,7 @@ func (m model) mainUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
         }
 	}
 
-    m, cmd = m.getSelectedPane().Update(m, msg)
+    m.panes, cmd = m.panes.Update(m.db, msg)
 
 	return m, cmd
 }
