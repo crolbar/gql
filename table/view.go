@@ -14,8 +14,8 @@ func (t Table) View() string {
 func (t Table) headersView() string {
 	s := make([]string, 0, len(t.cols))
 
-    start := clamp(t.XOffset, 0, len(t.cols))
-    end   := clamp(t.renderedColumns + t.XOffset, 0, len(t.cols))
+    start := clamp(t.xOffset, 0, len(t.cols))
+    end   := clamp(t.renderedColumns + t.xOffset, 0, len(t.cols))
 
     for i := start; i < end; i++ {
         col := t.cols[i]
@@ -36,10 +36,10 @@ func (t Table) headersView() string {
 func (t *Table) renderRows() string {
 	rows := make([]string, 0, len(t.rows))
 
-    start := clamp(t.YOffset, 0, len(t.rows))
-    end   := clamp(t.YOffset + t.Height / 2, 0, len(t.rows))
+    start := clamp(t.yOffset, 0, len(t.rows))
+    end   := clamp(t.yOffset + t.height / 2, 0, len(t.rows))
 
-    vScrollbar := scrollbar.New(t.Height / 2, len(t.rows), t.YOffset)
+    vScrollbar := scrollbar.New(t.height / 2, len(t.rows), t.yOffset)
 
 	for i := start; i < end; i++ {
 		rows = append(rows, t.renderRow(i, end, &vScrollbar))
@@ -51,12 +51,12 @@ func (t *Table) renderRows() string {
 func (t *Table) renderRow(r, rEnd int, vScrollbar *scrollbar.Scrollbar) string {
 	s := make([]string, 0, len(t.cols))
 
-    start := clamp(t.XOffset, 0, len(t.cols))
-    end   := clamp(t.renderedColumns + t.XOffset, 0, len(t.cols))
+    start := clamp(t.xOffset, 0, len(t.cols))
+    end   := clamp(t.renderedColumns + t.xOffset, 0, len(t.cols))
 
     isScrollbarRow := vScrollbar.IsScrollbarItem(r)
 
-    hScrollbar := scrollbar.New(t.renderedColumns, len(t.cols), t.XOffset)
+    hScrollbar := scrollbar.New(t.renderedColumns, len(t.cols), t.xOffset)
 
     for i := start; i < end; i++ {
         value := t.rows[r][i]
@@ -78,7 +78,7 @@ func (t *Table) renderRow(r, rEnd int, vScrollbar *scrollbar.Scrollbar) string {
 }
 
 func (t Table) generateStyleHeader(colI, end int) lipgloss.Style {
-    topLeftBorder       := iff(colI == t.XOffset, "┌", "┬")
+    topLeftBorder       := iff(colI == t.xOffset, "┌", "┬")
     topRightBorder      := iff(colI == end - 1, "┐", "")
     enableRightBorder   := colI == end - 1
 
@@ -108,9 +108,9 @@ func (t Table) generateStyleRow(
     enableRightBorder   := colI == cEnd - 1
     enableBottomBorder  := rowI == rEnd - 1
 
-    topLeftBorder    := iff(colI == t.XOffset, "├", "┼")
+    topLeftBorder    := iff(colI == t.xOffset, "├", "┼")
     topRightBorder   := iff(colI == cEnd - 1, "┤", "")
-    BottomLeftBorder := iff(colI == t.XOffset, "└", "┴")
+    BottomLeftBorder := iff(colI == t.xOffset, "└", "┴")
     RightBorder      := "│"
     LeftBorder       := "│"
     BottomBorder     := "─"
@@ -142,8 +142,8 @@ func (t Table) generateStyleRow(
     BorderForeground(lipgloss.Color("240"))
     
 
-    cursorX := t.Cursor.X
-    cursorY := t.Cursor.Y
+    cursorX := t.cursor.X
+    cursorY := t.cursor.Y
 
     if (t.selectionStart != -1 ) {
         if (t.rowSelect && isBetween(rowI, cursorY, t.selectionStart)) {

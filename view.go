@@ -55,23 +55,22 @@ func (m model) mainView() string {
     mainTable     := m.mainPane.table.View()
 
     log := fmt.Sprintf(
-        "Height: %d, Width: %d, yOff: %d, xOff: %d, cursor: %d, dbg: %s",
-        m.mainPane.table.Height,
-        m.mainPane.table.Width,
-        m.mainPane.table.YOffset,
-        m.mainPane.table.XOffset,
-        m.mainPane.table.Cursor,
-        m.mainPane.table.Dbg,
+        "Height: %d, Width: %d, yOff: %d, xOff: %d, cursor: %d",
+        m.panes.Main.Table.GetHeight(),
+        m.panes.Main.Table.GetWidth(),
+        m.panes.Main.Table.GetYOffset(),
+        m.panes.Main.Table.GetXOffset(),
+        m.panes.Main.Table.GetCursor(),
     )
 
     s := lipgloss.NewStyle()
 
     full := lipgloss.JoinHorizontal(lipgloss.Top, 
         s.Render(leftTable),
-        s.Width(m.mainPane.table.Width).Render(mainTable),
+        s.Width(m.panes.Main.Table.GetWidth()).Render(mainTable),
         m.renderRight(),
     )
 
 
-    return log + "\n" + full + "\n"// + m.table.HelpView() + "\n" 
+    return log + "\n" + full + "\n"
 }

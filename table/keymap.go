@@ -78,36 +78,36 @@ func (t Table) Update(msg tea.Msg) (Table, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, t.KeyMap.LineUp):
+		case key.Matches(msg, t.keyMap.LineUp):
 			t.MoveUp(1)
-		case key.Matches(msg, t.KeyMap.LineDown):
+		case key.Matches(msg, t.keyMap.LineDown):
 			t.MoveDown(1)
-		case key.Matches(msg, t.KeyMap.LineLeft):
+		case key.Matches(msg, t.keyMap.LineLeft):
 			t.MoveLeft(1)
-		case key.Matches(msg, t.KeyMap.LineRight):
+		case key.Matches(msg, t.keyMap.LineRight):
 			t.MoveRight(1)
-		case key.Matches(msg, t.KeyMap.HalfPageUp):
-			t.MoveUp(t.Height / 4)
-		case key.Matches(msg, t.KeyMap.HalfPageDown):
-			t.MoveDown(t.Height / 4)
-		case key.Matches(msg, t.KeyMap.LineDown):
+		case key.Matches(msg, t.keyMap.HalfPageUp):
+			t.MoveUp(t.height / 4)
+		case key.Matches(msg, t.keyMap.HalfPageDown):
+			t.MoveDown(t.height / 4)
+		case key.Matches(msg, t.keyMap.LineDown):
 			t.MoveDown(1)
-		case key.Matches(msg, t.KeyMap.GotoTop):
+		case key.Matches(msg, t.keyMap.GotoTop):
 			t.GotoTop()
-		case key.Matches(msg, t.KeyMap.GotoBottom):
+		case key.Matches(msg, t.keyMap.GotoBottom):
 			t.GotoBottom()
 
-        case key.Matches(msg, t.KeyMap.ScrollUp):
+        case key.Matches(msg, t.keyMap.ScrollUp):
             t.ScrollUp()
-		case key.Matches(msg, t.KeyMap.ScrollDown):
+		case key.Matches(msg, t.keyMap.ScrollDown):
 			t.ScrollDown()
 
-        case key.Matches(msg, t.KeyMap.SelectRow):
+        case key.Matches(msg, t.keyMap.SelectRow):
             t.SelectRow()
-		case key.Matches(msg, t.KeyMap.SelectColumn):
+		case key.Matches(msg, t.keyMap.SelectColumn):
             t.SelectColumn()
 
-		case key.Matches(msg, t.KeyMap.EndSelection):
+		case key.Matches(msg, t.keyMap.EndSelection):
             t.columnSelect, t.rowSelect = false, false
 		}
 	}
@@ -116,14 +116,14 @@ func (t Table) Update(msg tea.Msg) (Table, tea.Cmd) {
 }
 
 func (t *Table) ScrollUp() {
-    t.YOffset = max(t.YOffset - 1, 0) 
+    t.yOffset = max(t.yOffset - 1, 0) 
 }
 func (t *Table) ScrollDown() {
-    t.YOffset = min(t.YOffset + 1, max(len(t.rows) - t.Height / 2, 0))
+    t.yOffset = min(t.yOffset + 1, max(len(t.rows) - t.height / 2, 0))
 }
 
 func (t *Table) GotoTop() {
-    t.MoveUp(t.Cursor.Y)
+    t.MoveUp(t.cursor.Y)
 }
 
 func (t *Table) GotoBottom() {
@@ -135,7 +135,7 @@ func (t *Table) MoveUp(i int) {
         return;
     }
 
-    t.Cursor.Y = clamp(t.Cursor.Y-i, 0, len(t.rows)-1)
+    t.cursor.Y = clamp(t.cursor.Y-i, 0, len(t.rows)-1)
     t.UpdateOffset()
 }
 
@@ -144,7 +144,7 @@ func (t *Table) MoveDown(i int) {
         return;
     }
 
-    t.Cursor.Y = clamp(t.Cursor.Y+i, 0, len(t.rows)-1)
+    t.cursor.Y = clamp(t.cursor.Y+i, 0, len(t.rows)-1)
     t.UpdateOffset()
 }
 
@@ -153,7 +153,7 @@ func (t *Table) MoveLeft(i int) {
         return;
     }
 
-    t.Cursor.X = clamp(t.Cursor.X-i, 0, len(t.cols)-1)
+    t.cursor.X = clamp(t.cursor.X-i, 0, len(t.cols)-1)
     t.UpdateOffset()
 }
 
@@ -162,7 +162,7 @@ func (t *Table) MoveRight(i int) {
         return;
     }
 
-    t.Cursor.X = clamp(t.Cursor.X+i, 0, len(t.cols)-1)
+    t.cursor.X = clamp(t.cursor.X+i, 0, len(t.cols)-1)
     t.UpdateOffset()
 }
 
@@ -171,7 +171,7 @@ func (t *Table) SelectRow() {
     t.columnSelect = false
 
     if (t.rowSelect) {
-        t.selectionStart = t.Cursor.Y
+        t.selectionStart = t.cursor.Y
     } else if (t.selectionStart >= 0) {
         t.selectionStart = -1
     }
@@ -182,7 +182,7 @@ func (t *Table) SelectColumn() {
     t.rowSelect    = false
 
     if (t.columnSelect) {
-        t.selectionStart = t.Cursor.X
+        t.selectionStart = t.cursor.X
     } else if (t.selectionStart >= 0) {
         t.selectionStart = -1
     }

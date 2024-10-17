@@ -16,19 +16,17 @@ type Table struct {
     cols []Column
     rows []Row
 
-	Cursor Cursor
+	cursor Cursor
 
-    Height int
-    Width  int
+    height int
+    width  int
 
-    KeyMap KeyMap
+    keyMap KeyMap
 
-    XOffset int
-    YOffset int
+    xOffset int
+    yOffset int
 
     renderedColumns int
-
-    Dbg string
 
     columnSelect   bool
     rowSelect      bool
@@ -49,16 +47,16 @@ func New(cols []Column, rows []Row, height int, width int) Table {
     return Table {
         cols:   cols,
         rows:   rows,
-        Height: height - 2,
-        Width:  width,
+        height: height - 2,
+        width:  width,
 
-        XOffset: 0,
-        YOffset: 0,
+        xOffset: 0,
+        yOffset: 0,
 
         renderedColumns: 1,
 
-        KeyMap: DefaultKeyMap(),
-        Cursor: Cursor{0, 0},
+        keyMap: DefaultKeyMap(),
+        cursor: Cursor{0, 0},
 
         columnSelect:   false,
         rowSelect:      false,
@@ -83,20 +81,36 @@ func (t *Table) DeFocus() {
 
 func (t *Table) SetColumns(cols []Column) {
     t.cols     = cols
-    t.Cursor.X = 0
+    t.cursor.X = 0
 
     t.UpdateOffset()
 }
 
 func (t *Table) SetRows(rows []Row) {
     t.rows     = rows
-    t.Cursor.Y = 0
+    t.cursor.Y = 0
 
     t.UpdateOffset()
 }
 
 func (t *Table) GetCursor() Cursor {
-    return t.Cursor
+    return t.cursor
+}
+
+func (t *Table) GetWidth() int {
+    return t.width
+}
+
+func (t *Table) GetHeight() int {
+    return t.height
+}
+
+func (t *Table) GetXOffset() int {
+    return t.xOffset
+}
+
+func (t *Table) GetYOffset() int {
+    return t.yOffset
 }
 
 func (t Table) GetSelectedCell() string {
@@ -104,20 +118,20 @@ func (t Table) GetSelectedCell() string {
         return ""
     }
 
-    selCell := t.rows[t.Cursor.Y][t.Cursor.X]
+    selCell := t.rows[t.cursor.Y][t.cursor.X]
 
     return strings.ReplaceAll(selCell, "\\n", "\n")
 }
 
 func (t *Table) GetSelectedRow() Row {
-    return t.rows[t.Cursor.Y]
+    return t.rows[t.cursor.Y]
 }
 
 // returns nil if we aren't in selection
 func (t *Table) GetSelectedRows() []Row {
     if (t.rowSelect && t.selectionStart >= 0) {
-        start := min(t.selectionStart, t.Cursor.Y)
-        end := max(t.selectionStart, t.Cursor.Y)
+        start := min(t.selectionStart, t.cursor.Y)
+        end := max(t.selectionStart, t.cursor.Y)
         return t.rows[start:end+1]
     }
     return nil
@@ -126,8 +140,8 @@ func (t *Table) GetSelectedRows() []Row {
 // returns nil if we aren't in selection
 func (t *Table) GetSelectedColumns() []Column {
     if (t.columnSelect && t.selectionStart >= 0) {
-        start := min(t.selectionStart, t.Cursor.X)
-        end := max(t.selectionStart, t.Cursor.X)
+        start := min(t.selectionStart, t.cursor.X)
+        end := max(t.selectionStart, t.cursor.X)
         return t.cols[start:end+1]
     }
     return nil
@@ -137,56 +151,56 @@ func (t *Table) GetSelectedColumns() []Column {
 // or there is an update to cursor.x
 func (t *Table) UpdateRenderedColums() {
     width := 0
-    for i := t.XOffset; i < len(t.cols); i++ {
+    for i := t.xOffset; i < len(t.cols); i++ {
         currColWidth := t.cols[i].Width + 1
         width += currColWidth
 
-        if currColWidth > t.Width {
-            log.Fatal(fmt.Sprintf("Column %d's width is bigger than the table's width %d", i, t.Width))
+        if currColWidth > t.width {
+            log.Fatal(fmt.Sprintf("Column %d's width is bigger than the table's width %d", i, t.width))
         }
 
-        if width > t.Width {
-            t.renderedColumns = i - t.XOffset
+        if width > t.width {
+            t.renderedColumns = i - t.xOffset
             return;
         }
     }
 
-    t.renderedColumns = len(t.cols) - t.XOffset
+    t.renderedColumns = len(t.cols) - t.xOffset
 }
 
 // Must be called when the width of the terminal changes 
 // or there is an update to the cursor
 func (t *Table) UpdateOffset()  {
-    lines_till_sow := t.Cursor.Y - t.YOffset
-    lines_till_eow := ((t.Height / 2) - 1) - lines_till_sow
+    lines_till_sow := t.cursor.Y - t.yOffset
+    lines_till_eow := ((t.height / 2) - 1) - lines_till_sow
 
     if (lines_till_eow < 0) {
-        t.YOffset += int(math.Abs(float64(lines_till_eow)))
+        t.yOffset += int(math.Abs(float64(lines_till_eow)))
     } 
 
     if (lines_till_sow < 0) {
-        t.YOffset -= int(math.Abs(float64(lines_till_sow)))
+        t.yOffset -= int(math.Abs(float64(lines_till_sow)))
     }
 
     t.UpdateRenderedColums()
 
-    cols_till_sow := t.Cursor.X - t.XOffset
+    cols_till_sow := t.cursor.X - t.xOffset
     cols_till_eow := (t.renderedColumns - 1) - cols_till_sow
 
     //t.Dbg = fmt.Sprintf("cols_t_sow: %d, cols_t_eow: %d, rc: %d", cols_till_sow, cols_till_eow, t.renderedColumns)
 
     for cols_till_eow < 0 || cols_till_sow < 0 {
         if (cols_till_eow < 0) {
-            t.XOffset += int(math.Abs(float64(cols_till_eow)))
+            t.xOffset += int(math.Abs(float64(cols_till_eow)))
         }
 
         if (cols_till_sow < 0) {
-            t.XOffset -= int(math.Abs(float64(cols_till_sow)))
+            t.xOffset -= int(math.Abs(float64(cols_till_sow)))
         }
 
         t.UpdateRenderedColums()
 
-        cols_till_sow = t.Cursor.X - t.XOffset
+        cols_till_sow = t.cursor.X - t.xOffset
         cols_till_eow = (t.renderedColumns - 1) - cols_till_sow
     }
 }

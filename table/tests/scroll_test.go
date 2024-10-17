@@ -72,22 +72,22 @@ func TestOffset(t *testing.T) {
     table.MoveRight(1)
     table.MoveRight(1)
 
-    assert.Equal(t, table.XOffset, 1)
+    assert.Equal(t, table.GetXOffset(), 1)
 
     table.MoveDown(70)
 
-    assert.Equal(t, table.XOffset, 1)
-    assert.Equal(t, table.YOffset, 56)
+    assert.Equal(t, table.GetXOffset(), 1)
+    assert.Equal(t, table.GetYOffset(), 56)
 
     table.MoveRight(1)
-    assert.Equal(t, table.XOffset, 1)
+    assert.Equal(t, table.GetXOffset(), 1)
 
     table.MoveRight(1)
-    assert.Equal(t, table.XOffset, 2)
+    assert.Equal(t, table.GetXOffset(), 2)
 
     table.MoveRight(1)
-    assert.Equal(t, table.XOffset, 3)
-    assert.Equal(t, table.YOffset, 56)
+    assert.Equal(t, table.GetXOffset(), 3)
+    assert.Equal(t, table.GetYOffset(), 56)
 
     table.GotoTop()
     table.MoveLeft(1)
@@ -96,9 +96,9 @@ func TestOffset(t *testing.T) {
     table.MoveLeft(1)
     table.MoveLeft(1)
 
-    assert.Equal(t, table.XOffset, 0)
-    assert.Equal(t, table.YOffset, 0)
+    assert.Equal(t, table.GetXOffset(), 0)
+    assert.Equal(t, table.GetYOffset(), 0)
 
     table.GotoBottom()
-    assert.Equal(t, table.YOffset, 85)
+    assert.Equal(t, table.GetYOffset(), 85)
 }
