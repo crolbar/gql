@@ -10,6 +10,7 @@ import (
 
 type KeyMap struct {
     Quit    key.Binding
+    Cancel  key.Binding
     Accept  key.Binding
     Next    key.Binding
     Prev    key.Binding
@@ -18,8 +19,12 @@ type KeyMap struct {
 func DefaultKeyMap() KeyMap {
     return KeyMap {
         Quit: key.NewBinding(
-            key.WithKeys("esc", "ctrl+c"),
-            key.WithHelp("esc/ctrl+c", "quit"),
+            key.WithKeys("ctrl+c"),
+            key.WithHelp("ctrl+c", "quit"),
+        ),
+        Cancel: key.NewBinding(
+            key.WithKeys("esc"),
+            key.WithHelp("esc", "cancel"),
         ),
         Accept: key.NewBinding(
             key.WithKeys("enter"),
@@ -36,17 +41,22 @@ func DefaultKeyMap() KeyMap {
     }
 }
 
-func (a Auth) Accept() (Auth, tea.Cmd, string) {
+type Uri string
+
+func (a Auth) Accept() (Auth, tea.Cmd) {
     uri := a.createUri()
     err := util.CheckMysql(uri);
 
-    if err == nil {
-        util.WriteToCacheFile(uri)
-        return a, nil, uri
+    if err != nil {
+        a.err = err
+        return a, nil
     }
 
-    a.err = err
-    return a, nil, ""
+    util.WriteToCacheFile(uri)
+    return a,
+    func() tea.Msg {
+        return Uri(uri)
+    }
 }
 
 func (a *Auth) NextField() {
@@ -73,12 +83,20 @@ func (a *Auth) PrevField() {
     }
 }
 
-func (a Auth) Update(msg tea.Msg) (Auth, tea.Cmd, string) {
+type CancelMsg struct{}
+
+func (a Auth) Update(msg tea.Msg) (Auth, tea.Cmd) {
 	switch msg := msg.(type) {
     case tea.KeyMsg:
         switch {
         case key.Matches(msg, a.KeyMap.Quit):
-            return a, tea.Quit, ""
+            return a, tea.Quit
+
+        case key.Matches(msg, a.KeyMap.Cancel):
+            return a,
+            func() tea.Msg {
+                return CancelMsg{}
+            }
 
         case key.Matches(msg, a.KeyMap.Accept):
             return a.Accept()
@@ -106,5 +124,5 @@ func (a Auth) Update(msg tea.Msg) (Auth, tea.Cmd, string) {
 	a.port, cmd = a.port.Update(msg)
     cmds = append(cmds, cmd)
 
-	return a, tea.Batch(cmds...), ""
+	return a, tea.Batch(cmds...)
 }

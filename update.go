@@ -1,6 +1,8 @@
 package main
 
 import (
+	"gql/auth"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -14,14 +16,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) authUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
-    a, cmd, uri := m.auth.Update(msg)
-    m.auth = a;
+    var cmd tea.Cmd
 
-    if (uri != "") {
-        m.uri = uri
-
+    switch msg.(type) {
+    case auth.CancelMsg:
+        m.uri = getDBUriFromCache()
+        return m, m.openMysql
+    case auth.Uri:
+        m.uri = string(msg.(auth.Uri))
         return m, m.openMysql
     }
+
+    m.auth, cmd = m.auth.Update(msg)
 
     return m, cmd
 }
