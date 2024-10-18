@@ -41,15 +41,14 @@ func (m model) renderRight() string {
     }
 
     dbTablesWidth := m.panes.DbTables.Table.GetWidth()
-    mainWidth := m.panes.Main.Table.GetWidth()
+    mainWidth     := m.panes.Main.Table.GetWidth()
 
     tablesWidth := dbWidth + dbTablesWidth + mainWidth
 
-    width := (m.width - tablesWidth) - (3 + 1 + 1 + 3)
+    width := (m.width - tablesWidth) - (1 + 1)
 
     style := lipgloss.NewStyle().
         Align(lipgloss.Left).
-        MarginLeft(3).
         Width(width)
 
     border := lipgloss.NormalBorder()
@@ -67,9 +66,12 @@ func (m model) renderRight() string {
     border.TopLeft  = "├"
     border.TopRight = "┤"
 
+    if height & 1 == 0 {
+        height++
+    }
     view := style.
         Height(height - lipgloss.Height(header)).
-        MaxHeight(height + 2 - lipgloss.Height(header)).
+        MaxHeight((height + 2) - lipgloss.Height(header)).
         Border(border).
         BorderForeground(lipgloss.Color("240")).
         Render(selectedCell)
