@@ -4,7 +4,6 @@ import (
 	"gql/table/scrollbar"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/mattn/go-runewidth"
 )
 
 func (t Table) View() string {
@@ -23,10 +22,10 @@ func (t Table) headersView() string {
 			continue
 		}
 
-        style := t.generateStyleHeader(i, end)
+        value        := truncate(col.Title, t.cols[i].Width)
+        style        := t.generateStyleHeader(i, end)
+		renderedCell := style.Width(col.Width).Render(value)
 
-        trunc        := runewidth.Truncate(col.Title, col.Width, "…")
-		renderedCell := style.Width(col.Width).Render(trunc)
 		s = append(s, renderedCell)
 	}
 
@@ -59,17 +58,15 @@ func (t *Table) renderRow(r, rEnd int, vScrollbar *scrollbar.Scrollbar) string {
     hScrollbar := scrollbar.New(t.renderedColumns, len(t.cols), t.xOffset)
 
     for i := start; i < end; i++ {
-        value := t.rows[r][i]
-
 		if t.cols[i].Width <= 0 {
 			continue
 		}
 
         isScrollbarCol := hScrollbar.IsScrollbarItem(i)
 
+        value        := truncate(t.rows[r][i], t.cols[i].Width)
         style        := t.generateStyleRow(i, end, r, rEnd, isScrollbarRow, isScrollbarCol)
-        trunc        := runewidth.Truncate(value, t.cols[i].Width, "…")
-		renderedCell := style.Width(t.cols[i].Width).Render(trunc)
+		renderedCell := style.Width(t.cols[i].Width).Render(value)
 
 		s = append(s, renderedCell)
 	}

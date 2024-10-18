@@ -16,3 +16,11 @@ func iff(cond bool, t, f string) string {
 func clamp(v, low, high int) int {
 	return min(max(v, low), high)
 }
+
+func truncate(s string, width int) string {
+    if len(s) <= width {
+        return s
+    }
+
+    return s[:width-1] + "…"
+}
