@@ -1,13 +1,13 @@
 package panes
 
-func (p *Panes) GetSelected() Pane {
+func (p *Panes) GetSelected() *Pane {
     switch (p.selected) {
     case DB:
-        return p.Db
+        return &p.Db
     case DBTables:
-        return p.DbTables
+        return &p.DbTables
     case Main:
-        return p.Main
+        return &p.Main
     }
 
     panic("No pane for the table ?")

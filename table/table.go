@@ -1,8 +1,6 @@
 package table
 
 import (
-	"fmt"
-	"log"
 	"math"
 	"strings"
 )
@@ -18,8 +16,10 @@ type Table struct {
 
 	cursor Cursor
 
-    height int
-    width  int
+    height    int
+    width     int
+    maxHeight int
+    maxWidth  int
 
     keyMap KeyMap
 
@@ -45,10 +45,13 @@ type Column struct {
 
 func New(cols []Column, rows []Row, height int, width int) Table {
     return Table {
-        cols:   cols,
-        rows:   rows,
-        height: height - 2,
-        width:  width,
+        cols:      cols,
+        rows:      rows,
+
+        height:    height - 2,
+        width:     width,
+        maxHeight: height - 2,
+        maxWidth:  width,
 
         xOffset: 0,
         yOffset: 0,
@@ -93,6 +96,14 @@ func (t *Table) SetRows(rows []Row) {
     t.UpdateOffset()
 }
 
+func (t *Table) GetColumns() []Column {
+    return t.cols
+}
+
+func (t *Table) GetRows() []Row {
+    return t.rows
+}
+
 func (t *Table) GetCursor() Cursor {
     return t.cursor
 }
@@ -103,6 +114,19 @@ func (t *Table) GetWidth() int {
 
 func (t *Table) GetHeight() int {
     return t.height
+}
+
+func (t *Table) SetMaxSize(width, height int) {
+    t.maxHeight = height
+    t.maxWidth  = width
+}
+
+func (t *Table) SetMaxHeight(height int) {
+    t.maxHeight = height
+}
+
+func (t *Table) SetMaxWidth(width int) {
+    t.maxWidth = width
 }
 
 func (t *Table) GetXOffset() int {
@@ -155,22 +179,23 @@ func (t *Table) UpdateRenderedColums() {
         currColWidth := t.cols[i].Width + 1
         width += currColWidth
 
-        if currColWidth > t.width {
-            log.Fatal(fmt.Sprintf("Column %d's width is bigger than the table's width %d", i, t.width))
-        }
-
-        if width > t.width {
+        if width >= t.maxWidth {
             t.renderedColumns = i - t.xOffset
+            t.width = min((width - currColWidth) + 1, t.maxWidth)
             return;
         }
     }
 
     t.renderedColumns = len(t.cols) - t.xOffset
+
+    t.width = min(width + 1, t.maxWidth)
 }
 
 // Must be called when the width of the terminal changes 
 // or there is an update to the cursor
 func (t *Table) UpdateOffset()  {
+    t.height = min(len(t.rows) * 2, t.maxHeight)
+
     lines_till_sow := t.cursor.Y - t.yOffset
     lines_till_eow := ((t.height / 2) - 1) - lines_till_sow
 
@@ -187,20 +212,13 @@ func (t *Table) UpdateOffset()  {
     cols_till_sow := t.cursor.X - t.xOffset
     cols_till_eow := (t.renderedColumns - 1) - cols_till_sow
 
-    //t.Dbg = fmt.Sprintf("cols_t_sow: %d, cols_t_eow: %d, rc: %d", cols_till_sow, cols_till_eow, t.renderedColumns)
-
-    for cols_till_eow < 0 || cols_till_sow < 0 {
-        if (cols_till_eow < 0) {
-            t.xOffset += int(math.Abs(float64(cols_till_eow)))
-        }
-
-        if (cols_till_sow < 0) {
-            t.xOffset -= int(math.Abs(float64(cols_till_sow)))
-        }
-
-        t.UpdateRenderedColums()
-
-        cols_till_sow = t.cursor.X - t.xOffset
-        cols_till_eow = (t.renderedColumns - 1) - cols_till_sow
+    if (cols_till_eow < 0) {
+        t.xOffset += int(math.Abs(float64(cols_till_eow)))
     }
+
+    if (cols_till_sow < 0) {
+        t.xOffset -= int(math.Abs(float64(cols_till_sow)))
+    }
+
+    t.UpdateRenderedColums()
 }

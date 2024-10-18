@@ -17,6 +17,8 @@ func (p *Panes) UpdateDBTable(db *sql.DB) {
         rows = append(rows, []string{dbs[i]})
     }
 
+    p.Db.Table.SetMaxWidth(cols[0].Width + 2)
+
     p.Db.Table.SetColumns(cols)
     p.Db.Table.SetRows(rows)
 
@@ -33,6 +35,8 @@ func (p *Panes) UpdateDBTablesTable(db *sql.DB) {
     for i := 0; i < len(tables); i++ {
         rows = append(rows, []string{tables[i]})
     }
+
+    p.DbTables.Table.SetMaxWidth(cols[0].Width + 2)
 
     p.DbTables.Table.SetColumns(cols)
     p.DbTables.Table.SetRows(rows)

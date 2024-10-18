@@ -50,9 +50,28 @@ func (m model) mainUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
         m.onDBConnect(msg.db)
 
     case tea.WindowSizeMsg:
-        //m.mainTable.UpdateRenderedColums()
-        //m.DBTablesTable.UpdateRenderedColums()
-        //m.DBTable.UpdateRenderedColums()
+        m.width = msg.Width
+        m.height = msg.Height
+
+        width  := msg.Width
+        height := msg.Height
+
+        height = perc(80, height)
+
+        m.panes.Main.Table.SetMaxSize(perc(60, width), height)
+
+        // only height because we are using only one column
+        // and are setting the max width in from UpdateDBTablesTable(): db_util
+        m.panes.Db.Table.SetMaxHeight(height)
+        m.panes.DbTables.Table.SetMaxHeight(height)
+
+        if (m.db != nil) {
+            m.panes.Db.Table.UpdateOffset()
+            m.panes.DbTables.Table.UpdateOffset()
+            m.panes.Main.Table.UpdateOffset()
+        }
+
+        return m, nil
 
     case tea.KeyMsg:
         switch {
@@ -67,4 +86,8 @@ func (m model) mainUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
     m.panes, cmd = m.panes.Update(m.db, msg)
 
 	return m, cmd
+}
+
+func perc(per, num int) int {
+    return int(float32(num) * (float32(per) / float32(100)))
 }

@@ -3,7 +3,8 @@
 -   [x] fix crash on cursor move in empty table
 -   [x] fix horizontal scroll not worky
 -   [x] auth fix errors with switching database from a keybing
--   [ ] don't hardcode width's and height's
+-   [x] don't hardcode width's and height's
+    -   [ ] avg column width
 -   [ ] describe pane
 -   [ ] curr table info (columns rows)
 -   [ ] show curr user

@@ -26,6 +26,9 @@ type model struct {
     auth auth.Auth
     uri  string
     db   *sql.DB
+
+    width int
+    height int
 }
 
 type dbConnectMsg struct {db *sql.DB}
