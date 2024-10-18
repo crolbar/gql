@@ -52,13 +52,25 @@ func (m model) renderRight() string {
         MarginLeft(3).
         Width(width)
 
-    header := style.Align(lipgloss.Center).
+    border := lipgloss.NormalBorder()
+
+    header := style.
+        Align(lipgloss.Center).
+        Bold(true).
+        Border(border).
+        BorderBottom(false).
+        BorderForeground(lipgloss.Color("240")).
         Render("Selected Cell")
 
+    height := perc(80, m.height)
+
+    border.TopLeft  = "├"
+    border.TopRight = "┤"
+
     view := style.
-        Height(perc(80, m.height)).
-        MaxHeight(perc(80, m.height) + 2).
-        Border(lipgloss.NormalBorder()).
+        Height(height - lipgloss.Height(header)).
+        MaxHeight(height + 2 - lipgloss.Height(header)).
+        Border(border).
         BorderForeground(lipgloss.Color("240")).
         Render(selectedCell)
 
