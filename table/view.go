@@ -35,10 +35,14 @@ func (t Table) headersView() string {
 func (t *Table) renderRows() string {
 	rows := make([]string, 0, len(t.rows))
 
-    start := clamp(t.yOffset, 0, len(t.rows))
-    end   := clamp(t.yOffset + t.height / 2, 0, len(t.rows))
+    // 1 for the bottom border 2 for the header
+    // and / 2 because one item takes up 2 rows because of the top border
+    itemsInView := (t.height - 1 - 2) / 2
 
-    vScrollbar := scrollbar.New(t.height / 2, len(t.rows), t.yOffset)
+    start := clamp(t.yOffset, 0, len(t.rows))
+    end   := clamp(t.yOffset + itemsInView, 0, len(t.rows))
+
+    vScrollbar := scrollbar.New(itemsInView, len(t.rows), t.yOffset)
 
 	for i := start; i < end; i++ {
 		rows = append(rows, t.renderRow(i, end, &vScrollbar))

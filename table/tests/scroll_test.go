@@ -10,7 +10,7 @@ import (
 )
 
 func Test00(t *testing.T) {
-    table := table.New(data.ColumnsBig, data.RowsBig, 32, 148)
+    table := table.New(data.ColumnsBig, data.RowsBig, 32 + 1 + 2, 148)
     table.UpdateRenderedColums()
 
     f, _ := os.ReadFile("./dump-00")
@@ -18,7 +18,7 @@ func Test00(t *testing.T) {
 }
 
 func Test01(t *testing.T) {
-    table := table.New(data.ColumnsBig, data.RowsBig, 32, 168)
+    table := table.New(data.ColumnsBig, data.RowsBig, 32 + 1 + 2, 168)
     table.UpdateRenderedColums()
 
     f, _ := os.ReadFile("./dump-01")
@@ -26,7 +26,7 @@ func Test01(t *testing.T) {
 }
 
 func Test02(t *testing.T) {
-    table := table.New(data.ColumnsBig, data.RowsBig, 32, 168)
+    table := table.New(data.ColumnsBig, data.RowsBig, 32 + 1 + 2, 168)
     table.UpdateRenderedColums()
 
     table.GotoBottom()
@@ -45,7 +45,7 @@ func Test02(t *testing.T) {
 }
 
 func Test03(t *testing.T) {
-    table := table.New(data.ColumnsBig, data.RowsBig, 32, 148)
+    table := table.New(data.ColumnsBig, data.RowsBig, 32 + 1 + 2, 148)
     table.UpdateRenderedColums()
 
     table.MoveDown(20)
@@ -66,7 +66,7 @@ func Test03(t *testing.T) {
 }
 
 func TestOffset(t *testing.T) {
-    table := table.New(data.ColumnsBig, data.RowsBig, 32, 148)
+    table := table.New(data.ColumnsBig, data.RowsBig, 32 + 1 + 2, 148)
     table.UpdateRenderedColums()
 
     table.MoveRight(1)

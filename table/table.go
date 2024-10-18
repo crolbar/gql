@@ -194,10 +194,14 @@ func (t *Table) UpdateRenderedColums() {
 // Must be called when the width of the terminal changes 
 // or there is an update to the cursor
 func (t *Table) UpdateOffset()  {
-    t.height = min(len(t.rows) * 2, t.maxHeight)
+    // we need 2 rows for each item (so * 2)
+    // + 1 for bottom border & + 2 for the header
+    t.height = min((len(t.rows) * 2) + 1 + 2, t.maxHeight)
+
+    itemsInView    := (t.height - 1 - 2) / 2
 
     lines_till_sow := t.cursor.Y - t.yOffset
-    lines_till_eow := ((t.height / 2) - 1) - lines_till_sow
+    lines_till_eow := (itemsInView - 1) - lines_till_sow
 
     if (lines_till_eow < 0) {
         t.yOffset += int(math.Abs(float64(lines_till_eow)))

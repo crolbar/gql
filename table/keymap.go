@@ -119,7 +119,7 @@ func (t *Table) ScrollUp() {
     t.yOffset = max(t.yOffset - 1, 0) 
 }
 func (t *Table) ScrollDown() {
-    t.yOffset = min(t.yOffset + 1, max(len(t.rows) - t.height / 2, 0))
+    t.yOffset = min(t.yOffset + 1, max(len(t.rows) - (t.height - 1 - 2) / 2, 0))
 }
 
 func (t *Table) GotoTop() {
