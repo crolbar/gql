@@ -11,39 +11,70 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func GetDatabases(db *sql.DB) []string {
-    rows, err := db.Query("show databases;")
+func GetDatabases(db *sql.DB) ([]table.Column, []table.Row) {
+    rowsRes, err := db.Query("show databases;")
 	if err != nil {
 		log.Fatal(err)
 	}
-    var databases []string
-	for rows.Next() {
+
+    var rows []table.Row
+
+    width := 0
+
+	for rowsRes.Next() {
 		var dbName string
-		if err := rows.Scan(&dbName); err != nil {
+
+		if err := rowsRes.Scan(&dbName); err != nil {
 			log.Fatal(err)
 		}
-		databases = append(databases, dbName)
+
+		rows = append(rows, []string{dbName})
+
+        l := len(dbName)
+        if (l > width) {
+            width = l
+        }
 	}
 
-    return databases
+    title := fmt.Sprintf("Databases")
+
+    cols := []table.Column {
+        {
+            Title: title,
+            Width: min(width, 20),
+        }, 
+    }
+
+    return cols, rows
 }
 
-func GetTables(db *sql.DB, dbName string) []string {
-    rows, err := db.Query(fmt.Sprintf("show tables from %s;", dbName))
+func GetTables(db *sql.DB, dbName string) ([]table.Column, []table.Row) {
+    rowsRes, err := db.Query(fmt.Sprintf("show tables from %s;", dbName))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-    var tables []string
-	for rows.Next() {
-		var dbName string
-		if err := rows.Scan(&dbName); err != nil {
+    var rows []table.Row
+	for rowsRes.Next() {
+		var tableName string
+
+		if err := rowsRes.Scan(&tableName); err != nil {
 			log.Fatal(err)
 		}
-		tables = append(tables, dbName)
+
+		rows = append(rows, []string{tableName})
 	}
 
-    return tables
+    title := fmt.Sprintf("tables in %s", dbName)
+
+    cols := []table.Column {
+        {
+            Title: title,
+            Width: max(len(title), 20),
+        }, 
+    }
+
+    return cols, rows
 }
 
 func GetTable(db *sql.DB, currDB, selTable string) ([]table.Column, []table.Row) {

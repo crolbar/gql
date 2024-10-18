@@ -2,20 +2,11 @@ package panes
 
 import (
 	"database/sql"
-	"fmt"
 	"gql/mysql"
-	"gql/table"
 )
 
 func (p *Panes) UpdateDBTable(db *sql.DB) {
-    dbs := mysql.GetDatabases(db)
-
-    rows := make([]table.Row, 0, len(dbs))
-    cols := []table.Column { {Title: "Databases", Width: 20}, }
-
-    for i := 0; i < len(dbs); i++ {
-        rows = append(rows, []string{dbs[i]})
-    }
+    cols, rows := mysql.GetDatabases(db)
 
     p.Db.Table.SetMaxWidth(cols[0].Width + 2)
 
@@ -28,13 +19,7 @@ func (p *Panes) UpdateDBTable(db *sql.DB) {
 func (p *Panes) UpdateDBTablesTable(db *sql.DB) {
     p.currDB = p.Db.Table.GetSelectedRow()[0]
 
-    tables := mysql.GetTables(db, p.currDB)
-    rows := make([]table.Row, 0, len(tables))
-    cols := []table.Column { {Title: fmt.Sprintf("tables in %s", p.currDB), Width: 20}, }
-
-    for i := 0; i < len(tables); i++ {
-        rows = append(rows, []string{tables[i]})
-    }
+    cols, rows := mysql.GetTables(db, p.currDB)
 
     p.DbTables.Table.SetMaxWidth(cols[0].Width + 2)
 
