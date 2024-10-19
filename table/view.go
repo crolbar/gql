@@ -142,6 +142,9 @@ func (t Table) generateStyleRow(
     BorderRight(enableRightBorder).
     BorderForeground(lipgloss.Color("240"))
     
+    if !t.wouldBeFocused {
+        return style
+    }
 
     cursorX := t.cursor.X
     cursorY := t.cursor.Y

@@ -171,6 +171,7 @@ func (m model) renderTopInfo() string {
         100, 100,
     )
 
+    info.SetDisplayOnly()
     info.UpdateOffset()
 
     return info.View()

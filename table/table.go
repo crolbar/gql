@@ -32,7 +32,8 @@ type Table struct {
     rowSelect      bool
     selectionStart int
 
-    focused bool
+    focused        bool
+    wouldBeFocused bool
 }
 
 
@@ -66,7 +67,8 @@ func New(cols []Column, rows []Row, height int, width int) Table {
         selectionStart: -1,
 
 
-        focused: false,
+        focused:        false,
+        wouldBeFocused: true,
     }
 }
 
@@ -80,6 +82,12 @@ func (t *Table) Focus() {
 
 func (t *Table) DeFocus() {
     t.focused = false
+}
+
+// uses the table only to display something
+// currently only difference is the unfocused cursor pos
+func (t *Table) SetDisplayOnly() {
+    t.wouldBeFocused = false
 }
 
 func (t *Table) SetColumns(cols []Column) {
