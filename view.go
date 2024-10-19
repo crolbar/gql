@@ -140,14 +140,37 @@ func (m model) renderDbg() string {
 }
 
 func (m model) renderTopInfo() string {
+    selectedTable := m.panes.GetSelected().Table
+
     dbName     := m.panes.GetCurrDB()
     userName   := m.user
 
-    columnsNum := fmt.Sprintf("%d", len(m.panes.GetSelected().Table.GetColumns()))
-    rowsNum    := fmt.Sprintf("%d", len(m.panes.GetSelected().Table.GetRows()))
+    columnsNum := fmt.Sprintf("%d", len(selectedTable.GetColumns()))
+    rowsNum    := fmt.Sprintf("%d", len(selectedTable.GetRows()))
 
-    selCol     := fmt.Sprintf("%d", m.panes.GetSelected().Table.GetCursor().X)
-    selRow     := fmt.Sprintf("%d", m.panes.GetSelected().Table.GetCursor().Y)
+    selCol := fmt.Sprintf("%d", selectedTable.GetCursor().X)
+
+    if (selectedTable.IsSelectingCols()) {
+        selectionStart := selectedTable.GetSelectionStart()
+
+        if (selectedTable.GetCursor().X > selectionStart) {
+            selCol = fmt.Sprintf("%d-%s", selectionStart, selCol)
+        } else {
+            selCol = fmt.Sprintf("%s-%d", selCol, selectionStart)
+        }
+    }
+
+    selRow := fmt.Sprintf("%d", selectedTable.GetCursor().Y)
+
+    if (selectedTable.IsSelectingRows()) {
+        selectionStart := selectedTable.GetSelectionStart()
+
+        if (selectedTable.GetCursor().Y > selectionStart) {
+            selRow = fmt.Sprintf("%d-%s", selectionStart, selRow)
+        } else {
+            selRow = fmt.Sprintf("%s-%d", selRow, selectionStart)
+        }
+    }
 
     info := table.New(
         []table.Column {

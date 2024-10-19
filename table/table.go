@@ -145,6 +145,18 @@ func (t *Table) GetYOffset() int {
     return t.yOffset
 }
 
+func (t *Table) IsSelectingRows() bool {
+    return t.rowSelect
+}
+
+func (t *Table) IsSelectingCols() bool {
+    return t.columnSelect
+}
+
+func (t *Table) GetSelectionStart() int {
+    return t.selectionStart
+}
+
 func (t Table) GetSelectedCell() string {
     if (len(t.rows) == 0) {
         return ""
