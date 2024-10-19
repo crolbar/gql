@@ -25,6 +25,7 @@ type model struct {
 
     auth auth.Auth
     uri  string
+    user string
     db   *sql.DB
 
     width int

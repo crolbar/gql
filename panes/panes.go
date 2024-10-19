@@ -93,3 +93,7 @@ func WithMainPane(main Pane) Opts {
         p.Main = main
     }
 }
+
+func (p Panes) GetCurrDB() string {
+    return p.currDB
+}

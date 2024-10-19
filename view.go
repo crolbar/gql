@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"gql/table"
+	"strings"
+
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -13,7 +16,11 @@ func (m model) View() string {
         return m.auth.View()
     }
 
-    return m.mainView()
+    if (m.db != nil) {
+        return m.mainView()
+    }
+
+    return ""
 }
 
 func (m model) renderLeftTable() string {
@@ -102,29 +109,90 @@ func (m model) renderTables() string {
     )
 }
 
-func (m model) renederTop() string {
+func (m model) renderDbg() string {
+    width  := m.width
+    height := perc(20, m.height)
+
     dbg := fmt.Sprintf(
-        "Height: %d, Width: %d, yOff: %d, xOff: %d, cursor: %d, fullHeight: %d, fullWidth: %d, dbg: %d",
+        "Height: %d, Width: %d, yOff: %d, xOff: %d, fullHeight: %d, fullWidth: %d, dbg: %d",
         m.panes.GetSelected().Table.GetHeight(),
         m.panes.GetSelected().Table.GetWidth(),
         m.panes.GetSelected().Table.GetYOffset(),
         m.panes.GetSelected().Table.GetXOffset(),
-        m.panes.GetSelected().Table.GetCursor(),
         m.height,
         m.width,
         perc(80, m.height),
     )
 
-    height := perc(20, m.height) - 2
 
-    top := style.
-        Width(m.width - 2).
+    if (len(dbg) > width) {
+        //dbg = ""
+    } else {
+        dbg = lipgloss.JoinHorizontal( lipgloss.Top,
+            strings.Repeat(" ", width - lipgloss.Width(dbg)),
+            dbg,
+        )
+
+        dbg = strings.Repeat("\n", max(height - (1 + 5), 0)) + dbg
+    }
+
+    return dbg
+}
+
+func (m model) renderTopInfo() string {
+    dbName     := m.panes.GetCurrDB()
+    userName   := m.user
+
+    columnsNum := fmt.Sprintf("%d", len(m.panes.GetSelected().Table.GetColumns()))
+    rowsNum    := fmt.Sprintf("%d", len(m.panes.GetSelected().Table.GetRows()))
+
+    selCol     := fmt.Sprintf("%d", m.panes.GetSelected().Table.GetCursor().X)
+    selRow     := fmt.Sprintf("%d", m.panes.GetSelected().Table.GetCursor().Y)
+
+    info := table.New(
+        []table.Column {
+            { Title: "Columns",
+                Width: max(len("Columns"), len(columnsNum) + len(selCol) + 3), },
+            { Title: "Rows",
+                Width: max(len("Rows"), len(rowsNum) + len(selRow) + 3), },
+            { Title: "Current Database",
+                Width: max(len("Current Database"), len(dbName)), },
+            { Title: "User",
+                Width: max(len("User"), len(userName)), },
+        },
+        []table.Row {
+            {
+                selCol + " : " + columnsNum,
+                selRow + " : " + rowsNum,
+                dbName,
+                userName,
+            },
+        },
+        100, 100,
+    )
+
+    info.UpdateOffset()
+
+    return info.View()
+}
+
+func (m model) renederTop() string {
+    horizontal := lipgloss.JoinHorizontal(lipgloss.Left,
+        m.renderTopInfo(),
+    )
+
+    full := lipgloss.JoinVertical(lipgloss.Left,
+        horizontal,
+        m.renderDbg(),
+    )
+
+    width  := m.width
+    height := perc(20, m.height)
+
+    return style.
+        Width(width).
         Height(height).
-        Border(lipgloss.NormalBorder()).
-        BorderForeground(lipgloss.Color("240")).
-        Render(dbg)
-
-    return top
+        Render(full)
 }
 
 func (m model) mainView() string {

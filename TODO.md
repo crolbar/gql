@@ -6,8 +6,8 @@
 -   [x] don't hardcode width's and height's
     -   ~~[ ] avg column width~~
 -   [ ] describe pane
--   [ ] curr table info (columns rows)
--   [ ] show curr user
+-   [x] curr table info (columns rows)
+-   [x] show curr user
 -   [ ] help view
 
 -   [ ] errors (eg: no permisions to access table)

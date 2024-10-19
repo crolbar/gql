@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"gql/mysql"
 	"gql/util"
 	"log"
 
@@ -39,6 +40,7 @@ func (m *model) onDBConnect(db *sql.DB) {
     if (m.db != nil) {
         m.panes.UpdateDBTable(db)
         m.panes.Db.Table.Focus()
+        m.user = mysql.GetUser(db)
     }
 }
 

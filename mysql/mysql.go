@@ -135,3 +135,19 @@ func GetTable(db *sql.DB, currDB, selTable string) ([]table.Column, []table.Row)
 
     return columns, rows
 }
+
+func GetUser(db *sql.DB) string {
+    res, err := db.Query(fmt.Sprintf("select user()"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+    var user string
+	for res.Next() {
+		if err := res.Scan(&user); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+    return user
+}
