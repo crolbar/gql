@@ -80,6 +80,19 @@ func DefaultKeyMap() KeyMap {
     }
 }
 
+func (km KeyMap) ShortHelp() []key.Binding {
+    return []key.Binding { km.LineUp, km.LineDown, km.LineLeft, km.LineRight }
+}
+
+func (km KeyMap) FullHelp() [][]key.Binding {
+    return [][]key.Binding {
+        {km.LineUp, km.LineDown},
+        {km.LineLeft, km.LineRight},
+        {km.HalfPageUp, km.HalfPageDown},
+        {km.SelectColumn, km.SelectRow},
+    }
+}
+
 func (t Table) Update(msg tea.Msg) (Table, tea.Cmd) {
     switch msg := msg.(type) {
     case tea.KeyMsg:

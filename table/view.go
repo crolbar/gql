@@ -2,24 +2,8 @@ package table
 
 import (
     "gql/table/scrollbar"
-
-    "github.com/charmbracelet/bubbles/key"
     "github.com/charmbracelet/lipgloss"
 )
-
-
-func (km KeyMap) ShortHelp() []key.Binding {
-    return []key.Binding { km.LineUp, km.LineDown, km.LineLeft, km.LineRight }
-}
-
-func (km KeyMap) FullHelp() [][]key.Binding {
-    return [][]key.Binding {
-        {km.LineUp, km.LineDown},
-        {km.LineLeft, km.LineRight},
-        {km.HalfPageUp, km.HalfPageDown},
-        {km.SelectColumn, km.SelectRow},
-    }
-}
 
 func (t Table) HelpView() string {
     return t.help.View(t.keyMap);
