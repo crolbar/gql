@@ -45,6 +45,31 @@ func defaultKeyMap() KeyMap {
     }
 }
 
+func (m model) onWindowRisize(msg tea.WindowSizeMsg) (tea.Model, tea.Cmd) {
+    m.width = msg.Width
+    m.height = msg.Height
+
+    width  := msg.Width
+    height := msg.Height
+
+    height = perc(80, height)
+
+    m.panes.Main.Table.SetMaxSize(perc(60, width), height)
+
+    // only height because we are using only one column
+    // and are setting the max width in from UpdateDBTablesTable(): db_util
+    m.panes.Db.Table.SetMaxHeight(height)
+    m.panes.DbTables.Table.SetMaxHeight(height)
+
+    if (m.db != nil) {
+        m.panes.Db.Table.UpdateOffset()
+        m.panes.DbTables.Table.UpdateOffset()
+        m.panes.Main.Table.UpdateOffset()
+    }
+
+    return m, nil
+}
+
 func (m model) mainUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
@@ -52,28 +77,7 @@ func (m model) mainUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
         m.onDBConnect(msg.db)
 
     case tea.WindowSizeMsg:
-        m.width = msg.Width
-        m.height = msg.Height
-
-        width  := msg.Width
-        height := msg.Height
-
-        height = perc(80, height)
-
-        m.panes.Main.Table.SetMaxSize(perc(60, width), height)
-
-        // only height because we are using only one column
-        // and are setting the max width in from UpdateDBTablesTable(): db_util
-        m.panes.Db.Table.SetMaxHeight(height)
-        m.panes.DbTables.Table.SetMaxHeight(height)
-
-        if (m.db != nil) {
-            m.panes.Db.Table.UpdateOffset()
-            m.panes.DbTables.Table.UpdateOffset()
-            m.panes.Main.Table.UpdateOffset()
-        }
-
-        return m, nil
+        return m.onWindowRisize(msg)
 
     case tea.KeyMsg:
         switch {
