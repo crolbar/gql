@@ -93,7 +93,12 @@ func (km KeyMap) FullHelp() [][]key.Binding {
     }
 }
 
+type Updated struct{}
+func UpdatedMsg() tea.Msg { return Updated{} }
+
 func (t Table) Update(msg tea.Msg) (Table, tea.Cmd) {
+    var cmd tea.Cmd
+
     switch msg := msg.(type) {
     case tea.KeyMsg:
         switch {
@@ -127,11 +132,15 @@ func (t Table) Update(msg tea.Msg) (Table, tea.Cmd) {
             t.SelectColumn()
 
         case key.Matches(msg, t.keyMap.EndSelection):
+            if t.columnSelect || t.rowSelect {
+                cmd = UpdatedMsg
+            }
+
             t.columnSelect, t.rowSelect = false, false
         }
     }
 
-    return t, nil
+    return t, cmd
 }
 
 func (t *Table) ScrollUp() {

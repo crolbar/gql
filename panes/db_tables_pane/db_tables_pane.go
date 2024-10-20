@@ -49,6 +49,13 @@ func update(p panes.Panes, db *sql.DB, msg tea.Msg) (panes.Panes, tea.Cmd) {
     var cmd tea.Cmd
     p.DbTables.Table, cmd = p.DbTables.Table.Update(msg)
 
+    if cmd != nil {
+        switch cmd().(type) {
+        case table.Updated:
+            return p, nil
+        }
+    }
+
     keyMap := p.DbTables.KeyMap.(KeyMap)
 
     switch msg := msg.(type) {

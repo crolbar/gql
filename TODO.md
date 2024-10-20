@@ -9,7 +9,7 @@
 -   [x] curr table info (columns rows)
 -   [x] show curr user
 -   [x] help view
--   [ ] if an keypress is handled by the table update don't handle it from the pane's update (eg: esc)
+-   [x] if an keypress is handled by the table update don't handle it from the pane's update (eg: esc)
 -   [x] esc for cancel in auth
 
 -   [ ] errors (eg: no permisions to access table)
