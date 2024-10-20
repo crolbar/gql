@@ -2,7 +2,7 @@ package main_pane
 
 import (
 	"database/sql"
-	"gql/panes"
+	"gql/tabs/main_tab/panes"
 	"gql/table"
 
 	"github.com/charmbracelet/bubbles/key"

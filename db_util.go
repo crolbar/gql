@@ -38,8 +38,8 @@ func (m *model) changeCreds() {
 func (m *model) onDBConnect(db *sql.DB) {
     m.db = db
     if (m.db != nil) {
-        m.panes.UpdateDBTable(db)
-        m.panes.Db.Table.Focus()
+        m.tabs.Main.Panes.UpdateDBTable(db)
+        m.tabs.Main.Panes.Db.Table.Focus()
         m.user = mysql.GetUser(db)
     }
 }

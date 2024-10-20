@@ -6,11 +6,7 @@ import (
 	"os"
 
 	"gql/auth"
-	"gql/panes/db_pane"
-	"gql/panes/db_tables_pane"
-	"gql/panes/main_pane"
-
-	"gql/panes"
+	"gql/tabs"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
@@ -22,14 +18,14 @@ type model struct {
     keyMap KeyMap
     help   help.Model
 
-    panes panes.Panes
+    tabs tabs.Tabs
 
     auth auth.Auth
     uri  string
     user string
     db   *sql.DB
 
-    width int
+    width  int
     height int
 }
 
@@ -53,11 +49,7 @@ func main() {
         keyMap: defaultKeyMap(),
         help:   help,
 
-        panes: panes.New(
-            panes.WithDBPane(db_pane.New()),
-            panes.WithDBTablesPane(db_tables_pane.New()),
-            panes.WithMainPane(main_pane.New()),
-        ),
+        tabs: tabs.New(),
 
         auth: auth.InitialAuth(),
         uri:  getDBUriFromCache(),
