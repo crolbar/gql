@@ -18,7 +18,7 @@ func defaultKeyMap() KeyMap {
     return KeyMap {
         SelectDBTable: key.NewBinding(
             key.WithKeys("enter"),
-            key.WithHelp(", enter", "table selection"),
+            key.WithHelp(", enter", "table selection, "),
         ),
         Update: key.NewBinding(
             key.WithKeys("j", "k"),

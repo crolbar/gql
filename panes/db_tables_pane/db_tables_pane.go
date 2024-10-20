@@ -19,11 +19,11 @@ func defaultKeyMap() KeyMap {
     return KeyMap {
         SelectDBTable: key.NewBinding(
             key.WithKeys("esc"),
-            key.WithHelp(", esc", "back to db selection"),
+            key.WithHelp(", esc", "back to db selection, "),
         ),
         SelectMainTable: key.NewBinding(
             key.WithKeys("enter"),
-            key.WithHelp(", enter", "selected table"),
+            key.WithHelp(", enter", "selected table, "),
         ),
         Update: key.NewBinding(
             key.WithKeys("j", "k"),

@@ -6,6 +6,7 @@ import (
 	"gql/util"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -201,12 +202,23 @@ func (m model) renderTopInfo() string {
     return info.View()
 }
 
+func (km KeyMap) ShortHelp() []key.Binding {
+    return []key.Binding{}
+}
+
+func (km KeyMap) FullHelp() [][]key.Binding {
+    return [][]key.Binding{
+        {km.ChangeCreds, km.Quit},
+    }
+}
+
 func (m model) renderHelp(infoLen int) string {
     selectedPane := m.panes.GetSelected()
 
     helpMsg := lipgloss.JoinHorizontal(lipgloss.Right,
         selectedPane.Table.HelpView(),
         m.panes.HelpView(),
+        m.help.View(m.keyMap),
     )
 
     helpMsgSplit := strings.Split(helpMsg, "\n")

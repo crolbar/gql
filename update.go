@@ -36,9 +36,11 @@ func defaultKeyMap() KeyMap {
     return KeyMap {
         Quit: key.NewBinding(
             key.WithKeys("q", "ctrl+c"),
+            key.WithHelp("q/ctrl+c", "quit"),
         ),
         ChangeCreds: key.NewBinding(
             key.WithKeys("s"),
+            key.WithHelp("s", "switch user"),
         ),
     }
 }

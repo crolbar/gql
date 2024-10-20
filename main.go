@@ -15,6 +15,7 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type model struct {
@@ -40,9 +41,17 @@ type KeyMap struct {
 }
 
 func main() {
+    help := help.New()
+
+    help.ShowAll               = true
+    help.Styles.FullKey        = lipgloss.NewStyle().Bold(true)
+    help.Styles.FullDesc       = lipgloss.NewStyle().Italic(true)
+    help.Styles.FullSeparator  = lipgloss.NewStyle()
+    help.FullSeparator         = ""
+
     m := model {
         keyMap: defaultKeyMap(),
-        help:   help.New(),
+        help:   help,
 
         panes: panes.New(
             panes.WithDBPane(db_pane.New()),

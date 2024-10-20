@@ -17,7 +17,7 @@ func defaultKeyMap() KeyMap {
     return KeyMap { 
         SelectDBTablesPane: key.NewBinding(
             key.WithKeys("esc"),
-            key.WithHelp(", esc", "back to table selection"),
+            key.WithHelp(", esc", "back to table selection, "),
         ),
     }
 }
