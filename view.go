@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"gql/table"
+	"gql/util"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -133,7 +134,7 @@ func (m model) renderDbg() string {
             dbg,
         )
 
-        dbg = strings.Repeat("\n", max(height - (1 + 5), 0)) + dbg
+        dbg = strings.Repeat("\n", max(height - (1 + 5 + 2), 0)) + dbg
     }
 
     return dbg
@@ -200,9 +201,42 @@ func (m model) renderTopInfo() string {
     return info.View()
 }
 
+func (m model) renderHelp(infoLen int) string {
+    selectedPane := m.panes.GetSelected()
+
+    helpMsg      := selectedPane.Table.HelpView()
+    helpMsgSplit := strings.Split(helpMsg, "\n")
+
+    width        := util.MaxLine(helpMsg)
+
+    // 2 for border
+    if (width + 2 > m.width - infoLen) {
+        return ""
+    }
+
+    help := table.New(
+        []table.Column {
+            { Title: "Help",
+                Width: width, },
+        },
+        []table.Row {
+            { helpMsgSplit[0], },
+            { helpMsgSplit[1], },
+        },
+        100, 100,
+    )
+    help.SetDisplayOnly()
+
+    return help.View()
+}
+
 func (m model) renederTop() string {
+    topInfo := m.renderTopInfo()
+    topHelp := m.renderHelp(lipgloss.Width(topInfo))
+
     horizontal := lipgloss.JoinHorizontal(lipgloss.Left,
-        m.renderTopInfo(),
+        topInfo,
+        topHelp,
     )
 
     full := lipgloss.JoinVertical(lipgloss.Left,

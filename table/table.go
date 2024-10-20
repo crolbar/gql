@@ -1,8 +1,11 @@
 package table
 
 import (
-	"math"
-	"strings"
+    "math"
+    "strings"
+
+    "github.com/charmbracelet/bubbles/help"
+    "github.com/charmbracelet/lipgloss"
 )
 
 type Cursor struct {
@@ -14,7 +17,7 @@ type Table struct {
     cols []Column
     rows []Row
 
-	cursor Cursor
+    cursor Cursor
 
     height    int
     width     int
@@ -22,6 +25,7 @@ type Table struct {
     maxWidth  int
 
     keyMap KeyMap
+    help   help.Model
 
     xOffset int
     yOffset int
@@ -40,14 +44,24 @@ type Table struct {
 type Row []string
 
 type Column struct {
-	Title string
-	Width int
+    Title string
+    Width int
 }
 
 func New(cols []Column, rows []Row, height int, width int) Table {
+    help := help.New()
+
+    help.ShowAll               = true
+    help.Styles.FullKey        = lipgloss.NewStyle()
+    help.Styles.FullDesc       = lipgloss.NewStyle()
+    help.Styles.FullSeparator  = lipgloss.NewStyle()
+    help.FullSeparator         = ""
+
     return Table {
         cols:      cols,
         rows:      rows,
+
+        cursor: Cursor{0, 0},
 
         height:    height - 2,
         width:     width,
@@ -60,7 +74,7 @@ func New(cols []Column, rows []Row, height int, width int) Table {
         renderedColumns: 1,
 
         keyMap: DefaultKeyMap(),
-        cursor: Cursor{0, 0},
+        help:   help,
 
         columnSelect:   false,
         rowSelect:      false,

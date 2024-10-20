@@ -8,7 +8,8 @@
 -   [ ] describe pane
 -   [x] curr table info (columns rows)
 -   [x] show curr user
--   [ ] help view
+-   [x] help view
+-   [ ] if an keypress is handled by the table update don't handle it from the pane's update (eg: esc)
 
 -   [ ] errors (eg: no permisions to access table)
 

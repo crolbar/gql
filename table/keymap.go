@@ -6,19 +6,19 @@ import (
 )
 
 type KeyMap struct {
-	LineUp       key.Binding
-	LineDown     key.Binding
-	LineLeft     key.Binding
-	LineRight    key.Binding
+    LineUp       key.Binding
+    LineDown     key.Binding
+    LineLeft     key.Binding
+    LineRight    key.Binding
 
-	PageUp       key.Binding
-	PageDown     key.Binding
-	HalfPageUp   key.Binding
-	HalfPageDown key.Binding
-	GotoTop      key.Binding
-	GotoBottom   key.Binding
+    PageUp       key.Binding
+    PageDown     key.Binding
+    HalfPageUp   key.Binding
+    HalfPageDown key.Binding
+    GotoTop      key.Binding
+    GotoBottom   key.Binding
 
-	ScrollDown   key.Binding
+    ScrollDown   key.Binding
     ScrollUp     key.Binding
 
     SelectRow    key.Binding
@@ -28,91 +28,97 @@ type KeyMap struct {
 }
 
 func DefaultKeyMap() KeyMap {
-	return KeyMap{
-		LineUp: key.NewBinding(
-			key.WithKeys("up", "k"),
-			key.WithHelp("↑/k", "up"),
-		),
-		LineDown: key.NewBinding(
-			key.WithKeys("down", "j"),
-			key.WithHelp("↓/j", "down"),
-		),
-		LineLeft: key.NewBinding(
-			key.WithKeys("left", "h"),
-			key.WithHelp("←/h", "left"),
-		),
-		LineRight: key.NewBinding(
-			key.WithKeys("right", "l"),
-			key.WithHelp("→/l", "right"),
-		),
+    return KeyMap{
+        LineUp: key.NewBinding(
+            key.WithKeys("up", "k"),
+            key.WithHelp("↑/k", "up, "),
+        ),
+        LineDown: key.NewBinding(
+            key.WithKeys("down", "j"),
+            key.WithHelp("↓/j", "down, "),
+        ),
+        LineLeft: key.NewBinding(
+            key.WithKeys("left", "h"),
+            key.WithHelp("←/h", "left, "),
+        ),
+        LineRight: key.NewBinding(
+            key.WithKeys("right", "l"),
+            key.WithHelp("→/l", "right, "),
+        ),
 
-		HalfPageUp: key.NewBinding(
-			key.WithKeys("pgup", "ctrl+u"),
-			key.WithHelp("ctrl+u/pgup", "½ page up"),
-		),
-		HalfPageDown: key.NewBinding(
-			key.WithKeys("pgdown", "ctrl+d"),
-			key.WithHelp("ctrl+d/pgdown", "½ page down"),
-		),
+        HalfPageUp: key.NewBinding(
+            key.WithKeys("pgup", "ctrl+u"),
+            key.WithHelp("ctrl+u/pgup", "1/2 page up, "),
+        ),
+        HalfPageDown: key.NewBinding(
+            key.WithKeys("pgdown", "ctrl+d"),
+            key.WithHelp("ctrl+d/pgdown", "1/2 page down, "),
+        ),
 
-		GotoTop: key.NewBinding(
-			key.WithKeys("home", "g"),
-			key.WithHelp("g/home", "go to start"),
-		),
-		GotoBottom: key.NewBinding(
-			key.WithKeys("end", "G"),
-			key.WithHelp("G/end", "go to end"),
-		),
+        GotoTop: key.NewBinding(
+            key.WithKeys("home", "g"),
+            key.WithHelp("g/home", "go to start, "),
+        ),
+        GotoBottom: key.NewBinding(
+            key.WithKeys("end", "G"),
+            key.WithHelp("G/end", "go to end, "),
+        ),
+
+        SelectRow: key.NewBinding(
+            key.WithKeys("V"),
+            key.WithHelp("V/esc", "row selection"),
+        ),
+        SelectColumn: key.NewBinding(
+            key.WithKeys("ctrl+v"),
+            key.WithHelp("ctrl+v/esc", "col selection"),
+        ),
 
         ScrollUp: key.NewBinding(key.WithKeys("ctrl+y")),
         ScrollDown: key.NewBinding(key.WithKeys("ctrl+e")),
 
-        SelectRow: key.NewBinding(key.WithKeys("V")),
-        SelectColumn: key.NewBinding(key.WithKeys("ctrl+v")),
-
         EndSelection: key.NewBinding(key.WithKeys("esc")),
-	}
+    }
 }
 
 func (t Table) Update(msg tea.Msg) (Table, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, t.keyMap.LineUp):
-			t.MoveUp(1)
-		case key.Matches(msg, t.keyMap.LineDown):
-			t.MoveDown(1)
-		case key.Matches(msg, t.keyMap.LineLeft):
-			t.MoveLeft(1)
-		case key.Matches(msg, t.keyMap.LineRight):
-			t.MoveRight(1)
-		case key.Matches(msg, t.keyMap.HalfPageUp):
-			t.MoveUp(t.height / 4)
-		case key.Matches(msg, t.keyMap.HalfPageDown):
-			t.MoveDown(t.height / 4)
-		case key.Matches(msg, t.keyMap.LineDown):
-			t.MoveDown(1)
-		case key.Matches(msg, t.keyMap.GotoTop):
-			t.GotoTop()
-		case key.Matches(msg, t.keyMap.GotoBottom):
-			t.GotoBottom()
+    switch msg := msg.(type) {
+    case tea.KeyMsg:
+        switch {
+        case key.Matches(msg, t.keyMap.LineUp):
+            t.MoveUp(1)
+        case key.Matches(msg, t.keyMap.LineDown):
+            t.MoveDown(1)
+        case key.Matches(msg, t.keyMap.LineLeft):
+            t.MoveLeft(1)
+        case key.Matches(msg, t.keyMap.LineRight):
+            t.MoveRight(1)
+        case key.Matches(msg, t.keyMap.HalfPageUp):
+            t.MoveUp(t.height / 4)
+        case key.Matches(msg, t.keyMap.HalfPageDown):
+            t.MoveDown(t.height / 4)
+        case key.Matches(msg, t.keyMap.LineDown):
+            t.MoveDown(1)
+        case key.Matches(msg, t.keyMap.GotoTop):
+            t.GotoTop()
+        case key.Matches(msg, t.keyMap.GotoBottom):
+            t.GotoBottom()
 
         case key.Matches(msg, t.keyMap.ScrollUp):
             t.ScrollUp()
-		case key.Matches(msg, t.keyMap.ScrollDown):
-			t.ScrollDown()
+        case key.Matches(msg, t.keyMap.ScrollDown):
+            t.ScrollDown()
 
         case key.Matches(msg, t.keyMap.SelectRow):
             t.SelectRow()
-		case key.Matches(msg, t.keyMap.SelectColumn):
+        case key.Matches(msg, t.keyMap.SelectColumn):
             t.SelectColumn()
 
-		case key.Matches(msg, t.keyMap.EndSelection):
+        case key.Matches(msg, t.keyMap.EndSelection):
             t.columnSelect, t.rowSelect = false, false
-		}
-	}
+        }
+    }
 
-	return t, nil
+    return t, nil
 }
 
 func (t *Table) ScrollUp() {
