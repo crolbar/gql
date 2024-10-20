@@ -52,8 +52,8 @@ func New(cols []Column, rows []Row, height int, width int) Table {
     help := help.New()
 
     help.ShowAll               = true
-    help.Styles.FullKey        = lipgloss.NewStyle()
-    help.Styles.FullDesc       = lipgloss.NewStyle()
+    help.Styles.FullKey        = lipgloss.NewStyle().Bold(true)
+    help.Styles.FullDesc       = lipgloss.NewStyle().Italic(true)
     help.Styles.FullSeparator  = lipgloss.NewStyle()
     help.FullSeparator         = ""
 

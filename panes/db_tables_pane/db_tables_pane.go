@@ -5,7 +5,6 @@ import (
 	"gql/panes"
 	"gql/table"
 
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -20,14 +19,30 @@ func defaultKeyMap() KeyMap {
     return KeyMap {
         SelectDBTable: key.NewBinding(
             key.WithKeys("esc"),
+            key.WithHelp(", esc", "back to db selection"),
         ),
         SelectMainTable: key.NewBinding(
             key.WithKeys("enter"),
+            key.WithHelp(", enter", "selected table"),
         ),
         Update: key.NewBinding(
             key.WithKeys("j", "k"),
         ),
     }
+}
+
+func (km KeyMap) ShortHelp() []key.Binding {
+    return []key.Binding{}
+}
+
+func (km KeyMap) FullHelp() [][]key.Binding {
+    return [][]key.Binding{
+        {km.SelectMainTable, km.SelectDBTable},
+    }
+}
+
+func helpView(p panes.Panes) string {
+    return p.DbTables.Help.View(p.DbTables.KeyMap)
 }
 
 func update(p panes.Panes, db *sql.DB, msg tea.Msg) (panes.Panes, tea.Cmd) {
@@ -58,7 +73,7 @@ func New() panes.Pane {
     return panes.NewPane(
         table.New(nil, nil, 32, 100),
         defaultKeyMap(),
-        help.New(),
         update,
+        helpView,
     )
 }

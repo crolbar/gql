@@ -204,7 +204,11 @@ func (m model) renderTopInfo() string {
 func (m model) renderHelp(infoLen int) string {
     selectedPane := m.panes.GetSelected()
 
-    helpMsg      := selectedPane.Table.HelpView()
+    helpMsg := lipgloss.JoinHorizontal(lipgloss.Right,
+        selectedPane.Table.HelpView(),
+        m.panes.HelpView(),
+    )
+
     helpMsgSplit := strings.Split(helpMsg, "\n")
 
     width        := util.MaxLine(helpMsg)
