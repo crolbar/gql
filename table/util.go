@@ -1,5 +1,7 @@
 package table
 
+import "github.com/charmbracelet/lipgloss"
+
 func isBetween(v, i, j int) bool {
     min := min(i, j)
     max := max(i, j)
@@ -18,7 +20,7 @@ func clamp(v, low, high int) int {
 }
 
 func truncate(s string, width int) string {
-    if len(s) <= width {
+    if lipgloss.Width(s) <= width {
         return s
     }
 
