@@ -13,8 +13,9 @@ func (km KeyMap) ShortHelp() []key.Binding {
 
 func (km KeyMap) FullHelp() [][]key.Binding {
     return [][]key.Binding {
-        {km.Accept, km.Next},
-        {km.Quit, km.Prev},
+        {km.Accept, km.Cancel},
+        {km.Next, km.Prev},
+        {km.Quit},
     }
 }
 

@@ -20,7 +20,7 @@ func DefaultKeyMap() KeyMap {
     return KeyMap {
         Quit: key.NewBinding(
             key.WithKeys("ctrl+c"),
-            key.WithHelp("ctrl+c", "quit"),
+            key.WithHelp("    ctrl+c", "quit"),
         ),
         Cancel: key.NewBinding(
             key.WithKeys("esc"),
