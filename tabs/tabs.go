@@ -5,6 +5,7 @@ import (
 	"gql/tabs/describe_tab"
 	"gql/tabs/main_tab"
 	"gql/tabs/main_tab/panes"
+	"gql/tabs/main_tab/panes/dialog_pane"
 
 	"github.com/charmbracelet/lipgloss"
 
@@ -71,6 +72,13 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
         t.UpdateDBTablesTable(db)
     case panes.RequireMainTableUpdateMsg:
         t.UpdateMainTable(db)
+
+    case dialog_pane.CancelMsg:
+        t.Main.Panes.DeSelectDialog()
+
+    case dialog_pane.RequestConfirmationMsg:
+        t.Main.Panes.SelectDialog()
+        t.Main.Panes.Dialog.SetupConfirmation()
 
     case tea.KeyMsg:
         switch {

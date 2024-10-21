@@ -3,6 +3,7 @@ package db_pane
 import (
 	"gql/table"
 	"gql/tabs/main_tab/panes"
+	"gql/tabs/main_tab/panes/dialog_pane"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -12,6 +13,7 @@ import (
 type KeyMap struct {
     SelectDBTable key.Binding
     Update        key.Binding
+    Delete        key.Binding
 }
 
 func defaultKeyMap() KeyMap {
@@ -22,6 +24,9 @@ func defaultKeyMap() KeyMap {
         ),
         Update: key.NewBinding(
             key.WithKeys("j", "k"),
+        ),
+        Delete: key.NewBinding(
+            key.WithKeys("d"),
         ),
     }
 }
@@ -58,6 +63,9 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
 
         case key.Matches(msg, keyMap.Update):
             cmd = panes.RequireDBTablesUpdate
+
+        case key.Matches(msg, keyMap.Delete):
+            cmd = dialog_pane.RequestConfirmation
         }
     }
 

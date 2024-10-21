@@ -68,8 +68,10 @@ func (m model) mainUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
         case key.Matches(msg, m.keyMap.Quit):
             return m, tea.Quit
         case key.Matches(msg, m.keyMap.ChangeCreds):
-            m.changeCreds()
-            return m, nil
+            if !m.tabs.Main.Panes.IsDialogSelected() {
+                m.changeCreds()
+                return m, nil
+            }
         }
 	}
 

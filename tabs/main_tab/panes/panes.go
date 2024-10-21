@@ -2,6 +2,7 @@ package panes
 
 import (
 	"gql/table"
+	"gql/tabs/main_tab/panes/dialog_pane"
 
 	"github.com/charmbracelet/bubbles/help"
 	tea "github.com/charmbracelet/bubbletea"
@@ -43,14 +44,17 @@ const (
     DB paneType = iota
     DBTables
     Main
+    Dialog
 )
 
 type Panes struct {
     selected paneType
+    prev     paneType // used to go back from dialog
 
     Db       Pane
     DbTables Pane
     Main     Pane
+    Dialog   dialog_pane.Dialog
 }
 
 type Opts func(*Panes)
@@ -58,6 +62,7 @@ type Opts func(*Panes)
 func New(opts ...Opts) Panes {
     p := Panes {
         selected: DB,
+        Dialog:   dialog_pane.InitDialog(),
     }
 
     for _, opt := range opts {
@@ -78,6 +83,8 @@ func RequireDBTablesUpdate() tea.Msg {
 }
 
 func (p Panes) Update(msg tea.Msg) (Panes, tea.Cmd) {
+    var cmd tea.Cmd
+
     switch (p.selected) {
     case DB:
         return p.Db.updatef(p, msg)
@@ -85,6 +92,9 @@ func (p Panes) Update(msg tea.Msg) (Panes, tea.Cmd) {
         return p.DbTables.updatef(p, msg)
     case Main:
         return p.Main.updatef(p, msg)
+    case Dialog:
+        p.Dialog, cmd = p.Dialog.Update(msg)
+        return p, cmd 
     }
 
     panic("No update for the pane ?")
@@ -98,6 +108,8 @@ func (p Panes) HelpView() string {
         return p.DbTables.helpViewf(p)
     case Main:
         return p.Main.helpViewf(p)
+    case Dialog:
+        return ""
     }
 
     panic("No help view for the pane ?")
