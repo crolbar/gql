@@ -5,7 +5,7 @@
 -   [x] auth fix errors with switching database from a keybing
 -   [x] don't hardcode width's and height's
     -   ~~[ ] avg column width~~
--   [ ] describe pane
+-   [x] describe ~~pane~~ tab
 -   [x] curr table info (columns rows)
 -   [x] show curr user
 -   [x] help view

@@ -96,7 +96,7 @@ func (m model) renderHelp(infoLen int) string {
 func (m model) renderTopInfo() string {
     selectedTable := m.tabs.Main.Panes.GetSelected().Table
 
-    dbName     := m.tabs.Main.Panes.GetCurrDB()
+    dbName     := m.tabs.GetCurrDB()
     userName   := m.user
 
     columnsNum := fmt.Sprintf("%d", len(selectedTable.GetColumns()))

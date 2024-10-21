@@ -1,7 +1,6 @@
 package db_pane
 
 import (
-	"database/sql"
 	"gql/tabs/main_tab/panes"
 	"gql/table"
 
@@ -40,7 +39,7 @@ func helpView(p panes.Panes) string {
     return p.Db.Help.View(p.Db.KeyMap)
 }
 
-func update(p panes.Panes, db *sql.DB, msg tea.Msg) (panes.Panes, tea.Cmd) {
+func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
     var cmd tea.Cmd
     p.Db.Table, cmd = p.Db.Table.Update(msg)
 
@@ -54,7 +53,7 @@ func update(p panes.Panes, db *sql.DB, msg tea.Msg) (panes.Panes, tea.Cmd) {
             fallthrough
 
         case key.Matches(msg, keyMap.Update):
-            p.UpdateDBTablesTable(db)
+            cmd = panes.RequireDBTablesUpdate
         }
     }
 

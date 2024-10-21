@@ -2,7 +2,9 @@ package tabs
 
 import (
 	"database/sql"
+	"gql/tabs/describe_tab"
 	"gql/tabs/main_tab"
+	"gql/tabs/main_tab/panes"
 
 	"github.com/charmbracelet/lipgloss"
 
@@ -32,18 +34,25 @@ type Tabs struct {
     selected tabType
 
     Main     main_tab.MainTab
-    //Describe Tab
+    Describe describe_tab.DescribeTab
 
     keyMap KeyMap
+
+    currDB      string
+    currDBTable string
 }
 
 func New() Tabs {
     return Tabs {
         selected: Main,
 
-        Main: main_tab.New(),
+        Main:     main_tab.New(),
+        Describe: describe_tab.New(),
 
         keyMap: defaultKeyMap(),
+
+        currDB:      "",
+        currDBTable: "",
     }
 }
 
@@ -52,10 +61,17 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
 
     switch t.selected {
     case Main:
-        t.Main.Panes, cmd = t.Main.Panes.Update(db, msg)
+        t.Main.Panes, cmd = t.Main.Panes.Update(msg)
+    case Describe:
+        t.Describe, cmd = t.Describe.Update(msg)
     }
 
     switch msg := msg.(type) {
+    case panes.RequireDBTablesUpdateMsg:
+        t.UpdateDBTablesTable(db)
+    case panes.RequireMainTableUpdateMsg:
+        t.UpdateMainTable(db)
+
     case tea.KeyMsg:
         switch {
         case key.Matches(msg, t.keyMap.SelectMain):
@@ -63,6 +79,7 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
 
         case key.Matches(msg, t.keyMap.SelectDescribe):
             t.selected = Describe
+            t.UpdateDescribeTable(db)
         }
     }
 
@@ -74,6 +91,8 @@ func (t Tabs) SelectedTabView() string {
     switch t.selected {
     case Main:
         return t.Main.RenderTables()
+    case Describe:
+        return t.Describe.View()
     }
 
     return ""
@@ -92,8 +111,10 @@ func (t Tabs) HelpView() string {
 }
 
 func (t *Tabs) OnWindowResize(msg tea.WindowSizeMsg, isConnected bool) {
-    switch t.selected {
-    case Main:
-        t.Main.OnWindowResize(msg, isConnected)
-    }
+    t.Main.OnWindowResize(msg, isConnected)
+    t.Describe.OnWindowResize(msg, isConnected)
+}
+
+func (t *Tabs) GetCurrDB() string {
+    return t.currDB
 }

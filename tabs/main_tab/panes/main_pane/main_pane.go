@@ -1,7 +1,6 @@
 package main_pane
 
 import (
-	"database/sql"
 	"gql/tabs/main_tab/panes"
 	"gql/table"
 
@@ -36,7 +35,7 @@ func helpView(p panes.Panes) string {
     return p.Main.Help.View(p.Main.KeyMap)
 }
 
-func update(p panes.Panes, db *sql.DB, msg tea.Msg) (panes.Panes, tea.Cmd) {
+func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
     var cmd tea.Cmd
     p.Main.Table, cmd = p.Main.Table.Update(msg)
 
