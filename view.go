@@ -27,7 +27,6 @@ func (m model) View() string {
 
 func (m model) renderDbg() string {
     width  := m.width
-    height := perc(20, m.height)
 
     dbg := fmt.Sprintf(
         "Height: %d, Width: %d, yOff: %d, xOff: %d, fullHeight: %d, fullWidth: %d, dbg: %d",
@@ -48,11 +47,50 @@ func (m model) renderDbg() string {
             strings.Repeat(" ", width - lipgloss.Width(dbg)),
             dbg,
         )
-
-        dbg = strings.Repeat("\n", max(height - (1 + 5 + 2), 0)) + dbg
     }
 
     return dbg
+}
+
+func (km KeyMap) ShortHelp() []key.Binding {
+    return []key.Binding{}
+}
+
+func (km KeyMap) FullHelp() [][]key.Binding {
+    return [][]key.Binding{
+        {km.ChangeCreds, km.Quit},
+    }
+}
+
+func (m model) renderHelp(infoLen int) string {
+    helpMsg := lipgloss.JoinHorizontal(lipgloss.Right,
+        m.tabs.HelpView(),
+        m.help.View(m.keyMap),
+    )
+
+    helpMsgSplit := strings.Split(helpMsg, "\n")
+
+    width        := util.MaxLine(helpMsg)
+
+    // 2 for border
+    if (width + 2 > m.width - infoLen) {
+        return ""
+    }
+
+    help := table.New(
+        []table.Column {
+            { Title: "Help",
+                Width: width, },
+        },
+        []table.Row {
+            { helpMsgSplit[0], },
+            { helpMsgSplit[1], },
+        },
+        100, 100,
+    )
+    help.SetDisplayOnly()
+
+    return help.View()
 }
 
 func (m model) renderTopInfo() string {
@@ -116,58 +154,22 @@ func (m model) renderTopInfo() string {
     return info.View()
 }
 
-func (km KeyMap) ShortHelp() []key.Binding {
-    return []key.Binding{}
-}
-
-func (km KeyMap) FullHelp() [][]key.Binding {
-    return [][]key.Binding{
-        {km.ChangeCreds, km.Quit},
-    }
-}
-
-func (m model) renderHelp(infoLen int) string {
-    helpMsg := lipgloss.JoinHorizontal(lipgloss.Right,
-        m.tabs.HelpView(),
-        m.help.View(m.keyMap),
-    )
-
-    helpMsgSplit := strings.Split(helpMsg, "\n")
-
-    width        := util.MaxLine(helpMsg)
-
-    // 2 for border
-    if (width + 2 > m.width - infoLen) {
-        return ""
-    }
-
-    help := table.New(
-        []table.Column {
-            { Title: "Help",
-                Width: width, },
-        },
-        []table.Row {
-            { helpMsgSplit[0], },
-            { helpMsgSplit[1], },
-        },
-        100, 100,
-    )
-    help.SetDisplayOnly()
-
-    return help.View()
-}
-
 func (m model) renederTop() string {
     topInfo := m.renderTopInfo()
     topHelp := m.renderHelp(lipgloss.Width(topInfo))
 
-    horizontal := lipgloss.JoinHorizontal(lipgloss.Left,
+    InfoTabs := lipgloss.JoinVertical(lipgloss.Left,
         topInfo,
+        m.tabs.View(),
+    )
+
+    InfoTabsHelp := lipgloss.JoinHorizontal(lipgloss.Left,
+        InfoTabs,
         topHelp,
     )
 
     full := lipgloss.JoinVertical(lipgloss.Left,
-        horizontal,
+        InfoTabsHelp,
         m.renderDbg(),
     )
 
