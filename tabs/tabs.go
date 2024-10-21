@@ -102,7 +102,6 @@ func (t Tabs) HelpView() string {
     switch t.selected {
     case Main:
         return lipgloss.JoinHorizontal(lipgloss.Right,
-            t.Main.Panes.GetSelected().Table.HelpView(),
             t.Main.Panes.HelpView(),
         )
     }

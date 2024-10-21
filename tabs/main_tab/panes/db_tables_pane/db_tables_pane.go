@@ -1,11 +1,12 @@
 package db_tables_pane
 
 import (
-	"gql/tabs/main_tab/panes"
 	"gql/table"
+	"gql/tabs/main_tab/panes"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type KeyMap struct {
@@ -41,7 +42,10 @@ func (km KeyMap) FullHelp() [][]key.Binding {
 }
 
 func helpView(p panes.Panes) string {
-    return p.DbTables.Help.View(p.DbTables.KeyMap)
+    return lipgloss.JoinHorizontal(lipgloss.Right,
+        p.DbTables.Table.HelpView(),
+        p.DbTables.Help.View(p.DbTables.KeyMap),
+    )
 }
 
 func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
