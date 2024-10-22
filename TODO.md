@@ -20,14 +20,16 @@
 -   [ ] delete / drop
     -   [x] drop db
     -   [ ] drop table
-    -   [ ] delete row
+    -   [x] delete row
 -   [ ] create
 
 -   [ ] dialog
+
     -   [x] help msg
     -   [ ] err msg
     -   [ ] table help msg ?
     -   [ ] string (non confirmation) dialog for updating names / columns
 
 -   [ ] fix crash on none tables in db
+-   [ ] fix crashes on empty main table
 -   [ ] refresh dbs and db tables button

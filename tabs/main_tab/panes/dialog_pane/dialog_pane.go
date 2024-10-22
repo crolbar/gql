@@ -122,6 +122,7 @@ func (d *Dialog) OnWindowResize(
 func (d *Dialog) reset() {
     d.confirmation          = false
     d.textinput.Placeholder = ""
+    d.err                   = ""
     d.textinput.Reset()
 }
 

@@ -80,6 +80,11 @@ func DeleteSelectedDB() tea.Msg {
     return DeleteSelectedDBMsg{}
 }
 
+type DeleteSelectedRowMsg struct{}
+func DeleteSelectedRow() tea.Msg {
+    return DeleteSelectedRowMsg{}
+}
+
 func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
     var cmd tea.Cmd
 
@@ -121,6 +126,12 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
         t.Main.Panes.DeSelectDialog()
         t.UpdateDBTable(db)
 
+    case DeleteSelectedRowMsg:
+        t.DeleteSelectedRow(db)
+        t.Main.Panes.DeSelectDialog()
+        t.UpdateMainTable(db)
+
+
     case tea.KeyMsg:
         switch {
         case key.Matches(msg, t.keyMap.SelectMain):
@@ -140,6 +151,8 @@ func (t Tabs) generateDialogHelpMsg(msg tea.Msg) string {
     switch msg.(type) {
     case DeleteSelectedDBMsg:
         return "Are you sure you want to delete database " + t.currDB
+    case DeleteSelectedRowMsg:
+        return "Are you sure you want to delete this row"
     }
     return ""
 }

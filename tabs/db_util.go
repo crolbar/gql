@@ -52,3 +52,18 @@ func (t *Tabs) DeleteSelectedDb(db *sql.DB) {
         log.Fatal(err)
     }
 }
+
+func (t *Tabs) DeleteSelectedRow(db *sql.DB) {
+    err := mysql.DeleteRow(
+        db,
+        t.currDB,
+        t.currDBTable,
+        t.Main.Panes.Main.Table.GetSelectedRow(),
+        t.Main.Panes.Main.Table.GetCols(),
+    )
+
+    // TODO: handle error
+    if err != nil {
+        log.Fatal(err)
+    }
+}
