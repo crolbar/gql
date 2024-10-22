@@ -43,11 +43,19 @@ type Tabs struct {
     currDBTable string
 }
 
-func New() Tabs {
+func New(
+    DbPane       panes.Pane,
+    DbTablesPane panes.Pane,
+    MainPane     panes.Pane,
+) Tabs {
     return Tabs {
         selected: Main,
 
-        Main:     main_tab.New(),
+        Main: main_tab.New(
+            DbPane,
+            DbTablesPane,
+            MainPane,
+        ),
         Describe: describe_tab.New(),
 
         keyMap: defaultKeyMap(),
@@ -55,6 +63,16 @@ func New() Tabs {
         currDB:      "",
         currDBTable: "",
     }
+}
+
+type RequireMainTableUpdateMsg struct{}
+func RequireMainTableUpdate() tea.Msg {
+    return RequireMainTableUpdateMsg{}
+}
+
+type RequireDBTablesUpdateMsg struct{}
+func RequireDBTablesUpdate() tea.Msg {
+    return RequireDBTablesUpdateMsg{}
 }
 
 func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
@@ -68,9 +86,9 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
     }
 
     switch msg := msg.(type) {
-    case panes.RequireDBTablesUpdateMsg:
+    case RequireDBTablesUpdateMsg:
         t.UpdateDBTablesTable(db)
-    case panes.RequireMainTableUpdateMsg:
+    case RequireMainTableUpdateMsg:
         t.UpdateMainTable(db)
 
     case dialog_pane.CancelMsg:

@@ -72,16 +72,6 @@ func New(opts ...Opts) Panes {
     return p
 }
 
-type RequireMainTableUpdateMsg struct{}
-func RequireMainTableUpdate() tea.Msg {
-    return RequireMainTableUpdateMsg{}
-}
-
-type RequireDBTablesUpdateMsg struct{}
-func RequireDBTablesUpdate() tea.Msg {
-    return RequireDBTablesUpdateMsg{}
-}
-
 func (p Panes) Update(msg tea.Msg) (Panes, tea.Cmd) {
     var cmd tea.Cmd
 

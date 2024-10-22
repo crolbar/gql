@@ -19,3 +19,5 @@
 -   [ ] insert
 -   [ ] delete / drop
 -   [ ] create
+
+-   [ ] fix crash on none tables in db

@@ -3,6 +3,7 @@ package db_tables_pane
 import (
 	"gql/table"
 	"gql/tabs/main_tab/panes"
+	"gql/tabs"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -72,7 +73,7 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
             fallthrough
 
         case key.Matches(msg, keyMap.Update):
-            cmd = panes.RequireMainTableUpdate
+            cmd = tabs.RequireMainTableUpdate
         }
     }
 

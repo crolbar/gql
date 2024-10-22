@@ -7,6 +7,9 @@ import (
 
 	"gql/auth"
 	"gql/tabs"
+	"gql/tabs/main_tab/panes/db_pane"
+	"gql/tabs/main_tab/panes/db_tables_pane"
+	"gql/tabs/main_tab/panes/main_pane"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
@@ -49,7 +52,11 @@ func main() {
         keyMap: defaultKeyMap(),
         help:   help,
 
-        tabs: tabs.New(),
+        tabs: tabs.New(
+            db_pane.New(),
+            db_tables_pane.New(),
+            main_pane.New(),
+        ),
 
         auth: auth.InitialAuth(),
         uri:  getDBUriFromCache(),
