@@ -48,8 +48,29 @@ func InitDialog() Dialog {
 type CancelMsg struct{}
 func Cancel() tea.Msg { return CancelMsg{} }
 
-type RequestConfirmationMsg struct{}
-func RequestConfirmation() tea.Msg { return RequestConfirmationMsg{} }
+type RequestConfirmationMsg struct {
+    Cmd tea.Cmd
+}
+func RequestConfirmation(cmd tea.Cmd) tea.Cmd {
+    return func() tea.Msg {
+        return RequestConfirmationMsg {
+            Cmd: cmd,
+        }
+    }
+}
+
+func (d Dialog) handleConfirmationAccept() (Dialog, tea.Cmd) {
+    if d.textinput.Value() == "yes" {
+        d.reset()
+        return d, d.returnCmd
+    } else if d.textinput.Value() == "no" {
+        d.reset()
+        return d, Cancel
+    } else {
+        d.err = "yes or no"
+    }
+    return d, nil
+}
 
 func (d Dialog) Update(msg tea.Msg) (Dialog, tea.Cmd) {
     var cmd tea.Cmd
@@ -59,18 +80,9 @@ func (d Dialog) Update(msg tea.Msg) (Dialog, tea.Cmd) {
         switch {
         case key.Matches(msg, d.keyMap.Accept):
             if d.confirmation {
-                if d.textinput.Value() == "yes" {
-
-                    d.reset()
-                    return d, Cancel
-
-                } else if d.textinput.Value() == "no" {
-                    d.reset()
-                    return d, Cancel
-                } else {
-                    d.err = "yes or no"
-                }
+                return d.handleConfirmationAccept()
             }
+
         case key.Matches(msg, d.keyMap.Cancel):
             d.reset()
             return d, Cancel
@@ -82,8 +94,9 @@ func (d Dialog) Update(msg tea.Msg) (Dialog, tea.Cmd) {
     return d, cmd
 }
 
-func (d *Dialog) SetupConfirmation() {
+func (d *Dialog) SetupConfirmation(cmd tea.Cmd) {
     d.confirmation          = true
+    d.returnCmd             = cmd
     d.textinput.Placeholder = "yes/no"
 }
 

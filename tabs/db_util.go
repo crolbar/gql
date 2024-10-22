@@ -3,6 +3,7 @@ package tabs
 import (
 	"database/sql"
 	"gql/mysql"
+	"log"
 )
 
 func (t *Tabs) UpdateDBTable(db *sql.DB) {
@@ -42,4 +43,12 @@ func (t *Tabs) UpdateDescribeTable(db *sql.DB) {
 
     t.Describe.Table.SetColumns(cols)
     t.Describe.Table.SetRows(rows)
+}
+
+func (t *Tabs) DeleteSelectedDb(db *sql.DB) {
+    err := mysql.DeleteDB(db, t.currDB)
+    // TODO: handle error
+    if err != nil {
+        log.Fatal(err)
+    }
 }

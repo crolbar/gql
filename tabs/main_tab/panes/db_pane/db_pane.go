@@ -66,7 +66,7 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
             cmd = tabs.RequireDBTablesUpdate
 
         case key.Matches(msg, keyMap.Delete):
-            cmd = dialog_pane.RequestConfirmation
+            cmd = dialog_pane.RequestConfirmation(tabs.DeleteSelectedDB) // we have to pass cmd not the msg !!
         }
     }
 

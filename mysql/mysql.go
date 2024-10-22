@@ -216,3 +216,8 @@ func GetUser(db *sql.DB) string {
 
     return user
 }
+
+func DeleteDB(db *sql.DB, dbName string) error {
+    _, err := db.Query(fmt.Sprintf("drop database %s", dbName))
+    return err
+}

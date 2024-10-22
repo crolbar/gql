@@ -75,6 +75,11 @@ func RequireDBTablesUpdate() tea.Msg {
     return RequireDBTablesUpdateMsg{}
 }
 
+type DeleteSelectedDBMsg struct{}
+func DeleteSelectedDB() tea.Msg {
+    return DeleteSelectedDBMsg{}
+}
+
 func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
     var cmd tea.Cmd
 
@@ -96,7 +101,12 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
 
     case dialog_pane.RequestConfirmationMsg:
         t.Main.Panes.SelectDialog()
-        t.Main.Panes.Dialog.SetupConfirmation()
+        t.Main.Panes.Dialog.SetupConfirmation(msg.Cmd)
+
+    case DeleteSelectedDBMsg:
+        t.DeleteSelectedDb(db)
+        t.Main.Panes.DeSelectDialog()
+        t.UpdateDBTable(db)
 
     case tea.KeyMsg:
         switch {

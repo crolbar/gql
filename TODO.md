@@ -18,6 +18,10 @@
 -   [ ] update
 -   [ ] insert
 -   [ ] delete / drop
+    -   [x] drop db
+    -   [ ] drop table
+    -   [ ] delete row
 -   [ ] create
 
 -   [ ] fix crash on none tables in db
+-   [ ] refresh dbs and db tables button
