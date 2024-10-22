@@ -26,6 +26,7 @@ func defaultKeyMap() KeyMap {
 type Dialog struct {
     confirmation bool
 	textinput    textinput.Model
+	help         string
 	err          string
     returnCmd    tea.Cmd
     keyMap       KeyMap
@@ -35,7 +36,7 @@ func InitDialog() Dialog {
 	ti := textinput.New()
 
 	ti.CharLimit   = 156
-	ti.Width       = 25
+	ti.Width       = 80
     ti.Focus()
 
     return Dialog {
@@ -94,10 +95,28 @@ func (d Dialog) Update(msg tea.Msg) (Dialog, tea.Cmd) {
     return d, cmd
 }
 
-func (d *Dialog) SetupConfirmation(cmd tea.Cmd) {
+func (d *Dialog) SetupConfirmation(cmd tea.Cmd, help string) {
     d.confirmation          = true
     d.returnCmd             = cmd
     d.textinput.Placeholder = "yes/no"
+    d.help                  = help
+}
+
+func (d *Dialog) GetHelpMsg() string {
+    return d.help
+}
+
+func (d *Dialog) OnWindowResize(
+    height,
+    width, 
+    dbPaneWidth,
+    dbTablesPaneWidth,
+    mainPaneWidth int,
+) {
+    tablesWidth := dbPaneWidth + dbTablesPaneWidth + mainPaneWidth
+    dialogWidth := (width - tablesWidth) - ((1 + 1) + 2 + 1)
+
+    d.textinput.Width = dialogWidth
 }
 
 func (d *Dialog) reset() {
@@ -107,5 +126,5 @@ func (d *Dialog) reset() {
 }
 
 func (d Dialog) TextInputView() string {
-    return d.textinput.View() + "\n" + d.err
+    return "\n\n" + d.textinput.View() + "\n" + d.err
 }

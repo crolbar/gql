@@ -35,10 +35,8 @@ func (t MainTab) renderDialog() string {
 
     dbTablesWidth := t.Panes.DbTables.Table.GetWidth()
     mainWidth     := t.Panes.Main.Table.GetWidth()
-
-    tablesWidth := dbWidth + dbTablesWidth + mainWidth
-
-    width := (t.width - tablesWidth) - (1 + 1)
+    tablesWidth   := dbWidth + dbTablesWidth + mainWidth
+    width         := (t.width - tablesWidth) - (1 + 1)
 
     style := style.
         Align(lipgloss.Left).
@@ -51,7 +49,7 @@ func (t MainTab) renderDialog() string {
         Bold(true).
         Border(border).
         BorderBottom(false).
-        Render("Dialog")
+        Render(t.Panes.Dialog.GetHelpMsg())
 
     height := t.height - 2
 

@@ -101,7 +101,20 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
 
     case dialog_pane.RequestConfirmationMsg:
         t.Main.Panes.SelectDialog()
-        t.Main.Panes.Dialog.SetupConfirmation(msg.Cmd)
+
+        t.Main.Panes.Dialog.SetupConfirmation(
+            msg.Cmd,
+            t.generateDialogHelpMsg(msg.Cmd()),
+        )
+
+        t.Main.Panes.Dialog.OnWindowResize(
+            t.Main.GetHight(),
+            t.Main.GetWidth(),
+            t.Main.Panes.Db.Table.GetWidth(),
+            t.Main.Panes.DbTables.Table.GetWidth(),
+            t.Main.Panes.Main.Table.GetWidth(),
+        )
+
 
     case DeleteSelectedDBMsg:
         t.DeleteSelectedDb(db)
@@ -121,6 +134,14 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
 
 
     return t, cmd
+}
+
+func (t Tabs) generateDialogHelpMsg(msg tea.Msg) string {
+    switch msg.(type) {
+    case DeleteSelectedDBMsg:
+        return "Are you sure you want to delete database " + t.currDB
+    }
+    return ""
 }
 
 func (t Tabs) SelectedTabView() string {

@@ -57,6 +57,14 @@ func (t *MainTab) SetWidth(width int) {
     t.width = width
 }
 
+func (t *MainTab) GetHight() int {
+    return t.height
+}
+
+func (t *MainTab) GetWidth() int {
+    return t.width
+}
+
 func perc(per, num int) int {
     return int(float32(num) * (float32(per) / float32(100)))
 }

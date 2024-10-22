@@ -24,7 +24,7 @@
 -   [ ] create
 
 -   [ ] dialog
-    -   [ ] help msg
+    -   [x] help msg
     -   [ ] err msg
     -   [ ] table help msg ?
     -   [ ] string (non confirmation) dialog for updating names / columns
