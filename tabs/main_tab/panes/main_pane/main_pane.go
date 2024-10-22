@@ -45,7 +45,7 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
 
     if cmd != nil {
         switch cmd().(type) {
-        case table.Updated:
+        case table.UpdatedMsg:
             return p, nil
         }
     }

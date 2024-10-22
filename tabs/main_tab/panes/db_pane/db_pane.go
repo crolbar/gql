@@ -13,7 +13,6 @@ import (
 
 type KeyMap struct {
     SelectDBTable key.Binding
-    Update        key.Binding
     Delete        key.Binding
 }
 
@@ -22,9 +21,6 @@ func defaultKeyMap() KeyMap {
         SelectDBTable: key.NewBinding(
             key.WithKeys("enter"),
             key.WithHelp(", enter", "table selection, "),
-        ),
-        Update: key.NewBinding(
-            key.WithKeys("j", "k"),
         ),
         Delete: key.NewBinding(
             key.WithKeys("d"),
@@ -53,6 +49,13 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
     var cmd tea.Cmd
     p.Db.Table, cmd = p.Db.Table.Update(msg)
 
+    if cmd != nil {
+        switch cmd().(type) {
+        case table.CursorMovedMsg:
+            cmd = tabs.RequireDBTablesUpdate
+        }
+    }
+
     keyMap := p.Db.KeyMap.(KeyMap)
 
     switch msg := msg.(type) {
@@ -60,10 +63,6 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
         switch {
         case key.Matches(msg, keyMap.SelectDBTable):
             p.SelectDBTables()
-            fallthrough
-
-        case key.Matches(msg, keyMap.Update):
-            cmd = tabs.RequireDBTablesUpdate
 
         case key.Matches(msg, keyMap.Delete):
             cmd = dialog_pane.RequestConfirmation(tabs.DeleteSelectedDB) // we have to pass cmd not the msg !!

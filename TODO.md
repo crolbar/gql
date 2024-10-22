@@ -23,5 +23,11 @@
     -   [ ] delete row
 -   [ ] create
 
+-   [ ] dialog
+    -   [ ] help msg
+    -   [ ] err msg
+    -   [ ] table help msg ?
+    -   [ ] string (non confirmation) dialog for updating names / columns
+
 -   [ ] fix crash on none tables in db
 -   [ ] refresh dbs and db tables button

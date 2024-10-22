@@ -13,7 +13,6 @@ import (
 type KeyMap struct {
     SelectDBTable   key.Binding
     SelectMainTable key.Binding
-    Update          key.Binding
 }
 
 func defaultKeyMap() KeyMap {
@@ -25,9 +24,6 @@ func defaultKeyMap() KeyMap {
         SelectMainTable: key.NewBinding(
             key.WithKeys("enter"),
             key.WithHelp(", enter", "selected table, "),
-        ),
-        Update: key.NewBinding(
-            key.WithKeys("j", "k"),
         ),
     }
 }
@@ -55,8 +51,10 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
 
     if cmd != nil {
         switch cmd().(type) {
-        case table.Updated:
+        case table.UpdatedMsg:
             return p, nil
+        case table.CursorMovedMsg:
+            cmd = tabs.RequireMainTableUpdate
         }
     }
 
@@ -70,10 +68,6 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
 
         case key.Matches(msg, keyMap.SelectMainTable):
             p.SelectMain()
-            fallthrough
-
-        case key.Matches(msg, keyMap.Update):
-            cmd = tabs.RequireMainTableUpdate
         }
     }
 
