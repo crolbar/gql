@@ -171,6 +171,10 @@ func (t *Table) GetSelectionStart() int {
     return t.selectionStart
 }
 
+func (t Table) GetCols() []Column {
+    return t.cols
+}
+
 func (t Table) GetSelectedCell() string {
     if (len(t.rows) == 0) {
         return ""
