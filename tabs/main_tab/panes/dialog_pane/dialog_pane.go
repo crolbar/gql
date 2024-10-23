@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 
@@ -90,10 +91,9 @@ func RequestConfirmation(cmd tea.Cmd) tea.Cmd {
 
 func (d Dialog) handleConfirmationAccept() (Dialog, tea.Cmd) {
     if d.textinput.Value() == "yes" {
-        d.reset()
         return d, d.returnCmd
     } else if d.textinput.Value() == "no" {
-        d.reset()
+        d.Reset()
         return d, Cancel
     } else {
         d.err = "yes or no"
@@ -112,12 +112,9 @@ func (d Dialog) Update(msg tea.Msg) (Dialog, tea.Cmd) {
                 return d.handleConfirmationAccept()
             }
 
-            value := d.textinput.Value()
-            d.reset()
-
-            return d, AcceptValueUpdate(d.returnCmd, value)
+            return d, AcceptValueUpdate(d.returnCmd, d.textinput.Value())
         case key.Matches(msg, d.keyMap.Cancel):
-            d.reset()
+            d.Reset()
             return d, Cancel
         }
     }
@@ -158,13 +155,21 @@ func (d *Dialog) OnWindowResize(
     d.textinput.Width = dialogWidth
 }
 
-func (d *Dialog) reset() {
+func (d *Dialog) Reset() {
     d.confirmation          = false
     d.textinput.Placeholder = ""
     d.err                   = ""
     d.textinput.Reset()
 }
 
-func (d Dialog) TextInputView() string {
-    return "\n\n" + d.textinput.View() + "\n" + d.err
+func (d Dialog) TextInputView(style lipgloss.Style) string {
+    err := style.
+        Foreground(lipgloss.Color("1")).
+        Render(d.err)
+
+    return "\n" + d.textinput.View() + "\n\n" + err
+}
+
+func (d *Dialog) SetError(err string) {
+    d.err = err
 }

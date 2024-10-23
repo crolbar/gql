@@ -144,21 +144,27 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
 
 
     case DeleteSelectedDBMsg:
-        t.DeleteSelectedDb(db)
-        t.Main.Panes.DeSelectDialog()
-        t.UpdateDBTable(db)
+        if t.handleError(
+            t.DeleteSelectedDb(db),
+        ) {
+            t.UpdateDBTable(db)
+        }
 
     case DeleteSelectedRowMsg:
-        t.DeleteSelectedRow(db)
-        t.Main.Panes.DeSelectDialog()
-        t.UpdateMainTable(db)
+        if t.handleError(
+            t.DeleteSelectedRow(db),
+        ) {
+            t.UpdateMainTable(db)
+        }
 
     case dialog_pane.AcceptValueUpdateMsg:
         switch msg.Cmd().(type) {
         case UpdateSelectedCellMsg:
-            t.Main.Panes.DeSelectDialog()
-            t.UpdateSelectedCell(db, msg.Value)
-            t.UpdateMainTable(db)
+            if t.handleError(
+                t.UpdateSelectedCell(db, msg.Value),
+            ) {
+                t.UpdateMainTable(db)
+            }
         }
 
 
@@ -198,6 +204,25 @@ func (t Tabs) getSelectedValue(msg tea.Msg) string {
         return t.Main.Panes.Main.Table.GetSelectedCell()
     }
     return ""
+}
+
+func (t *Tabs) handleError(err error) bool {
+    if err != nil {
+        if t.Main.Panes.IsDialogSelected() {
+            t.Main.Panes.Dialog.SetError(err.Error())
+
+            return false
+        }
+
+        return false
+    }
+
+    if t.Main.Panes.IsDialogSelected() {
+        t.Main.Panes.DeSelectDialog()
+        t.Main.Panes.Dialog.Reset()
+    }
+
+    return true
 }
 
 func (t Tabs) SelectedTabView() string {

@@ -23,14 +23,18 @@
     -   [x] drop db
     -   [ ] drop table
     -   [x] delete row
+    -   [ ] delete selected rows
+    -   [ ] delete selected columuns
 -   [ ] ~~create~~
 
--   [ ] dialog
+-   [x] dialog
 
     -   [x] help msg
-    -   [ ] err msg
-    -   [ ] table help msg ?
+    -   [x] err msg
+    -   [ ] ~~Table help msg ?~~
     -   [x] string (non confirmation) dialog for updating names / columns
+
+-   [ ] send a custom sql query
 
 -   [x] when dialog is selected don't process any char buttons
 -   [ ] fix crash on none tables in db
