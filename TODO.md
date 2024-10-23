@@ -16,20 +16,23 @@
 
 -   [ ] filter (where clause)
 -   [ ] update
--   [ ] insert
+    -   [x] cell
+    -   [ ] table name
+-   [ ] ~~insert~~
 -   [ ] delete / drop
     -   [x] drop db
     -   [ ] drop table
     -   [x] delete row
--   [ ] create
+-   [ ] ~~create~~
 
 -   [ ] dialog
 
     -   [x] help msg
     -   [ ] err msg
     -   [ ] table help msg ?
-    -   [ ] string (non confirmation) dialog for updating names / columns
+    -   [x] string (non confirmation) dialog for updating names / columns
 
+-   [ ] when dialog is selected don't process any char buttons
 -   [ ] fix crash on none tables in db
 -   [ ] fix crashes on empty main table
 -   [ ] refresh dbs and db tables button
