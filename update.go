@@ -66,12 +66,18 @@ func (m model) mainUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
     case tea.KeyMsg:
         switch {
         case key.Matches(msg, m.keyMap.Quit):
+            if m.tabs.IsTyting() && msg.String() == "q" {
+                break;
+            }
+
             return m, tea.Quit
         case key.Matches(msg, m.keyMap.ChangeCreds):
-            if !m.tabs.Main.Panes.IsDialogSelected() {
-                m.changeCreds()
-                return m, nil
+            if m.tabs.IsTyting() {
+                break;
             }
+
+            m.changeCreds()
+            return m, nil
         }
 	}
 

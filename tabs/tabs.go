@@ -162,14 +162,17 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
         }
 
 
-    case tea.KeyMsg:
-        switch {
-        case key.Matches(msg, t.keyMap.SelectMain):
-            t.selected = Main
 
-        case key.Matches(msg, t.keyMap.SelectDescribe):
-            t.selected = Describe
-            t.UpdateDescribeTable(db)
+    case tea.KeyMsg:
+        if !t.IsTyting() {
+            switch {
+            case key.Matches(msg, t.keyMap.SelectMain):
+                t.selected = Main
+
+            case key.Matches(msg, t.keyMap.SelectDescribe):
+                t.selected = Describe
+                t.UpdateDescribeTable(db)
+            }
         }
     }
 
@@ -226,4 +229,8 @@ func (t *Tabs) OnWindowResize(msg tea.WindowSizeMsg, isConnected bool) {
 
 func (t *Tabs) GetCurrDB() string {
     return t.currDB
+}
+
+func (t *Tabs) IsTyting() bool {
+    return t.Main.Panes.IsDialogSelected()
 }

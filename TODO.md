@@ -32,7 +32,7 @@
     -   [ ] table help msg ?
     -   [x] string (non confirmation) dialog for updating names / columns
 
--   [ ] when dialog is selected don't process any char buttons
+-   [x] when dialog is selected don't process any char buttons
 -   [ ] fix crash on none tables in db
 -   [ ] fix crashes on empty main table
 -   [ ] refresh dbs and db tables button
