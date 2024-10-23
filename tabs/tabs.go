@@ -85,6 +85,12 @@ func DeleteSelectedRow() tea.Msg {
     return DeleteSelectedRowMsg{}
 }
 
+type UpdateSelectedCellMsg struct {}
+func UpdateSelectedCell() tea.Msg {
+    return UpdateSelectedCellMsg{}
+}
+
+
 func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
     var cmd tea.Cmd
 
@@ -119,6 +125,22 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
             t.Main.Panes.DbTables.Table.GetWidth(),
             t.Main.Panes.Main.Table.GetWidth(),
         )
+    case dialog_pane.RequestValueUpdateMsg:
+        t.Main.Panes.SelectDialog()
+
+        t.Main.Panes.Dialog.SetupValueUpdate(
+            msg.Cmd,
+            t.generateDialogHelpMsg(msg.Cmd()),
+            t.getSelectedValue(msg.Cmd()),
+        )
+
+        t.Main.Panes.Dialog.OnWindowResize(
+            t.Main.GetHight(),
+            t.Main.GetWidth(),
+            t.Main.Panes.Db.Table.GetWidth(),
+            t.Main.Panes.DbTables.Table.GetWidth(),
+            t.Main.Panes.Main.Table.GetWidth(),
+        )
 
 
     case DeleteSelectedDBMsg:
@@ -130,6 +152,14 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
         t.DeleteSelectedRow(db)
         t.Main.Panes.DeSelectDialog()
         t.UpdateMainTable(db)
+
+    case dialog_pane.AcceptValueUpdateMsg:
+        switch msg.Cmd().(type) {
+        case UpdateSelectedCellMsg:
+            t.Main.Panes.DeSelectDialog()
+            t.UpdateSelectedCell(db, msg.Value)
+            t.UpdateMainTable(db)
+        }
 
 
     case tea.KeyMsg:
@@ -153,6 +183,16 @@ func (t Tabs) generateDialogHelpMsg(msg tea.Msg) string {
         return "Are you sure you want to delete database " + t.currDB
     case DeleteSelectedRowMsg:
         return "Are you sure you want to delete this row"
+    case UpdateSelectedCellMsg:
+        return "Set new value for the selected cell"
+    }
+    return ""
+}
+
+func (t Tabs) getSelectedValue(msg tea.Msg) string {
+    switch msg.(type) {
+    case UpdateSelectedCellMsg:
+        return t.Main.Panes.Main.Table.GetSelectedCell()
     }
     return ""
 }

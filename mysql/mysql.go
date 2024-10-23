@@ -218,7 +218,12 @@ func GetUser(db *sql.DB) string {
 }
 
 func DeleteDB(db *sql.DB, dbName string) error {
-    _, err := db.Query(fmt.Sprintf("drop database %s", dbName))
+    _, err := db.Query(
+        fmt.Sprintf(
+            "drop database %s",
+            dbName,
+        ),
+    )
     return err
 }
 
@@ -229,6 +234,45 @@ func DeleteRow(
     row table.Row,
     cols []table.Column,
 ) error {
+    _, err := db.Query(
+        fmt.Sprintf(
+            "delete from %s.%s where %s",
+            dbName,
+            tableName,
+            buildWhereClause(row, cols),
+        ),
+    )
+
+    return err
+}
+
+func UpdateCell(
+    db *sql.DB,
+    dbName,
+    tableName string,
+    row table.Row,
+    cols []table.Column,
+    selectedCol int,
+    value string,
+) error {
+    _, err := db.Query(
+        fmt.Sprintf(
+            "update %s.%s set %s = '%s' where %s",
+            dbName,
+            tableName,
+            cols[selectedCol].Title,
+            value,
+            buildWhereClause(row, cols),
+        ),
+    )
+
+    return err
+}
+
+func buildWhereClause(
+    row table.Row,
+    cols []table.Column,
+) string {
     var sb strings.Builder
 
     for i := 0; i < len(cols); i++ {
@@ -247,19 +291,7 @@ func DeleteRow(
         }
     }
 
-    _, err := db.Query(
-        fmt.Sprintf(
-            "delete from %s.%s where %s",
-            dbName,
-            tableName,
-            sb.String(),
-        ),
-    )
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    return err
+    return sb.String()
 }
 
 func getTableFromQueryRes(res *sql.Rows) ([]table.Column, []table.Row) {

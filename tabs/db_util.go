@@ -67,3 +67,20 @@ func (t *Tabs) DeleteSelectedRow(db *sql.DB) {
         log.Fatal(err)
     }
 }
+
+func (t *Tabs) UpdateSelectedCell(db *sql.DB, value string) {
+    err := mysql.UpdateCell(
+        db,
+        t.currDB,
+        t.currDBTable,
+        t.Main.Panes.Main.Table.GetSelectedRow(),
+        t.Main.Panes.Main.Table.GetCols(),
+        t.Main.Panes.Main.Table.GetCursor().X,
+        value,
+    )
+
+    // TODO: handle error
+    if err != nil {
+        log.Fatal(err)
+    }
+}
