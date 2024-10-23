@@ -110,7 +110,8 @@ func GetTable(db *sql.DB, currDB, selTable string) ([]table.Column, []table.Row)
                 currRow = append(currRow, "NULL")
 			case []byte:
                 text := string(val)
-                text = strings.ReplaceAll(text, "\n", "\\n")
+                text = strings.ReplaceAll(text, "\\", "\\\\") // replace "\" with "\\"
+                text = strings.ReplaceAll(text, "\n", "\\n") // replace new lines with "\n"
                 currRow = append(currRow, text)
             case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
                 currRow = append(currRow, fmt.Sprintf("%d", val))
@@ -279,11 +280,9 @@ func buildWhereClause(
         if row[i] == "NULL" {
             sb.WriteString(fmt.Sprintf("`%s` IS NULL", cols[i].Title))
         } else {
-            col := strings.ReplaceAll(row[i], "\\", "\\\\") // replace "\" with "\\"
-            col = strings.ReplaceAll(col, "\\\\n", "\\n")   // replace "\\n" with "\n"
-            col = strings.ReplaceAll(col, "'", "\\'")       // replace "'" with "\'"
+            col := strings.ReplaceAll(row[i], "'", "\\'") // replace "'" with "\'"
 
-            sb.WriteString(fmt.Sprintf("`%s` = '%s' COLLATE utf8mb4_general_ci", cols[i].Title, col))
+            sb.WriteString(fmt.Sprintf("`%s` = '%s'", cols[i].Title, col))
         }
 
         if i != len(cols) - 1 {
