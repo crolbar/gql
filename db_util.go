@@ -46,7 +46,7 @@ func (m *model) onDBConnect(db *sql.DB) {
 
 func getDBUriFromCache() string {
     if util.CacheFileExists() {
-        if uri := util.ReatFromCacheFile(); util.CheckMysql(uri) == nil {
+        if uri := util.ReadFromCacheFile(); util.CheckMysql(uri) == nil {
             return uri
         }
     }

@@ -2,7 +2,9 @@ package main_pane
 
 import (
 	"gql/table"
+	"gql/tabs"
 	"gql/tabs/main_tab/panes"
+	"gql/tabs/main_tab/panes/dialog_pane"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -11,6 +13,8 @@ import (
 
 type KeyMap struct {
     SelectDBTablesPane key.Binding
+    DeleteSelectedRow  key.Binding
+    UpdateSelectedCell key.Binding
 }
 
 func defaultKeyMap() KeyMap {
@@ -18,6 +22,12 @@ func defaultKeyMap() KeyMap {
         SelectDBTablesPane: key.NewBinding(
             key.WithKeys("esc"),
             key.WithHelp(", esc", "back to table selection, "),
+        ),
+        DeleteSelectedRow: key.NewBinding(
+            key.WithKeys("d"),
+        ),
+        UpdateSelectedCell: key.NewBinding(
+            key.WithKeys("c"),
         ),
     }
 }
@@ -45,7 +55,7 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
 
     if cmd != nil {
         switch cmd().(type) {
-        case table.Updated:
+        case table.UpdatedMsg:
             return p, nil
         }
     }
@@ -57,6 +67,10 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
         switch {
         case key.Matches(msg, keyMap.SelectDBTablesPane):
             p.SelectDBTables()
+        case key.Matches(msg, keyMap.DeleteSelectedRow):
+            cmd = dialog_pane.RequestConfirmation(tabs.DeleteSelectedRow)
+        case key.Matches(msg, keyMap.UpdateSelectedCell):
+            cmd = dialog_pane.RequestValueUpdate(tabs.UpdateSelectedCell)
         }
     }
 

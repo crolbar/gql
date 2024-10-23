@@ -1,9 +1,6 @@
 package main_tab
 
 import (
-	"gql/tabs/main_tab/panes/db_pane"
-	"gql/tabs/main_tab/panes/db_tables_pane"
-	"gql/tabs/main_tab/panes/main_pane"
 	"gql/tabs/main_tab/panes"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -15,12 +12,16 @@ type MainTab struct {
     height int
 }
 
-func New() MainTab {
+func New(
+    Db       panes.Pane,
+    DbTables panes.Pane,
+    Main     panes.Pane,
+) MainTab {
     return MainTab{ 
         Panes: panes.New(
-            panes.WithDBPane(db_pane.New()),
-            panes.WithDBTablesPane(db_tables_pane.New()),
-            panes.WithMainPane(main_pane.New()),
+            panes.WithDBPane(Db),
+            panes.WithDBTablesPane(DbTables),
+            panes.WithMainPane(Main),
         ),
     }
 }
@@ -54,6 +55,14 @@ func (t *MainTab) SetHeight(height int) {
 
 func (t *MainTab) SetWidth(width int) {
     t.width = width
+}
+
+func (t *MainTab) GetHight() int {
+    return t.height
+}
+
+func (t *MainTab) GetWidth() int {
+    return t.width
 }
 
 func perc(per, num int) int {

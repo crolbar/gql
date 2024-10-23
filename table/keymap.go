@@ -93,8 +93,11 @@ func (km KeyMap) FullHelp() [][]key.Binding {
     }
 }
 
-type Updated struct{}
-func UpdatedMsg() tea.Msg { return Updated{} }
+type CursorMovedMsg struct{}
+func CursorMoved() tea.Msg { return CursorMovedMsg{} }
+
+type UpdatedMsg struct{}
+func Updated() tea.Msg { return UpdatedMsg{} }
 
 func (t Table) Update(msg tea.Msg) (Table, tea.Cmd) {
     var cmd tea.Cmd
@@ -104,22 +107,31 @@ func (t Table) Update(msg tea.Msg) (Table, tea.Cmd) {
         switch {
         case key.Matches(msg, t.keyMap.LineUp):
             t.MoveUp(1)
+            cmd = CursorMoved
         case key.Matches(msg, t.keyMap.LineDown):
             t.MoveDown(1)
+            cmd = CursorMoved
+
         case key.Matches(msg, t.keyMap.LineLeft):
             t.MoveLeft(1)
+            cmd = CursorMoved
         case key.Matches(msg, t.keyMap.LineRight):
             t.MoveRight(1)
+            cmd = CursorMoved
+
         case key.Matches(msg, t.keyMap.HalfPageUp):
             t.MoveUp(t.height / 4)
+            cmd = CursorMoved
         case key.Matches(msg, t.keyMap.HalfPageDown):
             t.MoveDown(t.height / 4)
-        case key.Matches(msg, t.keyMap.LineDown):
-            t.MoveDown(1)
+            cmd = CursorMoved
+
         case key.Matches(msg, t.keyMap.GotoTop):
             t.GotoTop()
+            cmd = CursorMoved
         case key.Matches(msg, t.keyMap.GotoBottom):
             t.GotoBottom()
+            cmd = CursorMoved
 
         case key.Matches(msg, t.keyMap.ScrollUp):
             t.ScrollUp()
@@ -133,7 +145,7 @@ func (t Table) Update(msg tea.Msg) (Table, tea.Cmd) {
 
         case key.Matches(msg, t.keyMap.EndSelection):
             if t.columnSelect || t.rowSelect {
-                cmd = UpdatedMsg
+                cmd = Updated
             }
 
             t.columnSelect, t.rowSelect = false, false

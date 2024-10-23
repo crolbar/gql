@@ -5,6 +5,7 @@ import (
 	"gql/tabs/describe_tab"
 	"gql/tabs/main_tab"
 	"gql/tabs/main_tab/panes"
+	"gql/tabs/main_tab/panes/dialog_pane"
 
 	"github.com/charmbracelet/lipgloss"
 
@@ -42,11 +43,19 @@ type Tabs struct {
     currDBTable string
 }
 
-func New() Tabs {
+func New(
+    DbPane       panes.Pane,
+    DbTablesPane panes.Pane,
+    MainPane     panes.Pane,
+) Tabs {
     return Tabs {
         selected: Main,
 
-        Main:     main_tab.New(),
+        Main: main_tab.New(
+            DbPane,
+            DbTablesPane,
+            MainPane,
+        ),
         Describe: describe_tab.New(),
 
         keyMap: defaultKeyMap(),
@@ -55,6 +64,32 @@ func New() Tabs {
         currDBTable: "",
     }
 }
+
+type RequireMainTableUpdateMsg struct{}
+func RequireMainTableUpdate() tea.Msg {
+    return RequireMainTableUpdateMsg{}
+}
+
+type RequireDBTablesUpdateMsg struct{}
+func RequireDBTablesUpdate() tea.Msg {
+    return RequireDBTablesUpdateMsg{}
+}
+
+type DeleteSelectedDBMsg struct{}
+func DeleteSelectedDB() tea.Msg {
+    return DeleteSelectedDBMsg{}
+}
+
+type DeleteSelectedRowMsg struct{}
+func DeleteSelectedRow() tea.Msg {
+    return DeleteSelectedRowMsg{}
+}
+
+type UpdateSelectedCellMsg struct {}
+func UpdateSelectedCell() tea.Msg {
+    return UpdateSelectedCellMsg{}
+}
+
 
 func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
     var cmd tea.Cmd
@@ -67,24 +102,127 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
     }
 
     switch msg := msg.(type) {
-    case panes.RequireDBTablesUpdateMsg:
+    case RequireDBTablesUpdateMsg:
         t.UpdateDBTablesTable(db)
-    case panes.RequireMainTableUpdateMsg:
+    case RequireMainTableUpdateMsg:
         t.UpdateMainTable(db)
 
-    case tea.KeyMsg:
-        switch {
-        case key.Matches(msg, t.keyMap.SelectMain):
-            t.selected = Main
+    case dialog_pane.CancelMsg:
+        t.Main.Panes.DeSelectDialog()
 
-        case key.Matches(msg, t.keyMap.SelectDescribe):
-            t.selected = Describe
-            t.UpdateDescribeTable(db)
+    case dialog_pane.RequestConfirmationMsg:
+        t.Main.Panes.SelectDialog()
+
+        t.Main.Panes.Dialog.SetupConfirmation(
+            msg.Cmd,
+            t.generateDialogHelpMsg(msg.Cmd()),
+        )
+
+        t.Main.Panes.Dialog.OnWindowResize(
+            t.Main.GetHight(),
+            t.Main.GetWidth(),
+            t.Main.Panes.Db.Table.GetWidth(),
+            t.Main.Panes.DbTables.Table.GetWidth(),
+            t.Main.Panes.Main.Table.GetWidth(),
+        )
+    case dialog_pane.RequestValueUpdateMsg:
+        t.Main.Panes.SelectDialog()
+
+        t.Main.Panes.Dialog.SetupValueUpdate(
+            msg.Cmd,
+            t.generateDialogHelpMsg(msg.Cmd()),
+            t.getSelectedValue(msg.Cmd()),
+        )
+
+        t.Main.Panes.Dialog.OnWindowResize(
+            t.Main.GetHight(),
+            t.Main.GetWidth(),
+            t.Main.Panes.Db.Table.GetWidth(),
+            t.Main.Panes.DbTables.Table.GetWidth(),
+            t.Main.Panes.Main.Table.GetWidth(),
+        )
+
+
+    case DeleteSelectedDBMsg:
+        if t.handleError(
+            t.DeleteSelectedDb(db),
+        ) {
+            t.UpdateDBTable(db)
+        }
+
+    case DeleteSelectedRowMsg:
+        if t.handleError(
+            t.DeleteSelectedRow(db),
+        ) {
+            t.UpdateMainTable(db)
+        }
+
+    case dialog_pane.AcceptValueUpdateMsg:
+        switch msg.Cmd().(type) {
+        case UpdateSelectedCellMsg:
+            if t.handleError(
+                t.UpdateSelectedCell(db, msg.Value),
+            ) {
+                t.UpdateMainTable(db)
+            }
+        }
+
+
+
+    case tea.KeyMsg:
+        if !t.IsTyting() {
+            switch {
+            case key.Matches(msg, t.keyMap.SelectMain):
+                t.selected = Main
+
+            case key.Matches(msg, t.keyMap.SelectDescribe):
+                t.selected = Describe
+                t.UpdateDescribeTable(db)
+            }
         }
     }
 
 
     return t, cmd
+}
+
+func (t Tabs) generateDialogHelpMsg(msg tea.Msg) string {
+    switch msg.(type) {
+    case DeleteSelectedDBMsg:
+        return "Are you sure you want to delete database " + t.currDB
+    case DeleteSelectedRowMsg:
+        return "Are you sure you want to delete this row"
+    case UpdateSelectedCellMsg:
+        return "Set new value for the selected cell"
+    }
+    return ""
+}
+
+func (t Tabs) getSelectedValue(msg tea.Msg) string {
+    switch msg.(type) {
+    case UpdateSelectedCellMsg:
+        return t.Main.Panes.Main.Table.GetSelectedCell()
+    }
+    return ""
+}
+
+func (t *Tabs) handleError(err error) bool {
+    if err != nil {
+        if t.Main.Panes.IsDialogSelected() {
+            t.Main.Panes.Dialog.SetError(err.Error())
+
+            return false
+        }
+
+        return false
+    }
+
+    if t.Main.Panes.IsDialogSelected() {
+        t.Main.Panes.DeSelectDialog()
+        t.Main.Panes.Dialog.Reset()
+    }
+
+    return true
 }
 
 func (t Tabs) SelectedTabView() string {
@@ -116,4 +254,8 @@ func (t *Tabs) OnWindowResize(msg tea.WindowSizeMsg, isConnected bool) {
 
 func (t *Tabs) GetCurrDB() string {
     return t.currDB
+}
+
+func (t *Tabs) IsTyting() bool {
+    return t.Main.Panes.IsDialogSelected()
 }

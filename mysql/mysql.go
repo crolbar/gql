@@ -110,7 +110,8 @@ func GetTable(db *sql.DB, currDB, selTable string) ([]table.Column, []table.Row)
                 currRow = append(currRow, "NULL")
 			case []byte:
                 text := string(val)
-                text = strings.ReplaceAll(text, "\n", "\\n")
+                text = strings.ReplaceAll(text, "\\", "\\\\") // replace "\" with "\\"
+                text = strings.ReplaceAll(text, "\n", "\\n") // replace new lines with "\n"
                 currRow = append(currRow, text)
             case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
                 currRow = append(currRow, fmt.Sprintf("%d", val))
@@ -215,4 +216,131 @@ func GetUser(db *sql.DB) string {
 	}
 
     return user
+}
+
+func DeleteDB(db *sql.DB, dbName string) error {
+    _, err := db.Query(
+        fmt.Sprintf(
+            "drop database %s",
+            dbName,
+        ),
+    )
+    return err
+}
+
+func DeleteRow(
+    db *sql.DB,
+    dbName,
+    tableName string,
+    row table.Row,
+    cols []table.Column,
+) error {
+    _, err := db.Query(
+        fmt.Sprintf(
+            "delete from %s.%s where %s",
+            dbName,
+            tableName,
+            buildWhereClause(row, cols),
+        ),
+    )
+
+    return err
+}
+
+func UpdateCell(
+    db *sql.DB,
+    dbName,
+    tableName string,
+    row table.Row,
+    cols []table.Column,
+    selectedCol int,
+    value string,
+) error {
+    _, err := db.Query(
+        fmt.Sprintf(
+            "update %s.%s set %s = '%s' where %s",
+            dbName,
+            tableName,
+            cols[selectedCol].Title,
+            value,
+            buildWhereClause(row, cols),
+        ),
+    )
+
+    return err
+}
+
+func buildWhereClause(
+    row table.Row,
+    cols []table.Column,
+) string {
+    var sb strings.Builder
+
+    for i := 0; i < len(cols); i++ {
+        if row[i] == "NULL" {
+            sb.WriteString(fmt.Sprintf("`%s` IS NULL", cols[i].Title))
+        } else {
+            col := strings.ReplaceAll(row[i], "'", "\\'") // replace "'" with "\'"
+
+            sb.WriteString(fmt.Sprintf("`%s` = '%s'", cols[i].Title, col))
+        }
+
+        if i != len(cols) - 1 {
+            sb.WriteString(" and ")
+        }
+    }
+
+    return sb.String()
+}
+
+func getTableFromQueryRes(res *sql.Rows) ([]table.Column, []table.Row) {
+	columnsRes, err := res.Columns()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	values        := make([]interface{}, len(columnsRes))
+	valuePointers := make([]interface{}, len(columnsRes))
+
+    var rows []table.Row
+    for res.Next() {
+        for i := range columnsRes {
+			valuePointers[i] = &values[i]
+		}
+
+        var currRow table.Row
+
+        if err := res.Scan(valuePointers...); err != nil {
+			log.Fatal(err)
+		}
+
+        for i := range columnsRes {
+			switch val := values[i].(type) {
+			case nil:
+                currRow = append(currRow, "NULL")
+			case []byte:
+                text := string(val)
+                text = strings.ReplaceAll(text, "\n", "\\n")
+                currRow = append(currRow, text)
+            case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+                currRow = append(currRow, fmt.Sprintf("%d", val))
+            case float32, float64:
+                currRow = append(currRow, fmt.Sprintf("%f", val))
+			default:
+                log.Fatalf("Found type that's not supported, val: %v, type: %T", val, val)
+			}
+        }
+
+        rows = append(rows, currRow)
+    }
+
+    columns := make([]table.Column, 0, len(columnsRes))
+    for _, col := range columnsRes {
+        columns = append(columns, table.Column {
+            Title: col,
+            Width: 10,
+        })
+    }
+
+    return columns, rows
 }

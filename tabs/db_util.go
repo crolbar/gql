@@ -43,3 +43,29 @@ func (t *Tabs) UpdateDescribeTable(db *sql.DB) {
     t.Describe.Table.SetColumns(cols)
     t.Describe.Table.SetRows(rows)
 }
+
+func (t *Tabs) DeleteSelectedDb(db *sql.DB) error {
+    return mysql.DeleteDB(db, t.currDB)
+}
+
+func (t *Tabs) DeleteSelectedRow(db *sql.DB) error {
+    return mysql.DeleteRow(
+        db,
+        t.currDB,
+        t.currDBTable,
+        t.Main.Panes.Main.Table.GetSelectedRow(),
+        t.Main.Panes.Main.Table.GetCols(),
+    )
+}
+
+func (t *Tabs) UpdateSelectedCell(db *sql.DB, value string) error {
+    return mysql.UpdateCell(
+        db,
+        t.currDB,
+        t.currDBTable,
+        t.Main.Panes.Main.Table.GetSelectedRow(),
+        t.Main.Panes.Main.Table.GetCols(),
+        t.Main.Panes.Main.Table.GetCursor().X,
+        value,
+    )
+}

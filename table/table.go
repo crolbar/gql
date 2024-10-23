@@ -106,14 +106,18 @@ func (t *Table) SetDisplayOnly() {
 
 func (t *Table) SetColumns(cols []Column) {
     t.cols     = cols
-    t.cursor.X = 0
+    if t.cursor.X >= len(t.cols) {
+        t.cursor.X = 0
+    }
 
     t.UpdateOffset()
 }
 
 func (t *Table) SetRows(rows []Row) {
     t.rows     = rows
-    t.cursor.Y = 0
+    if t.cursor.Y >= len(t.rows) {
+        t.cursor.Y = 0
+    }
 
     t.UpdateOffset()
 }
@@ -169,6 +173,10 @@ func (t *Table) IsSelectingCols() bool {
 
 func (t *Table) GetSelectionStart() int {
     return t.selectionStart
+}
+
+func (t Table) GetCols() []Column {
+    return t.cols
 }
 
 func (t Table) GetSelectedCell() string {

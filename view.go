@@ -30,10 +30,10 @@ func (m model) renderDbg() string {
 
     dbg := fmt.Sprintf(
         "Height: %d, Width: %d, yOff: %d, xOff: %d, fullHeight: %d, fullWidth: %d, dbg: %d",
-        m.tabs.Main.Panes.GetSelected().Table.GetHeight(),
-        m.tabs.Main.Panes.GetSelected().Table.GetWidth(),
-        m.tabs.Main.Panes.GetSelected().Table.GetYOffset(),
-        m.tabs.Main.Panes.GetSelected().Table.GetXOffset(),
+        m.tabs.Main.Panes.GetSelectedTable().GetHeight(),
+        m.tabs.Main.Panes.GetSelectedTable().GetWidth(),
+        m.tabs.Main.Panes.GetSelectedTable().GetYOffset(),
+        m.tabs.Main.Panes.GetSelectedTable().GetXOffset(),
         m.height,
         m.width,
         perc(80, m.height),
@@ -43,10 +43,10 @@ func (m model) renderDbg() string {
     if (len(dbg) > width) {
         //dbg = ""
     } else {
-        dbg = lipgloss.JoinHorizontal( lipgloss.Top,
-            strings.Repeat(" ", width - lipgloss.Width(dbg)),
-            dbg,
-        )
+        //dbg = lipgloss.JoinHorizontal( lipgloss.Top,
+        //    strings.Repeat(" ", width - lipgloss.Width(dbg)),
+        //    dbg,
+        //)
     }
 
     return dbg
@@ -94,7 +94,7 @@ func (m model) renderHelp(infoLen int) string {
 }
 
 func (m model) renderTopInfo() string {
-    selectedTable := m.tabs.Main.Panes.GetSelected().Table
+    selectedTable := m.tabs.Main.Panes.GetSelectedTable()
 
     dbName     := m.tabs.GetCurrDB()
     userName   := m.user
@@ -163,14 +163,14 @@ func (m model) renederTop() string {
         m.tabs.View(),
     )
 
-    InfoTabsHelp := lipgloss.JoinHorizontal(lipgloss.Left,
-        InfoTabs,
+    dbgHelp := lipgloss.JoinVertical(lipgloss.Left,
         topHelp,
+        m.renderDbg(),
     )
 
-    full := lipgloss.JoinVertical(lipgloss.Left,
-        InfoTabsHelp,
-        m.renderDbg(),
+    full := lipgloss.JoinHorizontal(lipgloss.Left,
+        InfoTabs,
+        dbgHelp,
     )
 
     width  := m.width

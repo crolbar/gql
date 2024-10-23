@@ -64,7 +64,7 @@ func CacheFileExists() bool {
 	return !os.IsNotExist(err)
 }
 
-func ReatFromCacheFile() string {
+func ReadFromCacheFile() string {
     cacheDir, err := os.UserCacheDir()
 
     if err != nil {
