@@ -2,6 +2,7 @@ package tabs
 
 import (
 	"database/sql"
+	"errors"
 	"gql/mysql"
 )
 
@@ -32,7 +33,12 @@ func (t *Tabs) UpdateDBTable(db *sql.DB) {
 }
 
 func (t *Tabs) UpdateDBTablesTable(db *sql.DB) {
-    t.currDB = t.Main.Panes.Db.Table.GetSelectedRow()[0]
+    selRow := t.Main.Panes.Db.Table.GetSelectedRow()
+    if selRow == nil {
+        return
+    }
+
+    t.currDB = selRow[0]
 
     whereClause := t.whereClauses[t.currDB]
     cols, rows, err := mysql.GetTables(db, t.currDB, whereClause)
@@ -56,7 +62,16 @@ func (t *Tabs) UpdateDBTablesTable(db *sql.DB) {
 }
 
 func (t *Tabs) UpdateMainTable(db *sql.DB) {
-    t.currDBTable = t.Main.Panes.DbTables.Table.GetSelectedRow()[0]
+    selRow := t.Main.Panes.DbTables.Table.GetSelectedRow()
+    if selRow == nil {
+        t.Main.Panes.Main.Table.SetColumns(nil)
+        t.Main.Panes.Main.Table.SetRows(nil)
+
+        t.Main.SetError(errors.New("No tables in database"))
+        return
+    }
+
+    t.currDBTable = selRow[0]
 
     whereClause := t.whereClauses[t.currDB + "/" + t.currDBTable]
     cols, rows, err := mysql.GetTable(db, t.currDB, t.currDBTable, whereClause)
@@ -97,22 +112,37 @@ func (t *Tabs) DeleteSelectedDbTable(db *sql.DB) error {
     return mysql.DeleteDBTable(db, t.currDB, t.currDBTable)
 }
 
-func (t *Tabs) DeleteSelectedRow(db *sql.DB) error {
-    return mysql.DeleteRow(
-        db,
-        t.currDB,
-        t.currDBTable,
-        t.Main.Panes.Main.Table.GetSelectedRow(),
-        t.Main.Panes.Main.Table.GetCols(),
-    )
+func (t *Tabs) DeleteSelectedRows(db *sql.DB) error {
+    rows := t.Main.Panes.Main.Table.GetSelectedRows()
+
+    for i := 0; i < len(rows); i++ {
+        err := mysql.DeleteRow(
+            db,
+            t.currDB,
+            t.currDBTable,
+            rows[i],
+            t.Main.Panes.Main.Table.GetCols(),
+        )
+
+        if err != nil {
+            return err
+        }
+    }
+
+    return nil
 }
 
 func (t *Tabs) UpdateSelectedCell(db *sql.DB, value string) error {
+    selRow := t.Main.Panes.Main.Table.GetSelectedRow()
+    if selRow == nil {
+        return errors.New("Empty table")
+    }
+
     return mysql.UpdateCell(
         db,
         t.currDB,
         t.currDBTable,
-        t.Main.Panes.Main.Table.GetSelectedRow(),
+        selRow,
         t.Main.Panes.Main.Table.GetCols(),
         t.Main.Panes.Main.Table.GetCursor().X,
         value,

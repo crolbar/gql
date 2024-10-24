@@ -202,7 +202,7 @@ func (t Table) GetSelectedCell() string {
 
 func (t *Table) GetSelectedRow() Row {
     if len(t.rows) == 0 {
-        return Row{""}
+        return nil
     }
 
     return t.rows[t.cursor.Y]

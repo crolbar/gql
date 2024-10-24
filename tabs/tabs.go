@@ -206,7 +206,7 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
 
     case DeleteSelectedRowMsg:
         if t.handleError(
-            t.DeleteSelectedRow(db),
+            t.DeleteSelectedRows(db),
         ) {
             t.UpdateMainTable(db)
         }

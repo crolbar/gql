@@ -24,7 +24,7 @@
     -   [x] drop db
     -   [x] drop table
     -   [x] delete row
-    -   [ ] delete selected rows
+    -   [x] delete selected rows
     -   [ ] delete selected columuns
 -   [ ] ~~create~~
 
