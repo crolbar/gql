@@ -2,27 +2,23 @@ package panes
 
 import "gql/table"
 
-func (p *Panes) getSelectedPane(paneType paneType) *Pane {
+func (p *Panes) getSelectedTable(paneType paneType) *table.Table {
     switch (paneType) {
     case DB:
-        return &p.Db
+        return &p.Db.Table
     case DBTables:
-        return &p.DbTables
+        return &p.DbTables.Table
     case Main:
-        return &p.Main
+        return &p.Main.Table
+    case Dialog:
+        return p.getSelectedTable(p.prev)
     }
-
 
     panic("No pane for the table ?")
 }
 
 func (p *Panes) GetSelectedTable() *table.Table {
-    switch (p.selected) {
-    case Dialog:
-        return &p.getSelectedPane(p.prev).Table
-    default:
-        return &p.getSelectedPane(p.selected).Table
-    }
+    return p.getSelectedTable(p.selected)
 }
 
 func (p *Panes) SelectDB() {
@@ -73,6 +69,4 @@ func (p *Panes) DeSelectDialog() {
     case Main:
         p.SelectMain()
     }
-
-    p.prev = Dialog
 }
