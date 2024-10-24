@@ -179,6 +179,14 @@ func (t Table) GetCols() []Column {
     return t.cols
 }
 
+func (t Table) GetSelColumnName() string {
+    if (len(t.cols) == 0) {
+        return ""
+    }
+
+    return t.cols[t.cursor.X].Title
+}
+
 func (t Table) GetSelectedCell() string {
     if (len(t.rows) == 0) {
         return ""
