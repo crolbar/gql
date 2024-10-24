@@ -142,8 +142,7 @@ func (d *Dialog) GetHelpMsg() string {
     return d.help
 }
 
-func (d *Dialog) OnWindowResize(
-    height,
+func (d *Dialog) SetWidth(
     width, 
     dbPaneWidth,
     dbTablesPaneWidth,

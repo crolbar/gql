@@ -15,7 +15,7 @@
 -   [x] errors (eg: no permisions to access table)
 
 -   [x] filter (where clause)
-    -   [ ] on resize
+    -   [x] set textinput width
 -   [ ] update
     -   [x] cell
     -   [ ] table name

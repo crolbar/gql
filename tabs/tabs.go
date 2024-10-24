@@ -122,6 +122,7 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
         t.Main.Panes.Filter.UpdateValue(t.GetWhereClause())
         t.Main.Panes.Filter.UpdatePrefix(t.GetWhereClausePrefix())
         t.Main.Panes.SelectFilter()
+        t.Main.Panes.Filter.SetWidth(t.Main.GetWidth())
 
     case filter_pane.AcceptMsg:
         t.Main.Panes.DeSelectDialogFilter()
@@ -144,8 +145,7 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
             t.generateDialogHelpMsg(msg.Cmd()),
         )
 
-        t.Main.Panes.Dialog.OnWindowResize(
-            t.Main.GetHight(),
+        t.Main.Panes.Dialog.SetWidth(
             t.Main.GetWidth(),
             t.Main.Panes.Db.Table.GetWidth(),
             t.Main.Panes.DbTables.Table.GetWidth(),
@@ -160,8 +160,7 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
             t.getSelectedValue(msg.Cmd()),
         )
 
-        t.Main.Panes.Dialog.OnWindowResize(
-            t.Main.GetHight(),
+        t.Main.Panes.Dialog.SetWidth(
             t.Main.GetWidth(),
             t.Main.Panes.Db.Table.GetWidth(),
             t.Main.Panes.DbTables.Table.GetWidth(),

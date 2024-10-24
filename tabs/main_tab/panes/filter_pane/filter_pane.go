@@ -75,6 +75,10 @@ func (f Filter) View() string {
     return f.textinput.View()
 }
 
+func (f *Filter) SetWidth(width int) {
+    f.textinput.Width = (width / 2) - len(f.textinput.Prompt)
+}
+
 func (f *Filter) Focus() {
     f.textinput.Focus()
 }
