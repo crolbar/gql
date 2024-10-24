@@ -315,6 +315,25 @@ func UpdateCell(
     return err
 }
 
+func ChangeDbTableName(
+    db *sql.DB,
+    dbName,
+    tableName string,
+    value string,
+) error {
+    _, err := db.Query(
+        fmt.Sprintf(
+            "alter table %s.%s rename to %s.%s",
+            dbName,
+            tableName,
+            dbName,
+            value,
+        ),
+    )
+
+    return err
+}
+
 func buildWhereClause(
     row table.Row,
     cols []table.Column,

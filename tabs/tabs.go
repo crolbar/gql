@@ -102,6 +102,11 @@ func UpdateSelectedCell() tea.Msg {
     return UpdateSelectedCellMsg{}
 }
 
+type ChangeDbTableNameMsg struct {}
+func ChangeDbTableName() tea.Msg {
+    return ChangeDbTableNameMsg{}
+}
+
 type FocusFilterMsg struct {}
 func FocusFilter() tea.Msg {
     return FocusFilterMsg{}
@@ -219,6 +224,12 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
             ) {
                 t.UpdateMainTable(db)
             }
+        case ChangeDbTableNameMsg:
+            if t.handleError(
+                t.ChangeDbTableName(db, msg.Value),
+            ) {
+                t.UpdateDBTablesTable(db)
+            }
         }
 
 
@@ -256,6 +267,8 @@ func (t Tabs) getSelectedValue(msg tea.Msg) string {
     switch msg.(type) {
     case UpdateSelectedCellMsg:
         return t.Main.Panes.Main.Table.GetSelectedCell()
+    case ChangeDbTableNameMsg:
+        return t.Main.Panes.DbTables.Table.GetSelectedCell()
     }
     return ""
 }

@@ -16,9 +16,9 @@
 
 -   [x] filter (where clause)
     -   [x] set textinput width
--   [ ] update
+-   [x] update
     -   [x] cell
-    -   [ ] table name
+    -   [x] table name
 -   [ ] ~~insert~~
 -   [ ] delete / drop
     -   [x] drop db

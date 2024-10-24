@@ -16,6 +16,7 @@ type KeyMap struct {
     SelectMainTable key.Binding
     Filter          key.Binding
     Delete          key.Binding
+    Rename          key.Binding
     SendCustomQuery key.Binding
 }
 
@@ -34,6 +35,9 @@ func defaultKeyMap() KeyMap {
         ),
         Delete: key.NewBinding(
             key.WithKeys("d"),
+        ),
+        Rename: key.NewBinding(
+            key.WithKeys("c"),
         ),
         SendCustomQuery: key.NewBinding(
             key.WithKeys(":"),
@@ -84,6 +88,9 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
 
         case key.Matches(msg, keyMap.Delete):
             cmd = dialog_pane.RequestConfirmation(tabs.DeleteSelectedDBTable)
+
+        case key.Matches(msg, keyMap.Rename):
+            cmd = dialog_pane.RequestValueUpdate(tabs.ChangeDbTableName)
 
         case key.Matches(msg, keyMap.Filter):
             cmd = tabs.FocusFilter

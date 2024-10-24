@@ -149,6 +149,10 @@ func (t *Tabs) UpdateSelectedCell(db *sql.DB, value string) error {
     )
 }
 
+func (t *Tabs) ChangeDbTableName(db *sql.DB, value string) error {
+    return mysql.ChangeDbTableName(db, t.currDB, t.currDBTable, value)
+}
+
 func (t *Tabs) SendQuery(db *sql.DB, query string) {
     t.Main.SetError(mysql.SendQuery(db, query))
 }
