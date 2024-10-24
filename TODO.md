@@ -12,9 +12,10 @@
 -   [x] if an keypress is handled by the table update don't handle it from the pane's update (eg: esc)
 -   [x] esc for cancel in auth
 
--   [ ] errors (eg: no permisions to access table)
+-   [x] errors (eg: no permisions to access table)
 
 -   [x] filter (where clause)
+    -   [ ] on resize
 -   [ ] update
     -   [x] cell
     -   [ ] table name

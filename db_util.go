@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"gql/mysql"
 	"gql/util"
-	"log"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -15,9 +14,6 @@ func (m model) openMysql() tea.Msg {
     }
 
     db, err := sql.Open("mysql", m.uri)
-	if err != nil {
-		log.Fatal(err)
-	}
 
     err = db.Ping()
 	if err != nil {
@@ -40,7 +36,12 @@ func (m *model) onDBConnect(db *sql.DB) {
     if (m.db != nil) {
         m.tabs.UpdateDBTable(db)
         m.tabs.Main.Panes.Db.Table.Focus()
-        m.user = mysql.GetUser(db)
+        user, err := mysql.GetUser(db)
+        if err != nil {
+            m.tabs.Main.SetError(err)
+        } else {
+            m.user = user
+        }
     }
 }
 

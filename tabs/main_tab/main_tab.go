@@ -10,6 +10,8 @@ type MainTab struct {
 
     width  int
     height int
+
+    err    error
 }
 
 func New(
@@ -63,6 +65,22 @@ func (t *MainTab) GetHight() int {
 
 func (t *MainTab) GetWidth() int {
     return t.width
+}
+
+func (t *MainTab) SetError(err error) {
+    t.err = err
+}
+
+func (t *MainTab) GetErrorStr() string {
+    if t.err == nil {
+        return ""
+    }
+
+    return t.err.Error()
+}
+
+func (t *MainTab) HasError() bool {
+    return t.err != nil
 }
 
 func perc(per, num int) int {

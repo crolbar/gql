@@ -31,16 +31,9 @@ func (t MainTab) generateRightBoard(
     borderColor,
     headerTxt string,
     viewfn interface{},
+    width,
+    height int,
 ) string {
-    dbWidth := 0
-    if (t.Panes.ShouldShowDB()) {
-        dbWidth = t.Panes.Db.Table.GetWidth()
-    }
-
-    dbTablesWidth := t.Panes.DbTables.Table.GetWidth()
-    mainWidth     := t.Panes.Main.Table.GetWidth()
-    tablesWidth   := dbWidth + dbTablesWidth + mainWidth
-    width         := (t.width - tablesWidth) - (1 + 1)
 
     style := style.
         Align(lipgloss.Left).
@@ -55,13 +48,6 @@ func (t MainTab) generateRightBoard(
         BorderBottom(false).
         BorderForeground(lipgloss.Color(borderColor)).
         Render(headerTxt)
-
-    height := t.height - 2
-
-    // down by one on even to match the max main table height
-    if height & 1 == 0 {
-        height--;
-    }
 
     border.TopLeft  = "├"
     border.TopRight = "┤"
@@ -87,10 +73,35 @@ func (t MainTab) generateRightBoard(
 
 }
 
+func (t MainTab) getRightSize() (int, int) {
+    dbWidth := 0
+    if (t.Panes.ShouldShowDB()) {
+        dbWidth = t.Panes.Db.Table.GetWidth()
+    }
+
+    dbTablesWidth := t.Panes.DbTables.Table.GetWidth()
+    mainWidth     := t.Panes.Main.Table.GetWidth()
+    tablesWidth   := dbWidth + dbTablesWidth + mainWidth
+    width         := t.width - tablesWidth
+
+    height := t.height
+
+
+    // down by one on even to match the max main table height
+    if height & 1 == 0 {
+        height--;
+    }
+
+    return width, height
+}
+
 func (t MainTab) renderDialog() string {
+    width, height := t.getRightSize()
+
     return t.generateRightBoard("255",
         t.Panes.Dialog.GetHelpMsg(), 
         t.Panes.Dialog.TextInputView,
+        width - 2, height - 2,
     )
 }
 
@@ -99,10 +110,61 @@ func (t MainTab) renderRight() string {
         return t.renderDialog()
     }
 
-    return t.generateRightBoard("240",
-        "Selected Cell",
-        t.Panes.GetSelectedTable().GetSelectedCell,
-    )
+    width, height := t.getRightSize()
+    width -= 2
+
+    err := style.
+        Width(width).
+        Render(t.GetErrorStr())
+
+    renderOnlyError := false
+
+    if t.HasError() {
+        if lipgloss.Height(err) + 2 + 2 > height / 2 {
+            renderOnlyError = true
+        } else {
+            height -= lipgloss.Height(err) + 2 + 2 // make space for the error + header + borders
+        }
+    }
+
+    selCellHeight := height / 2
+    selColHeight  := height / 2
+
+    if height & 1 > 0 {
+        selCellHeight++
+    }
+
+    full := ""
+
+    if !renderOnlyError {
+        full = lipgloss.JoinVertical(lipgloss.Left,
+            t.generateRightBoard("240",
+                "Selected Cell",
+                t.Panes.GetSelectedTable().GetSelectedCell,
+                width, selCellHeight - 2,
+            ),
+            t.generateRightBoard("240",
+                "Selected Column",
+                func() string {
+                    return t.Panes.GetSelectedTable().GetSelColumnName()
+                },
+                width, selColHeight - 2,
+            ),
+        )
+    }
+
+    if t.HasError() {
+        full = lipgloss.JoinVertical(lipgloss.Left,
+            full,
+            t.generateRightBoard("1",
+                "Error",
+                func() string { return err },
+                width, min(lipgloss.Height(err) + 2, height), // + 2 for the header
+            ),
+        )
+    }
+
+    return full
 }
 
 func (t MainTab) RenderTables() string {

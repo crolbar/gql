@@ -14,7 +14,7 @@ import (
 func GetDatabases(
     db *sql.DB,
     whereClause string,
-) ([]table.Column, []table.Row) {
+) ([]table.Column, []table.Row, error) {
     query := "show databases"
 
     if whereClause != "" {
@@ -23,7 +23,7 @@ func GetDatabases(
 
     rowsRes, err := db.Query(query)
 	if err != nil {
-		log.Fatal(err)
+        return nil, nil, err
 	}
 
     var rows []table.Row
@@ -34,7 +34,7 @@ func GetDatabases(
 		var dbName string
 
 		if err := rowsRes.Scan(&dbName); err != nil {
-			log.Fatal(err)
+            return nil, nil, err
 		}
 
 		rows = append(rows, []string{dbName})
@@ -54,14 +54,14 @@ func GetDatabases(
         }, 
     }
 
-    return cols, rows
+    return cols, rows, nil
 }
 
 func GetTables(
     db *sql.DB,
     dbName,
     whereClause string,
-) ([]table.Column, []table.Row) {
+) ([]table.Column, []table.Row, error) {
     query := fmt.Sprintf("show tables from %s", dbName)
 
     if whereClause != "" {
@@ -70,7 +70,7 @@ func GetTables(
 
     rowsRes, err := db.Query(query)
 	if err != nil {
-		log.Fatal(err)
+        return nil, nil, err
 	}
 
     var rows []table.Row
@@ -78,7 +78,7 @@ func GetTables(
 		var tableName string
 
 		if err := rowsRes.Scan(&tableName); err != nil {
-			log.Fatal(err)
+            return nil, nil, err
 		}
 
 		rows = append(rows, []string{tableName})
@@ -93,7 +93,7 @@ func GetTables(
         }, 
     }
 
-    return cols, rows
+    return cols, rows, nil
 }
 
 func GetTable(
@@ -101,7 +101,7 @@ func GetTable(
     currDB,
     selTable,
     whereClause string,
-) ([]table.Column, []table.Row) {
+) ([]table.Column, []table.Row, error) {
     query := fmt.Sprintf("select * from %s.%s", currDB, selTable)
 
     if whereClause != "" {
@@ -110,12 +110,12 @@ func GetTable(
 
     rowsRes, err := db.Query(query)
 	if err != nil {
-		log.Fatal(err)
+        return nil, nil, err
 	}
 
 	columnsRes, err := rowsRes.Columns()
 	if err != nil {
-		log.Fatal(err)
+        return nil, nil, err
 	}
 
 	values        := make([]interface{}, len(columnsRes))
@@ -131,7 +131,7 @@ func GetTable(
         var currRow table.Row
 
         if err := rowsRes.Scan(valuePointers...); err != nil {
-			log.Fatal(err)
+            return nil, nil, err
 		}
 
         for i := range columnsRes {
@@ -164,18 +164,22 @@ func GetTable(
     }
 
 
-    return columns, rows
+    return columns, rows, nil
 }
 
-func GetDescribe(db *sql.DB, currDB, selTable string) ([]table.Column, []table.Row) {
+func GetDescribe(
+    db *sql.DB,
+    currDB,
+    selTable string,
+) ([]table.Column, []table.Row, error) {
     rowsRes, err := db.Query(fmt.Sprintf("describe %s.%s", currDB, selTable))
 	if err != nil {
-		log.Fatal(err)
+        return nil, nil, err
 	}
 
 	columnsRes, err := rowsRes.Columns()
 	if err != nil {
-		log.Fatal(err)
+        return nil, nil, err
 	}
 
 	values        := make([]interface{}, len(columnsRes))
@@ -193,7 +197,7 @@ func GetDescribe(db *sql.DB, currDB, selTable string) ([]table.Column, []table.R
         var currRow table.Row
 
         if err := rowsRes.Scan(valuePointers...); err != nil {
-			log.Fatal(err)
+            return nil, nil, err
 		}
 
         var text string
@@ -229,23 +233,23 @@ func GetDescribe(db *sql.DB, currDB, selTable string) ([]table.Column, []table.R
         })
     }
 
-    return columns, rows
+    return columns, rows, nil
 }
 
-func GetUser(db *sql.DB) string {
+func GetUser(db *sql.DB) (string, error) {
     res, err := db.Query(fmt.Sprintf("select user()"))
 	if err != nil {
-		log.Fatal(err)
+        return "", err
 	}
 
     var user string
 	for res.Next() {
 		if err := res.Scan(&user); err != nil {
-			log.Fatal(err)
+            return "", err
 		}
 	}
 
-    return user
+    return user, nil
 }
 
 func DeleteDB(db *sql.DB, dbName string) error {
@@ -323,10 +327,10 @@ func buildWhereClause(
     return sb.String()
 }
 
-func getTableFromQueryRes(res *sql.Rows) ([]table.Column, []table.Row) {
+func getTableFromQueryRes(res *sql.Rows) ([]table.Column, []table.Row, error) {
 	columnsRes, err := res.Columns()
 	if err != nil {
-		log.Fatal(err)
+        return nil, nil, err
 	}
 
 	values        := make([]interface{}, len(columnsRes))
@@ -341,7 +345,7 @@ func getTableFromQueryRes(res *sql.Rows) ([]table.Column, []table.Row) {
         var currRow table.Row
 
         if err := res.Scan(valuePointers...); err != nil {
-			log.Fatal(err)
+            return nil, nil, err
 		}
 
         for i := range columnsRes {
@@ -372,5 +376,5 @@ func getTableFromQueryRes(res *sql.Rows) ([]table.Column, []table.Row) {
         })
     }
 
-    return columns, rows
+    return columns, rows, nil
 }
