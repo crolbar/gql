@@ -42,3 +42,5 @@
 -   [x] fix crash on none tables in db
 -   [x] fix crashes on empty main table
 -   [ ] refresh dbs and db tables button
+-   [ ] more to help menu
+-   [ ] fix binary data
