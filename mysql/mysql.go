@@ -327,6 +327,12 @@ func buildWhereClause(
     return sb.String()
 }
 
+func SendQuery(db *sql.DB, query string) error {
+    _, err := db.Query(query)
+    return err
+}
+
+
 func getTableFromQueryRes(res *sql.Rows) ([]table.Column, []table.Row, error) {
 	columnsRes, err := res.Columns()
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"gql/tabs/describe_tab"
 	"gql/tabs/main_tab"
 	"gql/tabs/main_tab/panes"
+	"gql/tabs/main_tab/panes/cmd_pane"
 	"gql/tabs/main_tab/panes/dialog_pane"
 	"gql/tabs/main_tab/panes/filter_pane"
 
@@ -101,6 +102,11 @@ func FocusFilter() tea.Msg {
     return FocusFilterMsg{}
 }
 
+type FocusCmdMsg struct {}
+func FocusCmd() tea.Msg {
+    return FocusCmdMsg{}
+}
+
 func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
     var cmd tea.Cmd
 
@@ -118,6 +124,17 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
         t.UpdateMainTable(db)
 
 
+    case FocusCmdMsg:
+        t.Main.Panes.SelectCmd()
+
+    case cmd_pane.CancelMsg:
+        t.Main.Panes.DeSelectDialogFilterCmd()
+
+    case cmd_pane.AcceptMsg:
+        t.SendQuery(db, msg.Query)
+        t.Main.Panes.DeSelectDialogFilterCmd()
+
+
     case FocusFilterMsg:
         t.Main.Panes.Filter.UpdateValue(t.GetWhereClause())
         t.Main.Panes.Filter.UpdatePrefix(t.GetWhereClausePrefix())
@@ -125,16 +142,16 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
         t.Main.Panes.Filter.SetWidth(t.Main.GetWidth())
 
     case filter_pane.AcceptMsg:
-        t.Main.Panes.DeSelectDialogFilter()
+        t.Main.Panes.DeSelectDialogFilterCmd()
         t.UpdateCurrentWhereClause(db, msg.Txt) // after DeSelect !!!
 
     case filter_pane.CancelMsg:
-        t.Main.Panes.DeSelectDialogFilter()
+        t.Main.Panes.DeSelectDialogFilterCmd()
         t.UpdateCurrentWhereClause(db, "")      // after DeSelect !!!
 
 
     case dialog_pane.CancelMsg:
-        t.Main.Panes.DeSelectDialogFilter()
+        t.Main.Panes.DeSelectDialogFilterCmd()
         t.UpdateMainTable(db)
 
     case dialog_pane.RequestConfirmationMsg:
@@ -243,7 +260,7 @@ func (t *Tabs) handleError(err error) bool {
     }
 
     if t.Main.Panes.IsDialogSelected() {
-        t.Main.Panes.DeSelectDialogFilter()
+        t.Main.Panes.DeSelectDialogFilterCmd()
         t.Main.Panes.Dialog.Reset()
     }
 
@@ -322,5 +339,7 @@ func (t *Tabs) GetCurrDB() string {
 }
 
 func (t *Tabs) IsTyting() bool {
-    return t.Main.Panes.IsDialogSelected() || t.Main.Panes.IsFilterSelected()
+    return t.Main.Panes.IsDialogSelected() ||
+    t.Main.Panes.IsFilterSelected() ||
+    t.Main.Panes.IsCmdSelected()
 }

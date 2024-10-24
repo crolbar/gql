@@ -169,14 +169,23 @@ func (m model) renederTop() string {
         whereClause = m.tabs.Main.Panes.Filter.View()
     }
 
-    dbgHelp := lipgloss.JoinVertical(lipgloss.Left,
-        topHelp,
-        whereClause,
-    )
+    var right string
+
+    if !m.tabs.Main.Panes.IsCmdSelected() {
+        right = lipgloss.JoinVertical(lipgloss.Left,
+            topHelp,
+            whereClause,
+        )
+    } else {
+        right = lipgloss.JoinVertical(lipgloss.Left,
+            topHelp,
+            m.tabs.Main.Panes.Cmd.View(),
+        )
+    }
 
     full := lipgloss.JoinHorizontal(lipgloss.Left,
         InfoTabs,
-        dbgHelp,
+        right,
     )
 
     width  := m.width

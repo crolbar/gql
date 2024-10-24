@@ -10,7 +10,7 @@ func (p *Panes) getSelectedTable(paneType PaneType) *table.Table {
         return &p.DbTables.Table
     case Main:
         return &p.Main.Table
-    case Dialog, Filter:
+    case Dialog, Filter, Cmd:
         return p.getSelectedTable(p.prev)
     }
 
@@ -74,6 +74,16 @@ func (p *Panes) SelectFilter() {
     p.Db.Table.DeFocus()
 }
 
+func (p *Panes) SelectCmd() {
+    p.prev     = p.selected
+    p.selected = Cmd
+    p.Cmd.Focus()
+
+    p.DbTables.Table.DeFocus()
+    p.Main.Table.DeFocus()
+    p.Db.Table.DeFocus()
+}
+
 func (p *Panes) ShouldShowDB() bool {
     return p.selected == DB || p.prev == DB
 }
@@ -86,10 +96,16 @@ func (p *Panes) IsFilterSelected() bool {
     return p.selected == Filter
 }
 
-func (p *Panes) DeSelectDialogFilter() {
+func (p *Panes) IsCmdSelected() bool {
+    return p.selected == Cmd
+}
+
+func (p *Panes) DeSelectDialogFilterCmd() {
     switch p.selected {
     case Filter:
         p.Filter.DeFocus()
+    case Cmd:
+        p.Cmd.DeFocus()
     }
 
     switch p.prev {

@@ -114,3 +114,7 @@ func (t *Tabs) UpdateSelectedCell(db *sql.DB, value string) error {
         value,
     )
 }
+
+func (t *Tabs) SendQuery(db *sql.DB, query string) {
+    t.Main.SetError(mysql.SendQuery(db, query))
+}

@@ -2,6 +2,7 @@ package panes
 
 import (
 	"gql/table"
+	"gql/tabs/main_tab/panes/cmd_pane"
 	"gql/tabs/main_tab/panes/dialog_pane"
 	"gql/tabs/main_tab/panes/filter_pane"
 
@@ -47,6 +48,7 @@ const (
     Main
     Dialog
     Filter
+    Cmd
 )
 
 type Panes struct {
@@ -58,6 +60,7 @@ type Panes struct {
     Main     Pane
     Dialog   dialog_pane.Dialog
     Filter   filter_pane.Filter
+    Cmd      cmd_pane.Cmd
 }
 
 type Opts func(*Panes)
@@ -65,8 +68,9 @@ type Opts func(*Panes)
 func New(opts ...Opts) Panes {
     p := Panes {
         selected: DB,
-        Dialog:   dialog_pane.InitDialog(),
-        Filter:   filter_pane.InitFilter(),
+        Dialog:   dialog_pane.Init(),
+        Filter:   filter_pane.Init(),
+        Cmd:      cmd_pane.Init(),
         prev:     -1,
     }
 
@@ -93,6 +97,9 @@ func (p Panes) Update(msg tea.Msg) (Panes, tea.Cmd) {
     case Filter:
         p.Filter, cmd = p.Filter.Update(msg)
         return p, cmd 
+    case Cmd:
+        p.Cmd, cmd = p.Cmd.Update(msg)
+        return p, cmd 
     }
 
     panic("No update for the pane ?")
@@ -106,7 +113,7 @@ func (p Panes) HelpView() string {
         return p.DbTables.helpViewf(p)
     case Main:
         return p.Main.helpViewf(p)
-    case Dialog, Filter:
+    case Dialog, Filter, Cmd:
         return ""
     }
 

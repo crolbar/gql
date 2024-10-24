@@ -35,7 +35,8 @@
     -   [ ] ~~Table help msg ?~~
     -   [x] string (non confirmation) dialog for updating names / columns
 
--   [ ] send a custom sql query
+-   [x] send a custom sql query
+    -   [ ] show result
 
 -   [x] when dialog is selected don't process any char buttons
 -   [x] fix crash on none tables in db

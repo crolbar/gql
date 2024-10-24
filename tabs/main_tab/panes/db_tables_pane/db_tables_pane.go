@@ -14,6 +14,7 @@ type KeyMap struct {
     SelectDBTable   key.Binding
     SelectMainTable key.Binding
     Filter          key.Binding
+    SendCustomQuery key.Binding
 }
 
 func defaultKeyMap() KeyMap {
@@ -28,6 +29,9 @@ func defaultKeyMap() KeyMap {
         ),
         Filter: key.NewBinding(
             key.WithKeys("/"),
+        ),
+        SendCustomQuery: key.NewBinding(
+            key.WithKeys(":"),
         ),
     }
 }
@@ -75,6 +79,8 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
 
         case key.Matches(msg, keyMap.Filter):
             cmd = tabs.FocusFilter
+        case key.Matches(msg, keyMap.SendCustomQuery):
+            cmd = tabs.FocusCmd
         }
     }
 

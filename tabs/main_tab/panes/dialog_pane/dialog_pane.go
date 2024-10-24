@@ -33,7 +33,7 @@ type Dialog struct {
     keyMap       KeyMap
 }
 
-func InitDialog() Dialog {
+func Init() Dialog {
 	ti := textinput.New()
 
 	ti.CharLimit   = 156

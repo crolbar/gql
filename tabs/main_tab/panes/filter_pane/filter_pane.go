@@ -27,7 +27,7 @@ type Filter struct {
     textinput textinput.Model
 }
 
-func InitFilter() Filter {
+func Init() Filter {
     ti := textinput.New()
     ti.Prompt = "> where "
     return Filter {
