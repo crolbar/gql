@@ -105,7 +105,10 @@ func (t *Table) SetDisplayOnly() {
 }
 
 func (t *Table) SetColumns(cols []Column) {
-    t.cols     = cols
+    if cols == nil {
+        cols = []Column{{Title: "Empty", Width: 20}}
+    }
+    t.cols = cols
     if t.cursor.X >= len(t.cols) {
         t.cursor.X = 0
     }
@@ -114,7 +117,7 @@ func (t *Table) SetColumns(cols []Column) {
 }
 
 func (t *Table) SetRows(rows []Row) {
-    t.rows     = rows
+    t.rows = rows
     if t.cursor.Y >= len(t.rows) {
         t.cursor.Y = 0
     }
