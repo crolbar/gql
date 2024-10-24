@@ -15,6 +15,7 @@ type KeyMap struct {
     SelectDBTablesPane key.Binding
     DeleteSelectedRow  key.Binding
     UpdateSelectedCell key.Binding
+    Filter             key.Binding
 }
 
 func defaultKeyMap() KeyMap {
@@ -28,6 +29,9 @@ func defaultKeyMap() KeyMap {
         ),
         UpdateSelectedCell: key.NewBinding(
             key.WithKeys("c"),
+        ),
+        Filter: key.NewBinding(
+            key.WithKeys("/"),
         ),
     }
 }
@@ -71,6 +75,8 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
             cmd = dialog_pane.RequestConfirmation(tabs.DeleteSelectedRow)
         case key.Matches(msg, keyMap.UpdateSelectedCell):
             cmd = dialog_pane.RequestValueUpdate(tabs.UpdateSelectedCell)
+        case key.Matches(msg, keyMap.Filter):
+            cmd = tabs.FocusFilter
         }
     }
 

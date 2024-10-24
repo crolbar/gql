@@ -2,10 +2,12 @@ package tabs
 
 import (
 	"database/sql"
+	"fmt"
 	"gql/tabs/describe_tab"
 	"gql/tabs/main_tab"
 	"gql/tabs/main_tab/panes"
 	"gql/tabs/main_tab/panes/dialog_pane"
+	"gql/tabs/main_tab/panes/filter_pane"
 
 	"github.com/charmbracelet/lipgloss"
 
@@ -41,6 +43,8 @@ type Tabs struct {
 
     currDB      string
     currDBTable string
+
+    whereClauses map[string]string
 }
 
 func New(
@@ -62,6 +66,8 @@ func New(
 
         currDB:      "",
         currDBTable: "",
+
+        whereClauses: make(map[string]string),
     }
 }
 
@@ -90,6 +96,10 @@ func UpdateSelectedCell() tea.Msg {
     return UpdateSelectedCellMsg{}
 }
 
+type FocusFilterMsg struct {}
+func FocusFilter() tea.Msg {
+    return FocusFilterMsg{}
+}
 
 func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
     var cmd tea.Cmd
@@ -107,8 +117,24 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
     case RequireMainTableUpdateMsg:
         t.UpdateMainTable(db)
 
+
+    case FocusFilterMsg:
+        t.Main.Panes.Filter.UpdateValue(t.GetWhereClause())
+        t.Main.Panes.Filter.UpdatePrefix(t.GetWhereClausePrefix())
+        t.Main.Panes.SelectFilter()
+
+    case filter_pane.AcceptMsg:
+        t.Main.Panes.DeSelectDialogFilter()
+        t.UpdateCurrentWhereClause(db, msg.Txt) // after DeSelect !!!
+
+    case filter_pane.CancelMsg:
+        t.Main.Panes.DeSelectDialogFilter()
+        t.UpdateCurrentWhereClause(db, "")      // after DeSelect !!!
+
+
     case dialog_pane.CancelMsg:
-        t.Main.Panes.DeSelectDialog()
+        t.Main.Panes.DeSelectDialogFilter()
+        t.UpdateMainTable(db)
 
     case dialog_pane.RequestConfirmationMsg:
         t.Main.Panes.SelectDialog()
@@ -218,11 +244,51 @@ func (t *Tabs) handleError(err error) bool {
     }
 
     if t.Main.Panes.IsDialogSelected() {
-        t.Main.Panes.DeSelectDialog()
+        t.Main.Panes.DeSelectDialogFilter()
         t.Main.Panes.Dialog.Reset()
     }
 
     return true
+}
+
+func (t *Tabs) UpdateCurrentWhereClause(db *sql.DB, value string) {
+    switch t.Main.Panes.GetSelected() {
+    case panes.Main:
+        t.whereClauses[t.currDB + "/" + t.currDBTable] = value
+        t.UpdateMainTable(db)
+
+    case panes.DBTables:
+        t.whereClauses[t.currDB] = value
+        t.UpdateDBTablesTable(db)
+
+    case panes.DB:
+        t.whereClauses["db"] = value
+        t.UpdateDBTable(db)
+    }
+}
+
+func (t *Tabs) GetWhereClause() string {
+    switch t.Main.Panes.GetSelectedOnlyTables() {
+    case panes.Main:
+        return t.whereClauses[t.currDB + "/" + t.currDBTable]
+    case panes.DBTables:
+        return t.whereClauses[t.currDB]
+    case panes.DB:
+        return t.whereClauses["db"]
+    }
+
+    return ""
+}
+
+func (t *Tabs) GetWhereClausePrefix() string {
+    switch t.Main.Panes.GetSelectedOnlyTables() {
+    case panes.DBTables:
+        return fmt.Sprintf("Tables_in_%s = ", t.currDB)
+    case panes.DB:
+        return "Database = "
+    }
+
+    return ""
 }
 
 func (t Tabs) SelectedTabView() string {
@@ -257,5 +323,5 @@ func (t *Tabs) GetCurrDB() string {
 }
 
 func (t *Tabs) IsTyting() bool {
-    return t.Main.Panes.IsDialogSelected()
+    return t.Main.Panes.IsDialogSelected() || t.Main.Panes.IsFilterSelected()
 }

@@ -13,6 +13,7 @@ import (
 type KeyMap struct {
     SelectDBTable   key.Binding
     SelectMainTable key.Binding
+    Filter          key.Binding
 }
 
 func defaultKeyMap() KeyMap {
@@ -24,6 +25,9 @@ func defaultKeyMap() KeyMap {
         SelectMainTable: key.NewBinding(
             key.WithKeys("enter"),
             key.WithHelp(", enter", "selected table, "),
+        ),
+        Filter: key.NewBinding(
+            key.WithKeys("/"),
         ),
     }
 }
@@ -68,6 +72,9 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
 
         case key.Matches(msg, keyMap.SelectMainTable):
             p.SelectMain()
+
+        case key.Matches(msg, keyMap.Filter):
+            cmd = tabs.FocusFilter
         }
     }
 

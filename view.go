@@ -163,9 +163,15 @@ func (m model) renederTop() string {
         m.tabs.View(),
     )
 
+    whereClause := "> where " + m.tabs.GetWhereClausePrefix() + m.tabs.GetWhereClause()
+
+    if m.tabs.Main.Panes.IsFilterSelected() {
+        whereClause = m.tabs.Main.Panes.Filter.View()
+    }
+
     dbgHelp := lipgloss.JoinVertical(lipgloss.Left,
         topHelp,
-        m.renderDbg(),
+        whereClause,
     )
 
     full := lipgloss.JoinHorizontal(lipgloss.Left,

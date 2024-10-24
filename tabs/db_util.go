@@ -6,7 +6,9 @@ import (
 )
 
 func (t *Tabs) UpdateDBTable(db *sql.DB) {
-    cols, rows := mysql.GetDatabases(db)
+
+    whereClause := t.whereClauses["db"]
+    cols, rows := mysql.GetDatabases(db, whereClause)
 
     t.Main.Panes.Db.Table.SetMaxWidth(cols[0].Width + 2)
 
@@ -18,7 +20,8 @@ func (t *Tabs) UpdateDBTable(db *sql.DB) {
 func (t *Tabs) UpdateDBTablesTable(db *sql.DB) {
     t.currDB = t.Main.Panes.Db.Table.GetSelectedRow()[0]
 
-    cols, rows := mysql.GetTables(db, t.currDB)
+    whereClause := t.whereClauses[t.currDB]
+    cols, rows := mysql.GetTables(db, t.currDB, whereClause)
 
     t.Main.Panes.DbTables.Table.SetMaxWidth(cols[0].Width + 2)
     t.Main.Panes.DbTables.Table.SetColumns(cols)
@@ -30,7 +33,8 @@ func (t *Tabs) UpdateDBTablesTable(db *sql.DB) {
 func (t *Tabs) UpdateMainTable(db *sql.DB) {
     t.currDBTable = t.Main.Panes.DbTables.Table.GetSelectedRow()[0]
 
-    cols, rows := mysql.GetTable(db, t.currDB, t.currDBTable)
+    whereClause := t.whereClauses[t.currDB + "/" + t.currDBTable]
+    cols, rows := mysql.GetTable(db, t.currDB, t.currDBTable, whereClause)
 
     t.Main.Panes.Main.Table.SetColumns(cols)
     t.Main.Panes.Main.Table.SetRows(rows)

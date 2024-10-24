@@ -14,6 +14,7 @@ import (
 type KeyMap struct {
     SelectDBTable key.Binding
     Delete        key.Binding
+    Filter        key.Binding
 }
 
 func defaultKeyMap() KeyMap {
@@ -24,6 +25,9 @@ func defaultKeyMap() KeyMap {
         ),
         Delete: key.NewBinding(
             key.WithKeys("d"),
+        ),
+        Filter: key.NewBinding(
+            key.WithKeys("/"),
         ),
     }
 }
@@ -66,6 +70,9 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
 
         case key.Matches(msg, keyMap.Delete):
             cmd = dialog_pane.RequestConfirmation(tabs.DeleteSelectedDB) // we have to pass cmd not the msg !!
+
+        case key.Matches(msg, keyMap.Filter):
+            cmd = tabs.FocusFilter
         }
     }
 

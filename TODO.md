@@ -14,7 +14,7 @@
 
 -   [ ] errors (eg: no permisions to access table)
 
--   [ ] filter (where clause)
+-   [x] filter (where clause)
 -   [ ] update
     -   [x] cell
     -   [ ] table name

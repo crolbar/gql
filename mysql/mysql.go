@@ -11,8 +11,17 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func GetDatabases(db *sql.DB) ([]table.Column, []table.Row) {
-    rowsRes, err := db.Query("show databases;")
+func GetDatabases(
+    db *sql.DB,
+    whereClause string,
+) ([]table.Column, []table.Row) {
+    query := "show databases"
+
+    if whereClause != "" {
+        query = fmt.Sprintf("%s where Database = '%s'", query, whereClause)
+    }
+
+    rowsRes, err := db.Query(query)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,8 +57,18 @@ func GetDatabases(db *sql.DB) ([]table.Column, []table.Row) {
     return cols, rows
 }
 
-func GetTables(db *sql.DB, dbName string) ([]table.Column, []table.Row) {
-    rowsRes, err := db.Query(fmt.Sprintf("show tables from %s;", dbName))
+func GetTables(
+    db *sql.DB,
+    dbName,
+    whereClause string,
+) ([]table.Column, []table.Row) {
+    query := fmt.Sprintf("show tables from %s", dbName)
+
+    if whereClause != "" {
+        query = fmt.Sprintf("%s where Tables_in_%s = '%s'", query, dbName, whereClause)
+    }
+
+    rowsRes, err := db.Query(query)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -77,8 +96,19 @@ func GetTables(db *sql.DB, dbName string) ([]table.Column, []table.Row) {
     return cols, rows
 }
 
-func GetTable(db *sql.DB, currDB, selTable string) ([]table.Column, []table.Row) {
-    rowsRes, err := db.Query(fmt.Sprintf("select * from %s.%s", currDB, selTable))
+func GetTable(
+    db *sql.DB,
+    currDB,
+    selTable,
+    whereClause string,
+) ([]table.Column, []table.Row) {
+    query := fmt.Sprintf("select * from %s.%s", currDB, selTable)
+
+    if whereClause != "" {
+        query = fmt.Sprintf("%s where %s", query, whereClause)
+    }
+
+    rowsRes, err := db.Query(query)
 	if err != nil {
 		log.Fatal(err)
 	}

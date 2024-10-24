@@ -2,7 +2,7 @@ package panes
 
 import "gql/table"
 
-func (p *Panes) getSelectedTable(paneType paneType) *table.Table {
+func (p *Panes) getSelectedTable(paneType PaneType) *table.Table {
     switch (paneType) {
     case DB:
         return &p.Db.Table
@@ -10,7 +10,7 @@ func (p *Panes) getSelectedTable(paneType paneType) *table.Table {
         return &p.DbTables.Table
     case Main:
         return &p.Main.Table
-    case Dialog:
+    case Dialog, Filter:
         return p.getSelectedTable(p.prev)
     }
 
@@ -19,6 +19,18 @@ func (p *Panes) getSelectedTable(paneType paneType) *table.Table {
 
 func (p *Panes) GetSelectedTable() *table.Table {
     return p.getSelectedTable(p.selected)
+}
+
+func (p *Panes) GetSelected() PaneType {
+    return p.selected
+}
+
+func (p *Panes) GetSelectedOnlyTables() PaneType {
+    if p.IsDialogSelected() || p.IsFilterSelected() {
+        return p.prev
+    }
+
+    return p.selected
 }
 
 func (p *Panes) SelectDB() {
@@ -52,6 +64,16 @@ func (p *Panes) SelectDialog() {
     p.Db.Table.DeFocus()
 }
 
+func (p *Panes) SelectFilter() {
+    p.prev     = p.selected
+    p.selected = Filter
+    p.Filter.Focus()
+
+    p.DbTables.Table.DeFocus()
+    p.Main.Table.DeFocus()
+    p.Db.Table.DeFocus()
+}
+
 func (p *Panes) ShouldShowDB() bool {
     return p.selected == DB || p.prev == DB
 }
@@ -60,7 +82,16 @@ func (p *Panes) IsDialogSelected() bool {
     return p.selected == Dialog
 }
 
-func (p *Panes) DeSelectDialog() {
+func (p *Panes) IsFilterSelected() bool {
+    return p.selected == Filter
+}
+
+func (p *Panes) DeSelectDialogFilter() {
+    switch p.selected {
+    case Filter:
+        p.Filter.DeFocus()
+    }
+
     switch p.prev {
     case DB:
         p.SelectDB()
