@@ -2,8 +2,9 @@ package db_tables_pane
 
 import (
 	"gql/table"
-	"gql/tabs/main_tab/panes"
 	"gql/tabs"
+	"gql/tabs/main_tab/panes"
+	"gql/tabs/main_tab/panes/dialog_pane"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -14,6 +15,7 @@ type KeyMap struct {
     SelectDBTable   key.Binding
     SelectMainTable key.Binding
     Filter          key.Binding
+    Delete          key.Binding
     SendCustomQuery key.Binding
 }
 
@@ -29,6 +31,9 @@ func defaultKeyMap() KeyMap {
         ),
         Filter: key.NewBinding(
             key.WithKeys("/"),
+        ),
+        Delete: key.NewBinding(
+            key.WithKeys("d"),
         ),
         SendCustomQuery: key.NewBinding(
             key.WithKeys(":"),
@@ -76,6 +81,9 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
 
         case key.Matches(msg, keyMap.SelectMainTable):
             p.SelectMain()
+
+        case key.Matches(msg, keyMap.Delete):
+            cmd = dialog_pane.RequestConfirmation(tabs.DeleteSelectedDBTable)
 
         case key.Matches(msg, keyMap.Filter):
             cmd = tabs.FocusFilter

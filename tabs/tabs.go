@@ -87,6 +87,11 @@ func DeleteSelectedDB() tea.Msg {
     return DeleteSelectedDBMsg{}
 }
 
+type DeleteSelectedDBTableMsg struct{}
+func DeleteSelectedDBTable() tea.Msg {
+    return DeleteSelectedDBTableMsg{}
+}
+
 type DeleteSelectedRowMsg struct{}
 func DeleteSelectedRow() tea.Msg {
     return DeleteSelectedRowMsg{}
@@ -190,6 +195,13 @@ func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
             t.DeleteSelectedDb(db),
         ) {
             t.UpdateDBTable(db)
+        }
+
+    case DeleteSelectedDBTableMsg:
+        if t.handleError(
+            t.DeleteSelectedDbTable(db),
+        ) {
+            t.UpdateDBTablesTable(db)
         }
 
     case DeleteSelectedRowMsg:

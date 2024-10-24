@@ -22,7 +22,7 @@
 -   [ ] ~~insert~~
 -   [ ] delete / drop
     -   [x] drop db
-    -   [ ] drop table
+    -   [x] drop table
     -   [x] delete row
     -   [ ] delete selected rows
     -   [ ] delete selected columuns

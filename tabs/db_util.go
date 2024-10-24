@@ -93,6 +93,10 @@ func (t *Tabs) DeleteSelectedDb(db *sql.DB) error {
     return mysql.DeleteDB(db, t.currDB)
 }
 
+func (t *Tabs) DeleteSelectedDbTable(db *sql.DB) error {
+    return mysql.DeleteDBTable(db, t.currDB, t.currDBTable)
+}
+
 func (t *Tabs) DeleteSelectedRow(db *sql.DB) error {
     return mysql.DeleteRow(
         db,

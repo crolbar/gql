@@ -262,6 +262,17 @@ func DeleteDB(db *sql.DB, dbName string) error {
     return err
 }
 
+func DeleteDBTable(db *sql.DB, dbName, selTable string) error {
+    _, err := db.Query(
+        fmt.Sprintf(
+            "drop table %s.%s",
+            dbName,
+            selTable,
+        ),
+    )
+    return err
+}
+
 func DeleteRow(
     db *sql.DB,
     dbName,
