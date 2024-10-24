@@ -38,6 +38,6 @@
 -   [ ] send a custom sql query
 
 -   [x] when dialog is selected don't process any char buttons
--   [ ] fix crash on none tables in db
--   [ ] fix crashes on empty main table
+-   [x] fix crash on none tables in db
+-   [x] fix crashes on empty main table
 -   [ ] refresh dbs and db tables button

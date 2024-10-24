@@ -13,8 +13,13 @@ func (t *Tabs) UpdateDBTable(db *sql.DB) {
     t.Main.SetError(err)
 
     if err != nil {
-        t.Main.Panes.Db.Table.SetColumns(nil)
         t.Main.Panes.Db.Table.SetRows(nil)
+
+        t.Main.Panes.DbTables.Table.SetColumns(nil)
+        t.Main.Panes.DbTables.Table.SetRows(nil)
+
+        t.Main.Panes.Main.Table.SetColumns(nil)
+        t.Main.Panes.Main.Table.SetRows(nil)
         return
     }
 
@@ -22,6 +27,7 @@ func (t *Tabs) UpdateDBTable(db *sql.DB) {
 
     t.Main.Panes.Db.Table.SetColumns(cols)
     t.Main.Panes.Db.Table.SetRows(rows)
+
     t.UpdateDBTablesTable(db)
 }
 
@@ -36,6 +42,9 @@ func (t *Tabs) UpdateDBTablesTable(db *sql.DB) {
     if err != nil {
         t.Main.Panes.DbTables.Table.SetColumns(nil)
         t.Main.Panes.DbTables.Table.SetRows(nil)
+
+        t.Main.Panes.Main.Table.SetColumns(nil)
+        t.Main.Panes.Main.Table.SetRows(nil)
         return
     }
 

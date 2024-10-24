@@ -50,7 +50,7 @@ func GetDatabases(
     cols := []table.Column {
         {
             Title: title,
-            Width: min(width, 20),
+            Width: max(min(width, 20), 10),
         }, 
     }
 
