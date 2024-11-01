@@ -24,12 +24,12 @@
 
         packages = {
           default = pkgs.buildGoModule {
-            pname = "gazi";
-            version = "0.0.0.1";
+            pname = "gql";
+            version = "0.1";
 
             src = ./.;
 
-            vendorHash = "sha256-cVkroKJlU+s9dIRuNSbKAk0evpwYTSoG6ZvtQzdRUaE=";
+            vendorHash = "sha256-c4XGMjlHUpcOGuRc3BePw8t9Zx/GCXlx3lxefB+xxJw=";
           };
         };
       };
