@@ -18,7 +18,7 @@ func (m model) View() string {
         return m.auth.View()
     }
 
-    if (m.db != nil) {
+    if (m.dbms.HasDb()) {
         return m.mainView()
     }
 

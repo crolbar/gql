@@ -6,13 +6,38 @@ import (
 	"log"
 	"strings"
 
+	"gql/dbms"
 	"gql/table"
 
+	tea "github.com/charmbracelet/bubbletea"
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func GetDatabases(
-    db *sql.DB,
+type Model struct { Db *sql.DB }
+
+func (m Model) HasDb() bool {
+    return m.Db != nil
+}
+
+func (m *Model) SetDb(db *sql.DB) {
+    m.Db = db
+}
+
+func (m Model) Open(uri string) tea.Cmd {
+    db, err := sql.Open("mysql", uri)
+
+    err = db.Ping()
+	if err != nil {
+		return func() tea.Msg {
+            return dbms.DbConnectMsg{}
+        }
+	}
+    return func() tea.Msg {
+        return dbms.DbConnectMsg{Db: db}
+    }
+}
+
+func (m Model) GetDatabases(
     whereClause string,
 ) ([]table.Column, []table.Row, error) {
     query := "show databases"
@@ -21,7 +46,7 @@ func GetDatabases(
         query = fmt.Sprintf("%s where Database = '%s'", query, whereClause)
     }
 
-    rowsRes, err := db.Query(query)
+    rowsRes, err := m.Db.Query(query)
 	if err != nil {
         return nil, nil, err
 	}
@@ -57,8 +82,7 @@ func GetDatabases(
     return cols, rows, nil
 }
 
-func GetTables(
-    db *sql.DB,
+func (m Model) GetDBTables(
     dbName,
     whereClause string,
 ) ([]table.Column, []table.Row, error) {
@@ -68,7 +92,7 @@ func GetTables(
         query = fmt.Sprintf("%s where Tables_in_%s = '%s'", query, dbName, whereClause)
     }
 
-    rowsRes, err := db.Query(query)
+    rowsRes, err := m.Db.Query(query)
 	if err != nil {
         return nil, nil, err
 	}
@@ -96,8 +120,7 @@ func GetTables(
     return cols, rows, nil
 }
 
-func GetTable(
-    db *sql.DB,
+func (m Model) GetTable(
     currDB,
     selTable,
     whereClause string,
@@ -108,7 +131,7 @@ func GetTable(
         query = fmt.Sprintf("%s where %s", query, whereClause)
     }
 
-    rowsRes, err := db.Query(query)
+    rowsRes, err := m.Db.Query(query)
 	if err != nil {
         return nil, nil, err
 	}
@@ -167,12 +190,11 @@ func GetTable(
     return columns, rows, nil
 }
 
-func GetDescribe(
-    db *sql.DB,
+func (m Model) GetDescribe(
     currDB,
     selTable string,
 ) ([]table.Column, []table.Row, error) {
-    rowsRes, err := db.Query(fmt.Sprintf("describe %s.%s", currDB, selTable))
+    rowsRes, err := m.Db.Query(fmt.Sprintf("describe %s.%s", currDB, selTable))
 	if err != nil {
         return nil, nil, err
 	}
@@ -236,8 +258,8 @@ func GetDescribe(
     return columns, rows, nil
 }
 
-func GetUser(db *sql.DB) (string, error) {
-    res, err := db.Query(fmt.Sprintf("select user()"))
+func (m Model) GetUser() (string, error) {
+    res, err := m.Db.Query(fmt.Sprintf("select user()"))
 	if err != nil {
         return "", err
 	}
@@ -252,8 +274,8 @@ func GetUser(db *sql.DB) (string, error) {
     return user, nil
 }
 
-func DeleteDB(db *sql.DB, dbName string) error {
-    _, err := db.Query(
+func (m Model) DeleteDB(dbName string) error {
+    _, err := m.Db.Query(
         fmt.Sprintf(
             "drop database %s",
             dbName,
@@ -262,8 +284,8 @@ func DeleteDB(db *sql.DB, dbName string) error {
     return err
 }
 
-func DeleteDBTable(db *sql.DB, dbName, selTable string) error {
-    _, err := db.Query(
+func (m Model) DeleteDBTable(dbName, selTable string) error {
+    _, err := m.Db.Query(
         fmt.Sprintf(
             "drop table %s.%s",
             dbName,
@@ -273,14 +295,13 @@ func DeleteDBTable(db *sql.DB, dbName, selTable string) error {
     return err
 }
 
-func DeleteRow(
-    db *sql.DB,
+func (m Model) DeleteRow(
     dbName,
     tableName string,
     row table.Row,
     cols []table.Column,
 ) error {
-    _, err := db.Query(
+    _, err := m.Db.Query(
         fmt.Sprintf(
             "delete from %s.%s where %s",
             dbName,
@@ -292,8 +313,7 @@ func DeleteRow(
     return err
 }
 
-func UpdateCell(
-    db *sql.DB,
+func (m Model) UpdateCell(
     dbName,
     tableName string,
     row table.Row,
@@ -301,7 +321,7 @@ func UpdateCell(
     selectedCol int,
     value string,
 ) error {
-    _, err := db.Query(
+    _, err := m.Db.Query(
         fmt.Sprintf(
             "update %s.%s set %s = '%s' where %s",
             dbName,
@@ -315,13 +335,12 @@ func UpdateCell(
     return err
 }
 
-func ChangeDbTableName(
-    db *sql.DB,
+func (m Model) ChangeDbTableName(
     dbName,
     tableName string,
     value string,
 ) error {
-    _, err := db.Query(
+    _, err := m.Db.Query(
         fmt.Sprintf(
             "alter table %s.%s rename to %s.%s",
             dbName,
@@ -331,6 +350,11 @@ func ChangeDbTableName(
         ),
     )
 
+    return err
+}
+
+func (m Model) SendQuery(query string) error {
+    _, err := m.Db.Query(query)
     return err
 }
 
@@ -356,12 +380,6 @@ func buildWhereClause(
 
     return sb.String()
 }
-
-func SendQuery(db *sql.DB, query string) error {
-    _, err := db.Query(query)
-    return err
-}
-
 
 func getTableFromQueryRes(res *sql.Rows) ([]table.Column, []table.Row, error) {
 	columnsRes, err := res.Columns()

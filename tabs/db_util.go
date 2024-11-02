@@ -1,15 +1,13 @@
 package tabs
 
 import (
-	"database/sql"
+	"gql/dbms"
 	"errors"
-	"gql/mysql"
 )
 
-func (t *Tabs) UpdateDBTable(db *sql.DB) {
-
+func (t *Tabs) UpdateDBTable(db dbms.DBMS) {
     whereClause := t.whereClauses["db"]
-    cols, rows, err := mysql.GetDatabases(db, whereClause)
+    cols, rows, err := db.GetDatabases(whereClause)
 
     t.Main.SetError(err)
 
@@ -32,7 +30,7 @@ func (t *Tabs) UpdateDBTable(db *sql.DB) {
     t.UpdateDBTablesTable(db)
 }
 
-func (t *Tabs) UpdateDBTablesTable(db *sql.DB) {
+func (t *Tabs) UpdateDBTablesTable(db dbms.DBMS) {
     selRow := t.Main.Panes.Db.Table.GetSelectedRow()
     if selRow == nil {
         return
@@ -41,7 +39,7 @@ func (t *Tabs) UpdateDBTablesTable(db *sql.DB) {
     t.currDB = selRow[0]
 
     whereClause := t.whereClauses[t.currDB]
-    cols, rows, err := mysql.GetTables(db, t.currDB, whereClause)
+    cols, rows, err := db.GetDBTables(t.currDB, whereClause)
 
     t.Main.SetError(err)
 
@@ -61,7 +59,7 @@ func (t *Tabs) UpdateDBTablesTable(db *sql.DB) {
     t.UpdateMainTable(db)
 }
 
-func (t *Tabs) UpdateMainTable(db *sql.DB) {
+func (t *Tabs) UpdateMainTable(db dbms.DBMS) {
     selRow := t.Main.Panes.DbTables.Table.GetSelectedRow()
     if selRow == nil {
         t.Main.Panes.Main.Table.SetColumns(nil)
@@ -74,7 +72,7 @@ func (t *Tabs) UpdateMainTable(db *sql.DB) {
     t.currDBTable = selRow[0]
 
     whereClause := t.whereClauses[t.currDB + "/" + t.currDBTable]
-    cols, rows, err := mysql.GetTable(db, t.currDB, t.currDBTable, whereClause)
+    cols, rows, err := db.GetTable(t.currDB, t.currDBTable, whereClause)
 
     t.Main.SetError(err)
 
@@ -88,9 +86,9 @@ func (t *Tabs) UpdateMainTable(db *sql.DB) {
     t.Main.Panes.Main.Table.SetRows(rows)
 }
 
-func (t *Tabs) UpdateDescribeTable(db *sql.DB) {
+func (t *Tabs) UpdateDescribeTable(db dbms.DBMS) {
 
-    cols, rows, err := mysql.GetDescribe(db, t.currDB, t.currDBTable)
+    cols, rows, err := db.GetDescribe(t.currDB, t.currDBTable)
 
     t.Main.SetError(err)
 
@@ -104,20 +102,19 @@ func (t *Tabs) UpdateDescribeTable(db *sql.DB) {
     t.Describe.Table.SetRows(rows)
 }
 
-func (t *Tabs) DeleteSelectedDb(db *sql.DB) error {
-    return mysql.DeleteDB(db, t.currDB)
+func (t *Tabs) DeleteSelectedDb(db dbms.DBMS) error {
+    return db.DeleteDB(t.currDB)
 }
 
-func (t *Tabs) DeleteSelectedDbTable(db *sql.DB) error {
-    return mysql.DeleteDBTable(db, t.currDB, t.currDBTable)
+func (t *Tabs) DeleteSelectedDbTable(db dbms.DBMS) error {
+    return db.DeleteDBTable(t.currDB, t.currDBTable)
 }
 
-func (t *Tabs) DeleteSelectedRows(db *sql.DB) error {
+func (t *Tabs) DeleteSelectedRows(db dbms.DBMS) error {
     rows := t.Main.Panes.Main.Table.GetSelectedRows()
 
     for i := 0; i < len(rows); i++ {
-        err := mysql.DeleteRow(
-            db,
+        err := db.DeleteRow(
             t.currDB,
             t.currDBTable,
             rows[i],
@@ -132,14 +129,13 @@ func (t *Tabs) DeleteSelectedRows(db *sql.DB) error {
     return nil
 }
 
-func (t *Tabs) UpdateSelectedCell(db *sql.DB, value string) error {
+func (t *Tabs) UpdateSelectedCell(db dbms.DBMS, value string) error {
     selRow := t.Main.Panes.Main.Table.GetSelectedRow()
     if selRow == nil {
         return errors.New("Empty table")
     }
 
-    return mysql.UpdateCell(
-        db,
+    return db.UpdateCell(
         t.currDB,
         t.currDBTable,
         selRow,
@@ -149,10 +145,10 @@ func (t *Tabs) UpdateSelectedCell(db *sql.DB, value string) error {
     )
 }
 
-func (t *Tabs) ChangeDbTableName(db *sql.DB, value string) error {
-    return mysql.ChangeDbTableName(db, t.currDB, t.currDBTable, value)
+func (t *Tabs) ChangeDbTableName(db dbms.DBMS, value string) error {
+    return db.ChangeDbTableName(t.currDB, t.currDBTable, value)
 }
 
-func (t *Tabs) SendQuery(db *sql.DB, query string) {
-    t.Main.SetError(mysql.SendQuery(db, query))
+func (t *Tabs) SendQuery(db dbms.DBMS, query string) {
+    t.Main.SetError(db.SendQuery(query))
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"gql/auth"
+	"gql/dbms"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -21,10 +22,12 @@ func (m model) authUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
     switch msg.(type) {
     case auth.CancelMsg:
         m.uri = getDBUriFromCache()
-        return m, m.openMysql
+        m.dbms = InitDBMS(m.uri)
+        return m, m.dbms.Open(m.uri)
     case auth.Uri:
         m.uri = string(msg.(auth.Uri))
-        return m, m.openMysql
+        m.dbms = InitDBMS(m.uri)
+        return m, m.dbms.Open(m.uri)
     }
 
     m.auth, cmd = m.auth.Update(msg)
@@ -49,7 +52,7 @@ func (m model) onWindowRisize(msg tea.WindowSizeMsg) (tea.Model, tea.Cmd) {
     m.width = msg.Width
     m.height = msg.Height
 
-    m.tabs.OnWindowResize(msg, m.db != nil)
+    m.tabs.OnWindowResize(msg, m.dbms.HasDb())
 
     return m, nil
 }
@@ -57,8 +60,8 @@ func (m model) onWindowRisize(msg tea.WindowSizeMsg) (tea.Model, tea.Cmd) {
 func (m model) mainUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
-    case dbConnectMsg:
-        m.onDBConnect(msg.db)
+    case dbms.DbConnectMsg:
+        m.onDBConnect(msg.Db)
 
     case tea.WindowSizeMsg:
         return m.onWindowRisize(msg)
@@ -81,7 +84,7 @@ func (m model) mainUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
         }
 	}
 
-    m.tabs, cmd = m.tabs.Update(m.db, msg)
+    m.tabs, cmd = m.tabs.Update(m.dbms, msg)
 
 	return m, cmd
 }

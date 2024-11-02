@@ -1,8 +1,8 @@
 package tabs
 
 import (
-	"database/sql"
 	"fmt"
+	"gql/dbms"
 	"gql/tabs/describe_tab"
 	"gql/tabs/main_tab"
 	"gql/tabs/main_tab/panes"
@@ -117,7 +117,7 @@ func FocusCmd() tea.Msg {
     return FocusCmdMsg{}
 }
 
-func (t Tabs) Update(db *sql.DB, msg tea.Msg) (Tabs, tea.Cmd) {
+func (t Tabs) Update(db dbms.DBMS, msg tea.Msg) (Tabs, tea.Cmd) {
     var cmd tea.Cmd
 
     switch t.selected {
@@ -292,7 +292,7 @@ func (t *Tabs) handleError(err error) bool {
     return true
 }
 
-func (t *Tabs) UpdateCurrentWhereClause(db *sql.DB, value string) {
+func (t *Tabs) UpdateCurrentWhereClause(db dbms.DBMS, value string) {
     switch t.Main.Panes.GetSelected() {
     case panes.Main:
         t.whereClauses[t.currDB + "/" + t.currDBTable] = value

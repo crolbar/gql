@@ -1,12 +1,14 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"os"
 
 	"gql/auth"
+	"gql/dbms"
+
 	"gql/tabs"
+
 	"gql/tabs/main_tab/panes/db_pane"
 	"gql/tabs/main_tab/panes/db_tables_pane"
 	"gql/tabs/main_tab/panes/main_pane"
@@ -26,13 +28,11 @@ type model struct {
     auth auth.Auth
     uri  string
     user string
-    db   *sql.DB
+    dbms dbms.DBMS
 
     width  int
     height int
 }
-
-type dbConnectMsg struct {db *sql.DB}
 
 type KeyMap struct {
     Quit        key.Binding
@@ -48,6 +48,7 @@ func main() {
     help.Styles.FullSeparator  = lipgloss.NewStyle()
     help.FullSeparator         = ""
 
+    uri := getDBUriFromCache()
     m := model {
         keyMap: defaultKeyMap(),
         help:   help,
@@ -59,8 +60,8 @@ func main() {
         ),
 
         auth: auth.InitialAuth(),
-        uri:  getDBUriFromCache(),
-        db:   nil,
+        uri:  uri,
+        dbms: InitDBMS(uri),
     }
 
     if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
@@ -70,5 +71,9 @@ func main() {
 }
 
 func (m model) Init() tea.Cmd {
-    return m.openMysql
+    if m.requiresAuth() {
+        return nil
+    }
+
+    return m.dbms.Open(m.uri)
 }

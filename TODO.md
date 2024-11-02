@@ -38,6 +38,8 @@
 -   [x] send a custom sql query
     -   [ ] show result
 
+-   [ ] fix update.go on line 26
+-   [ ] use exec instead of query on non queries
 -   [x] when dialog is selected don't process any char buttons
 -   [x] fix crash on none tables in db
 -   [x] fix crashes on empty main table
