@@ -35,7 +35,7 @@ type Uri string
 
 func (a Auth) Accept() (Auth, tea.Cmd) {
     uri := a.textinput.Value()
-    err := util.CheckMysql(uri);
+    err := util.CheckDBMS(uri);
 
     if err != nil {
         a.err = err

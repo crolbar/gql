@@ -11,9 +11,15 @@
 - after an successful connection the uri is saved in `~/.cache/gql/gql_creds` \
     and auto used in the next start of gql
 
-mysql: `username:password@(address)/` `forgejo:forgejo@(localhost:3306)/`
+mysql: \
+`username:password@(address)/` \
+`forgejo:forgejo@(localhost:3306)/`
+
+postgres: \
+`postgresql://username:password@address/databasename` \
+`postgresql://crolbar:aoeu@localhost:5432/t?sslmode=disable`
 
 ## Support
 -   [x] MySQL
--   [ ] PostgreSQL
+-   [x] PostgreSQL
 -   [ ] SQLite

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"gql/dbms"
 	"gql/mysql"
+	"gql/postgres"
 	"gql/util"
 	"strings"
 )
@@ -39,7 +40,7 @@ func InitDBMS(uri string) dbms.DBMS {
     }
 
     if (strings.HasPrefix(uri, "postgresql")) {
-        return nil // TODO
+        return &postgres.Model{}
     }
 
     return &mysql.Model{}
@@ -47,7 +48,7 @@ func InitDBMS(uri string) dbms.DBMS {
 
 func getDBUriFromCache() string {
     if util.CacheFileExists() {
-        if uri := util.ReadFromCacheFile(); util.CheckMysql(uri) == nil {
+        if uri := util.ReadFromCacheFile(); util.CheckDBMS(uri) == nil {
             return uri
         }
     }

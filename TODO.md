@@ -38,8 +38,13 @@
 -   [x] send a custom sql query
     -   [ ] show result
 
--   [ ] fix update.go on line 26
--   [ ] use exec instead of query on non queries
+-   postgresql support fixes
+    -   [ ] fix update.go on line 26
+    -   [ ] fix where caluse builder for postgress (timestamp can't be matched with an string)
+    -   [ ] database switching in postgress ?
+    -   [ ] use exec instead of query on non queries
+    -   [ ] close db connection on uri change
+
 -   [x] when dialog is selected don't process any char buttons
 -   [x] fix crash on none tables in db
 -   [x] fix crashes on empty main table
