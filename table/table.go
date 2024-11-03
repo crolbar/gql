@@ -215,7 +215,7 @@ func (t *Table) GetSelectedRows() []Row {
         end := max(t.selectionStart, t.cursor.Y)
         return t.rows[start:end+1]
     }
-    return nil
+    return []Row {t.GetSelectedRow()}
 }
 
 // returns nil if we aren't in selection
