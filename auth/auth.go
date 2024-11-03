@@ -1,44 +1,30 @@
 package auth
 
 import (
-	"fmt"
 	"github.com/charmbracelet/bubbles/textinput"
     "github.com/charmbracelet/bubbles/help"
 )
 
 type Auth struct {
-	username  textinput.Model
-	password  textinput.Model
-	host      textinput.Model
-	port      textinput.Model
+	textinput  textinput.Model
 
     KeyMap    KeyMap
     Help      help.Model
 	err       error
 }
 
-func initTextInput(placeholder string) textinput.Model {
+func InitialAuth() Auth {
 	ti := textinput.New()
 
-	ti.Placeholder = placeholder
-	ti.CharLimit   = 156
+	ti.Placeholder = "connection string / uri"
 	ti.Width       = 50
-
-    return ti
-}
-
-func InitialAuth() Auth {
-    unameInput := initTextInput("username")
-    unameInput.Focus()
+    ti.Focus()
 
     help := help.New()
     help.ShowAll = true
 
 	return Auth {
-		username:  unameInput,
-		password:  initTextInput("password"),
-		host:      initTextInput("host"),
-		port:      initTextInput("port"),
+		textinput:  ti,
 
         KeyMap:    DefaultKeyMap(),
         Help:      help,
@@ -46,48 +32,8 @@ func InitialAuth() Auth {
 	}
 }
 
-func (a *Auth) ResetAll() {
-    a.username.Reset()
-    a.password.Reset()
-    a.host.Reset()
-    a.port.Reset()
-    a.focusUsername()
+func (a *Auth) Reset(uri string) {
+    a.textinput.Reset()
+    a.textinput.SetValue(uri)
     a.err = nil
-}
-
-func (a Auth) createUri() string {
-    username := a.username.Value()
-    password := a.password.Value()
-    host     := a.host.Value()
-    port     := a.port.Value()
-
-    return fmt.Sprintf("%s:%s@(%s:%s)/", username, password, host, port)
-}
-
-func(a *Auth) focusUsername() {
-    a.username.Focus()
-    a.password.Blur()
-    a.host.Blur()
-    a.port.Blur()
-}
-
-func(a *Auth) focusPassword() {
-    a.username.Blur()
-    a.password.Focus()
-    a.host.Blur()
-    a.port.Blur()
-}
-
-func(a *Auth) focusHost() {
-    a.username.Blur()
-    a.password.Blur()
-    a.host.Focus()
-    a.port.Blur()
-}
-
-func(a *Auth) focusPort() {
-    a.username.Blur()
-    a.password.Blur()
-    a.host.Blur()
-    a.port.Focus()
 }

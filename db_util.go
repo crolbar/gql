@@ -13,8 +13,9 @@ func (m *model) requiresAuth() bool {
 }
 
 func (m *model) changeCreds() {
+    uri := m.uri
     m.uri = ""
-    m.auth.ResetAll()
+    m.auth.Reset(uri)
 }
 
 func (m *model) onDBConnect(db *sql.DB) {
