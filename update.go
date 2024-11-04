@@ -41,7 +41,7 @@ func defaultKeyMap() KeyMap {
         ),
         ChangeCreds: key.NewBinding(
             key.WithKeys("s"),
-            key.WithHelp("s", "switch user"),
+            key.WithHelp("s", "change uri"),
         ),
     }
 }
