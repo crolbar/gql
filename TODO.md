@@ -43,7 +43,7 @@
     -   [x] fix where caluse builder for postgress (timestamp can't be matched with an string)
     -   [x] database switching in postgress ?
     -   [ ] use exec instead of query on non queries
-    -   [ ] close db connection on uri change
+    -   [x] close db connection on uri change
 
 -   [ ] cp to clipboard button
 -   [x] when dialog is selected don't process any char buttons

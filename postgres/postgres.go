@@ -28,6 +28,12 @@ func (m *Model) SetDb(db *sql.DB) {
     m.Db = db
 }
 
+func (m *Model) CloseDbConnection() {
+    if m.HasDb() {
+        m.Db.Close()
+    }
+}
+
 func (m *Model) HasUri() bool {
     return m.Uri != ""
 }

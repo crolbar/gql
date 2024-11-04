@@ -14,6 +14,7 @@ type DBMS interface {
     Open() tea.Cmd
     HasDb() bool
     SetDb(*sql.DB)
+    CloseDbConnection()
 
     HasUri() bool
     SetUri(string)

@@ -16,6 +16,7 @@ func (m *model) requiresAuth() bool {
 func (m *model) changeCreds() {
     uri := m.dbms.GetUri()
     m.dbms.SetUri("")
+    m.dbms.CloseDbConnection()
     m.auth.Reset(uri)
 }
 
