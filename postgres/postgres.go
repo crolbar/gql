@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"gql/table"
+    "net/url"
 	"log"
 	"strings"
 	"time"
@@ -100,10 +101,16 @@ func (m Model) GetDatabases(
 }
 
 
-func (m Model) GetDBTables(
-    dbName, // useless
+func (m *Model) GetDBTables(
+    dbName,
     whereClause string,
 ) ([]table.Column, []table.Row, error) {
+    currDbName, err := m.getCurrentDatabase()
+
+    if dbName != currDbName {
+        m.switchDatabaseTo(dbName)
+    }
+
     query := fmt.Sprintf("select tablename from pg_tables where schemaname = 'public'")
 
     if whereClause != "" {
@@ -387,6 +394,41 @@ func (m Model) ChangeDbTableName(
     )
 
     return err
+}
+
+func (m *Model) switchDatabaseTo(dbName string) error {
+    url, err := url.Parse(m.Uri)
+    if err != nil {
+        return err
+    }
+    url.Path = dbName
+
+    m.Uri = url.String()
+
+    db, err := sql.Open("postgres", m.Uri)
+    if err != nil {
+        return err
+    }
+
+    err = m.Db.Close()
+    if err != nil {
+        return err
+    }
+
+    m.Db = db
+
+    return nil
+}
+
+func (m Model) getCurrentDatabase() (string, error) {
+    var name string
+    err := m.Db.QueryRow("select current_database()").Scan(&name);
+
+    if err != nil {
+        return "", err
+    }
+
+    return name, nil
 }
 
 func (m Model) SendQuery(query string) error {

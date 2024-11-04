@@ -42,7 +42,7 @@ func testDatabases(m postgres.Model) {
 }
 
 func testDBTables(m postgres.Model) {
-    cols, rows, err := m.GetDBTables("", "")
+    cols, rows, err := m.GetDBTables("t", "")
     if err != nil {
         fmt.Println(err)
         return
@@ -234,12 +234,12 @@ func testChangeDbTableName(t *testing.T, m postgres.Model) {
 
         {
             fmt.Print("old tables: ")
-            fmt.Println(tmpm.GetDBTables("", ""))
+            fmt.Println(tmpm.GetDBTables("tmp", ""))
 
             assert.Equal(t, tmpm.ChangeDbTableName("", "t1", "table1"), nil)
 
             fmt.Print("new tables: ")
-            fmt.Println(tmpm.GetDBTables("", ""))
+            fmt.Println(tmpm.GetDBTables("tmp", ""))
 
             assert.Equal(t, tmpm.ChangeDbTableName("", "table1", "t1"), nil)
         }
