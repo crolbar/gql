@@ -74,6 +74,7 @@ func (m Model) GetDatabases(
     if err != nil {
         return nil, nil, err
     }
+    defer res.Close()
 
     var rows []table.Row
 
@@ -127,6 +128,7 @@ func (m *Model) GetDBTables(
 	if err != nil {
         return nil, nil, err
 	}
+    defer rowsRes.Close()
 
     var rows []table.Row
 	for rowsRes.Next() {
@@ -167,6 +169,7 @@ func (m Model) GetTable(
 	if err != nil {
         return nil, nil, err
 	}
+    defer rowsRes.Close()
 
 	columnsRes, err := rowsRes.Columns()
 	if err != nil {
@@ -249,6 +252,7 @@ func (m Model) GetDescribe(
     if err != nil {
         return nil, nil, err
 	}
+    defer rowsRes.Close()
 
 	columnsRes, err := rowsRes.Columns()
 	if err != nil {
@@ -317,6 +321,7 @@ func (m Model) GetUser() (string, error) {
 	if err != nil {
         return "", err
 	}
+    defer res.Close()
 
     var user string
 	for res.Next() {
@@ -329,7 +334,7 @@ func (m Model) GetUser() (string, error) {
 }
 
 func (m Model) DeleteDB(dbName string) error {
-    _, err := m.Db.Query(
+    _, err := m.Db.Exec(
         fmt.Sprintf(
             "drop database %s",
             dbName,
@@ -339,7 +344,7 @@ func (m Model) DeleteDB(dbName string) error {
 }
 
 func (m Model) DeleteDBTable(dbName, selTable string) error {
-    _, err := m.Db.Query(
+    _, err := m.Db.Exec(
         fmt.Sprintf(
             "drop table %s",
             selTable,
@@ -354,7 +359,7 @@ func (m Model) DeleteRow(
     row table.Row,
     cols []table.Column,
 ) error {
-    _, err := m.Db.Query(
+    _, err := m.Db.Exec(
         fmt.Sprintf(
             "delete from %s where %s",
             tableName,
@@ -373,7 +378,7 @@ func (m Model) UpdateCell(
     selectedCol int,
     value string,
 ) error {
-    _, err := m.Db.Query(
+    _, err := m.Db.Exec(
         fmt.Sprintf(
             "update %s set %s = '%s' where %s",
             tableName,
@@ -391,7 +396,7 @@ func (m Model) ChangeDbTableName(
     tableName string,
     value string,
 ) error {
-    _, err := m.Db.Query(
+    _, err := m.Db.Exec(
         fmt.Sprintf(
             "alter table %s rename to %s",
             tableName,
@@ -438,7 +443,7 @@ func (m Model) getCurrentDatabase() (string, error) {
 }
 
 func (m Model) SendQuery(query string) error {
-    _, err := m.Db.Query(query)
+    _, err := m.Db.Exec(query)
     return err
 }
 
