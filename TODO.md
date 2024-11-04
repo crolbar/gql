@@ -40,7 +40,7 @@
 
 -   postgresql support fixes
     -   [ ] fix update.go on line 26
-    -   [ ] fix where caluse builder for postgress (timestamp can't be matched with an string)
+    -   [x] fix where caluse builder for postgress (timestamp can't be matched with an string)
     -   [ ] database switching in postgress ?
     -   [ ] use exec instead of query on non queries
     -   [ ] close db connection on uri change

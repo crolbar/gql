@@ -168,7 +168,7 @@ func (m Model) GetTable(
             case string:
                 currRow = append(currRow, strings.ReplaceAll(val, "\n", "\\n"))
             case time.Time:
-                currRow = append(currRow, val.String())
+                currRow = append(currRow, val.Format("2006-01-02 15:04:05.999999-07"))
             case bool:
                 if val {
                     currRow = append(currRow, "true")
