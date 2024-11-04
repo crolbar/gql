@@ -88,7 +88,6 @@ func (km KeyMap) FullHelp() [][]key.Binding {
     return [][]key.Binding {
         {km.LineUp, km.LineDown},
         {km.LineLeft, km.LineRight},
-        {km.HalfPageUp, km.HalfPageDown},
         {km.SelectColumn, km.SelectRow},
     }
 }

@@ -49,6 +49,6 @@
 -   [x] when dialog is selected don't process any char buttons
 -   [x] fix crash on none tables in db
 -   [x] fix crashes on empty main table
--   [ ] refresh dbs and db tables button
+-   [x] refresh dbs and db tables button
 -   [ ] more to help menu
 -   [ ] fix binary data

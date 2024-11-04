@@ -17,6 +17,7 @@ type KeyMap struct {
     UpdateSelectedCell key.Binding
     Filter             key.Binding
     SendCustomQuery    key.Binding
+    RefreshTable       key.Binding
 }
 
 func defaultKeyMap() KeyMap {
@@ -33,9 +34,15 @@ func defaultKeyMap() KeyMap {
         ),
         Filter: key.NewBinding(
             key.WithKeys("/"),
+            key.WithHelp("/", "filter with an where clause, "),
         ),
         SendCustomQuery: key.NewBinding(
             key.WithKeys(":"),
+            key.WithHelp(":", "make a custom query, "),
+        ),
+        RefreshTable: key.NewBinding(
+            key.WithKeys("r"),
+            key.WithHelp(", r", "refresh table, "),
         ),
     }
 }
@@ -46,7 +53,8 @@ func (km KeyMap) ShortHelp() []key.Binding {
 
 func (km KeyMap) FullHelp() [][]key.Binding {
     return [][]key.Binding{
-        {km.SelectDBTablesPane},
+        {km.SelectDBTablesPane, km.RefreshTable},
+        {km.SendCustomQuery, km.Filter},
     }
 }
 
@@ -73,6 +81,8 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
     switch msg := msg.(type) {
     case tea.KeyMsg:
         switch {
+        case key.Matches(msg, keyMap.RefreshTable):
+            cmd = tabs.RequireMainTableUpdate
         case key.Matches(msg, keyMap.SelectDBTablesPane):
             p.SelectDBTables()
         case key.Matches(msg, keyMap.DeleteSelectedRow):

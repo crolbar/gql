@@ -82,6 +82,11 @@ func RequireDBTablesUpdate() tea.Msg {
     return RequireDBTablesUpdateMsg{}
 }
 
+type RequireDBTableUpdateMsg struct{}
+func RequireDBTableUpdate() tea.Msg {
+    return RequireDBTableUpdateMsg{}
+}
+
 type DeleteSelectedDBMsg struct{}
 func DeleteSelectedDB() tea.Msg {
     return DeleteSelectedDBMsg{}
@@ -128,6 +133,8 @@ func (t Tabs) Update(db dbms.DBMS, msg tea.Msg) (Tabs, tea.Cmd) {
     }
 
     switch msg := msg.(type) {
+    case RequireDBTableUpdateMsg:
+        t.UpdateDBTable(db)
     case RequireDBTablesUpdateMsg:
         t.UpdateDBTablesTable(db)
     case RequireMainTableUpdateMsg:

@@ -18,6 +18,7 @@ type KeyMap struct {
     Delete          key.Binding
     Rename          key.Binding
     SendCustomQuery key.Binding
+    RefreshDbTables key.Binding
 }
 
 func defaultKeyMap() KeyMap {
@@ -38,9 +39,14 @@ func defaultKeyMap() KeyMap {
         ),
         Rename: key.NewBinding(
             key.WithKeys("c"),
+            key.WithHelp("c", "rename table, "),
         ),
         SendCustomQuery: key.NewBinding(
             key.WithKeys(":"),
+        ),
+        RefreshDbTables: key.NewBinding(
+            key.WithKeys("r"),
+            key.WithHelp("r", "refresh tables, "),
         ),
     }
 }
@@ -52,6 +58,7 @@ func (km KeyMap) ShortHelp() []key.Binding {
 func (km KeyMap) FullHelp() [][]key.Binding {
     return [][]key.Binding{
         {km.SelectMainTable, km.SelectDBTable},
+        {km.Rename, km.RefreshDbTables},
     }
 }
 
@@ -80,6 +87,9 @@ func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
     switch msg := msg.(type) {
     case tea.KeyMsg:
         switch {
+        case key.Matches(msg, keyMap.RefreshDbTables):
+            cmd = tabs.RequireDBTablesUpdate
+
         case key.Matches(msg, keyMap.SelectDBTable):
             p.SelectDB()
 
