@@ -26,7 +26,6 @@ type model struct {
     tabs tabs.Tabs
 
     auth auth.Auth
-    uri  string
     user string
     dbms dbms.DBMS
 
@@ -60,7 +59,6 @@ func main() {
         ),
 
         auth: auth.InitialAuth(),
-        uri:  uri,
         dbms: InitDBMS(uri),
     }
 
@@ -75,5 +73,5 @@ func (m model) Init() tea.Cmd {
         return nil
     }
 
-    return m.dbms.Open(m.uri)
+    return m.dbms.Open()
 }

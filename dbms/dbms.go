@@ -10,9 +10,14 @@ import (
 type DbConnectMsg struct {Db *sql.DB}
 
 type DBMS interface {
-    Open(uri string) tea.Cmd
+    // Uri has to be set before calling Open
+    Open() tea.Cmd
     HasDb() bool
     SetDb(*sql.DB)
+
+    HasUri() bool
+    SetUri(string)
+    GetUri() string
 
     GetDatabases(
         whereClause string,

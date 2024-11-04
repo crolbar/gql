@@ -10,12 +10,12 @@ import (
 )
 
 func (m *model) requiresAuth() bool {
-    return m.uri == ""
+    return m.dbms == nil || !m.dbms.HasUri()
 }
 
 func (m *model) changeCreds() {
-    uri := m.uri
-    m.uri = ""
+    uri := m.dbms.GetUri()
+    m.dbms.SetUri("")
     m.auth.Reset(uri)
 }
 
@@ -40,10 +40,10 @@ func InitDBMS(uri string) dbms.DBMS {
     }
 
     if (strings.HasPrefix(uri, "postgresql")) {
-        return &postgres.Model{}
+        return &postgres.Model{Uri: uri}
     }
 
-    return &mysql.Model{}
+    return &mysql.Model{Uri: uri}
 }
 
 func getDBUriFromCache() string {

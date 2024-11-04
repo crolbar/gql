@@ -21,13 +21,11 @@ func (m model) authUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 
     switch msg.(type) {
     case auth.CancelMsg:
-        m.uri = getDBUriFromCache()
-        m.dbms = InitDBMS(m.uri)
-        return m, m.dbms.Open(m.uri)
+        m.dbms = InitDBMS(getDBUriFromCache())
+        return m, m.dbms.Open()
     case auth.Uri:
-        m.uri = string(msg.(auth.Uri))
-        m.dbms = InitDBMS(m.uri)
-        return m, m.dbms.Open(m.uri)
+        m.dbms = InitDBMS(string(msg.(auth.Uri)))
+        return m, m.dbms.Open()
     }
 
     m.auth, cmd = m.auth.Update(msg)

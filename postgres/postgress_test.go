@@ -14,8 +14,8 @@ func Test(t *testing.T) {
     // postgresql
     // postgres
     uri := "postgresql://crolbar:aoeu@localhost:5432/t?sslmode=disable"
-    m := postgres.Model{}
-    cmd := m.Open(uri)
+    m := postgres.Model{Uri: uri}
+    cmd := m.Open()
     m.SetDb(cmd().(dbms.DbConnectMsg).Db)
 
     testDatabases(m)
@@ -96,8 +96,8 @@ func testDelDBTable(t *testing.T, m postgres.Model) {
 
     func (t *testing.T) {
         uri := "postgresql://crolbar:aoeu@localhost:5432/tmp?sslmode=disable"
-        tmpm := postgres.Model{}
-        tmpm.SetDb(tmpm.Open(uri)().(dbms.DbConnectMsg).Db) // such beatiful syntax
+        tmpm := postgres.Model{Uri: uri}
+        tmpm.SetDb(tmpm.Open()().(dbms.DbConnectMsg).Db) // such beatiful syntax
 
         _, err := tmpm.Db.Exec("create table t1 (id int, name varchar(20))")
         assert.Equal(t, err, nil)
@@ -117,8 +117,8 @@ func testDelRow(t *testing.T, m postgres.Model) {
 
     func (t *testing.T) {
         uri := "postgresql://crolbar:aoeu@localhost:5432/tmp?sslmode=disable"
-        tmpm := postgres.Model{}
-        tmpm.SetDb(tmpm.Open(uri)().(dbms.DbConnectMsg).Db) // such beatiful syntax
+        tmpm := postgres.Model{Uri: uri}
+        tmpm.SetDb(tmpm.Open()().(dbms.DbConnectMsg).Db) // such beatiful syntax
 
         _, err := tmpm.Db.Exec("create table t1 (id int, name varchar(20))")
         assert.Equal(t, err, nil)
@@ -158,8 +158,8 @@ func testUpdateCell(t *testing.T, m postgres.Model) {
 
     func (t *testing.T) {
         uri := "postgresql://crolbar:aoeu@localhost:5432/tmp?sslmode=disable"
-        tmpm := postgres.Model{}
-        tmpm.SetDb(tmpm.Open(uri)().(dbms.DbConnectMsg).Db) // such beatiful syntax
+        tmpm := postgres.Model{Uri: uri}
+        tmpm.SetDb(tmpm.Open()().(dbms.DbConnectMsg).Db) // such beatiful syntax
 
         _, err := tmpm.Db.Exec("create table t1 (id int, name varchar(20))")
         assert.Equal(t, err, nil)
@@ -226,8 +226,8 @@ func testChangeDbTableName(t *testing.T, m postgres.Model) {
 
     func (t *testing.T) {
         uri := "postgresql://crolbar:aoeu@localhost:5432/tmp?sslmode=disable"
-        tmpm := postgres.Model{}
-        tmpm.SetDb(tmpm.Open(uri)().(dbms.DbConnectMsg).Db) // such beatiful syntax
+        tmpm := postgres.Model{Uri: uri}
+        tmpm.SetDb(tmpm.Open()().(dbms.DbConnectMsg).Db) // such beatiful syntax
 
         _, err := tmpm.Db.Exec("create table t1 (id int, name varchar(20))")
         assert.Equal(t, err, nil)

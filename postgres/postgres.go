@@ -14,7 +14,10 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type Model struct { Db *sql.DB }
+type Model struct {
+    Db  *sql.DB 
+    Uri string
+}
 
 func (m Model) HasDb() bool {
     return m.Db != nil
@@ -24,8 +27,20 @@ func (m *Model) SetDb(db *sql.DB) {
     m.Db = db
 }
 
-func (m Model) Open(uri string) tea.Cmd {
-    db, err := sql.Open("postgres", uri)
+func (m *Model) HasUri() bool {
+    return m.Uri != ""
+}
+
+func (m *Model) SetUri(uri string) {
+    m.Uri = uri
+}
+
+func (m *Model) GetUri() string {
+    return m.Uri
+}
+
+func (m Model) Open() tea.Cmd {
+    db, err := sql.Open("postgres", m.Uri)
 
     err = db.Ping()
 	if err != nil {
