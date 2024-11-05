@@ -159,7 +159,7 @@ func (m Model) GetTable(
     selTable,
     whereClause string,
 ) ([]table.Column, []table.Row, error) {
-    query := fmt.Sprintf("select * from public.%s", selTable)
+    query := fmt.Sprintf("select * from public.\"%s\"", selTable)
 
     if whereClause != "" {
         query = fmt.Sprintf("%s where %s", query, whereClause)
@@ -333,7 +333,7 @@ func (m Model) GetUser() (string, error) {
     return user, nil
 }
 
-func (m Model) DeleteDB(dbName string) error {
+func (m Model) DeleteDB(dbName string) error { // bit useless..
     _, err := m.Db.Exec(
         fmt.Sprintf(
             "drop database %s",
@@ -346,7 +346,7 @@ func (m Model) DeleteDB(dbName string) error {
 func (m Model) DeleteDBTable(dbName, selTable string) error {
     _, err := m.Db.Exec(
         fmt.Sprintf(
-            "drop table %s",
+            "drop table \"%s\"",
             selTable,
         ),
     )
@@ -361,7 +361,7 @@ func (m Model) DeleteRow(
 ) error {
     _, err := m.Db.Exec(
         fmt.Sprintf(
-            "delete from %s where %s",
+            "delete from \"%s\" where %s",
             tableName,
             buildWhereClause(row, cols),
         ),
@@ -380,7 +380,7 @@ func (m Model) UpdateCell(
 ) error {
     _, err := m.Db.Exec(
         fmt.Sprintf(
-            "update %s set %s = '%s' where %s",
+            "update \"%s\" set \"%s\" = '%s' where %s",
             tableName,
             cols[selectedCol].Title,
             value,
@@ -398,7 +398,7 @@ func (m Model) ChangeDbTableName(
 ) error {
     _, err := m.Db.Exec(
         fmt.Sprintf(
-            "alter table %s rename to %s",
+            "alter table \"%s\" rename to \"%s\"",
             tableName,
             value,
         ),
@@ -455,11 +455,11 @@ func buildWhereClause(
 
     for i := 0; i < len(cols); i++ {
         if row[i] == "NULL" {
-            sb.WriteString(fmt.Sprintf("%s IS NULL", cols[i].Title))
+            sb.WriteString(fmt.Sprintf("\"%s\" IS NULL", cols[i].Title))
         } else {
             col := strings.ReplaceAll(row[i], "'", "\\'") // replace "'" with "\'"
 
-            sb.WriteString(fmt.Sprintf("%s = '%s'", cols[i].Title, col))
+            sb.WriteString(fmt.Sprintf("\"%s\" = '%s'", cols[i].Title, col))
         }
 
         if i != len(cols) - 1 {
