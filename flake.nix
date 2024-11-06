@@ -29,7 +29,11 @@
 
             src = ./.;
 
-            vendorHash = "sha256-c4XGMjlHUpcOGuRc3BePw8t9Zx/GCXlx3lxefB+xxJw=";
+            checkPhase = ''
+              go test -v -short ./...
+            '';
+
+            vendorHash = "sha256-yNBzWcSZzb+yywLaOtBd9sS0DP8XfkUAsnpBykFp5jI=";
           };
         };
       };

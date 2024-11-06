@@ -11,6 +11,10 @@ import (
 )
 
 func Test(t *testing.T) {
+    if testing.Short() {
+        t.Skip("skipping postgres test")
+    }
+
     // postgresql
     // postgres
     uri := "postgresql://crolbar:aoeu@localhost:5432/t?sslmode=disable"
