@@ -252,5 +252,6 @@ func testChangeDbTableName(t *testing.T, m postgres.Model) {
 }
 
 func testSendQuery(t *testing.T, m postgres.Model) {
-	assert.Equal(t, m.SendQuery("select now()"), nil)
+	_, e := m.SendQuery("select now()")
+	assert.Equal(t, e, nil)
 }
