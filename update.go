@@ -9,11 +9,6 @@ import (
 )
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	if msg, ok := msg.(tea.WindowSizeMsg); ok {
-		m.width = msg.Width
-		m.height = msg.Height
-	}
-
 	if m.requiresAuth() {
 		return m.authUpdate(msg)
 	}
@@ -24,7 +19,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m model) authUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
-	switch msg.(type) {
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		return m.onWindowRisize(msg)
 	case auth.CancelMsg:
 		m.dbms = InitDBMS(getDBUriFromCache())
 		if m.dbms == nil {
@@ -32,7 +29,7 @@ func (m model) authUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, m.dbms.Open()
 	case auth.Uri:
-		m.dbms = InitDBMS(string(msg.(auth.Uri)))
+		m.dbms = InitDBMS(string(msg))
 		return m, m.dbms.Open()
 	}
 
@@ -55,7 +52,10 @@ func defaultKeyMap() KeyMap {
 }
 
 func (m model) onWindowRisize(msg tea.WindowSizeMsg) (tea.Model, tea.Cmd) {
-	m.tabs.OnWindowResize(msg, m.dbms.HasDb())
+	m.width = msg.Width
+	m.height = msg.Height
+
+	m.tabs.OnWindowResize(msg, !m.requiresAuth())
 
 	return m, nil
 }
