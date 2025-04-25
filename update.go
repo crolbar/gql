@@ -22,6 +22,9 @@ func (m model) authUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
     switch msg.(type) {
     case auth.CancelMsg:
         m.dbms = InitDBMS(getDBUriFromCache())
+		if m.dbms == nil {
+			return m, nil
+		}
         return m, m.dbms.Open()
     case auth.Uri:
         m.dbms = InitDBMS(string(msg.(auth.Uri)))
