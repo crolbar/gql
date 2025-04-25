@@ -18,6 +18,7 @@ mysql: \
 postgres: \
 `postgresql://username:password@address/databasename` \
 `postgresql://crolbar:aoeu@localhost:5432/t?sslmode=disable`
+- if you have db's that give "don't accept connection" errors, you can add "&connect_timeout=1" to you're connection string to reduce the halt.
 
 ## Support
 -   [x] MySQL
