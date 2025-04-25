@@ -9,6 +9,11 @@ import (
 )
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	if msg, ok := msg.(tea.WindowSizeMsg); ok {
+		m.width = msg.Width
+		m.height = msg.Height
+	}
+
     if (m.requiresAuth()) {
         return m.authUpdate(msg)
     }
@@ -50,9 +55,6 @@ func defaultKeyMap() KeyMap {
 }
 
 func (m model) onWindowRisize(msg tea.WindowSizeMsg) (tea.Model, tea.Cmd) {
-    m.width = msg.Width
-    m.height = msg.Height
-
     m.tabs.OnWindowResize(msg, m.dbms.HasDb())
 
     return m, nil
