@@ -3,6 +3,7 @@ package table
 import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/atotto/clipboard"
 )
 
 type KeyMap struct {
@@ -23,6 +24,8 @@ type KeyMap struct {
 
     SelectRow    key.Binding
     SelectColumn key.Binding
+
+    CopyCellText key.Binding
 
     EndSelection key.Binding
 }
@@ -66,12 +69,17 @@ func DefaultKeyMap() KeyMap {
 
         SelectRow: key.NewBinding(
             key.WithKeys("V"),
-            key.WithHelp("V/esc", "row selection"),
+            key.WithHelp("V", "row selection"),
         ),
         SelectColumn: key.NewBinding(
             key.WithKeys("ctrl+v"),
-            key.WithHelp("ctrl+v/esc", "col selection"),
+            key.WithHelp("ctrl+v", "col selection"),
         ),
+
+		CopyCellText: key.NewBinding(
+            key.WithKeys("C"),
+            key.WithHelp("C", "copy cell text"),
+		),
 
         ScrollUp: key.NewBinding(key.WithKeys("ctrl+y")),
         ScrollDown: key.NewBinding(key.WithKeys("ctrl+e")),
@@ -148,6 +156,8 @@ func (t Table) Update(msg tea.Msg) (Table, tea.Cmd) {
             }
 
             t.columnSelect, t.rowSelect = false, false
+        case key.Matches(msg, t.keyMap.CopyCellText):
+			clipboard.WriteAll(t.GetSelectedCell())
         }
     }
 
