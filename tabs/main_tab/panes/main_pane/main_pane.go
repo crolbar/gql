@@ -12,98 +12,98 @@ import (
 )
 
 type KeyMap struct {
-    SelectDBTablesPane key.Binding
-    DeleteSelectedRow  key.Binding
-    UpdateSelectedCell key.Binding
-    Filter             key.Binding
-    SendCustomQuery    key.Binding
-    RefreshTable       key.Binding
+	SelectDBTablesPane key.Binding
+	DeleteSelectedRow  key.Binding
+	UpdateSelectedCell key.Binding
+	Filter             key.Binding
+	SendCustomQuery    key.Binding
+	RefreshTable       key.Binding
 }
 
 func defaultKeyMap() KeyMap {
-    return KeyMap { 
-        SelectDBTablesPane: key.NewBinding(
-            key.WithKeys("esc"),
-            key.WithHelp(", esc", "back to table selection, "),
-        ),
-        DeleteSelectedRow: key.NewBinding(
-            key.WithKeys("d"),
-        ),
-        UpdateSelectedCell: key.NewBinding(
-            key.WithKeys("c"),
-        ),
-        Filter: key.NewBinding(
-            key.WithKeys("/"),
-            key.WithHelp("/", "filter with an where clause, "),
-        ),
-        SendCustomQuery: key.NewBinding(
-            key.WithKeys(":"),
-            key.WithHelp(":", "make a custom query, "),
-        ),
-        RefreshTable: key.NewBinding(
-            key.WithKeys("r"),
-            key.WithHelp(", r", "refresh table, "),
-        ),
-    }
+	return KeyMap{
+		SelectDBTablesPane: key.NewBinding(
+			key.WithKeys("esc"),
+			key.WithHelp(", esc", "back to table selection, "),
+		),
+		DeleteSelectedRow: key.NewBinding(
+			key.WithKeys("d"),
+		),
+		UpdateSelectedCell: key.NewBinding(
+			key.WithKeys("c"),
+		),
+		Filter: key.NewBinding(
+			key.WithKeys("/"),
+			key.WithHelp("/", "filter with an where clause, "),
+		),
+		SendCustomQuery: key.NewBinding(
+			key.WithKeys(":"),
+			key.WithHelp(":", "make a custom query, "),
+		),
+		RefreshTable: key.NewBinding(
+			key.WithKeys("r"),
+			key.WithHelp(", r", "refresh table, "),
+		),
+	}
 }
 
 func (km KeyMap) ShortHelp() []key.Binding {
-    return []key.Binding{}
+	return []key.Binding{}
 }
 
 func (km KeyMap) FullHelp() [][]key.Binding {
-    return [][]key.Binding{
-        {km.SelectDBTablesPane, km.RefreshTable},
-        {km.SendCustomQuery, km.Filter},
-    }
+	return [][]key.Binding{
+		{km.SelectDBTablesPane, km.RefreshTable},
+		{km.SendCustomQuery, km.Filter},
+	}
 }
 
 func helpView(p panes.Panes) string {
-    return lipgloss.JoinHorizontal(lipgloss.Right,
-        p.Main.Table.HelpView(),
-        p.Main.Help.View(p.Main.KeyMap),
-    )
+	return lipgloss.JoinHorizontal(lipgloss.Right,
+		p.Main.Table.HelpView(),
+		p.Main.Help.View(p.Main.KeyMap),
+	)
 }
 
 func update(p panes.Panes, msg tea.Msg) (panes.Panes, tea.Cmd) {
-    var cmd tea.Cmd
-    p.Main.Table, cmd = p.Main.Table.Update(msg)
+	var cmd tea.Cmd
+	p.Main.Table, cmd = p.Main.Table.Update(msg)
 
-    if cmd != nil {
-        switch cmd().(type) {
-        case table.UpdatedMsg:
-            return p, nil
-        }
-    }
+	if cmd != nil {
+		switch cmd().(type) {
+		case table.UpdatedMsg:
+			return p, nil
+		}
+	}
 
-    keyMap := p.Main.KeyMap.(KeyMap)
+	keyMap := p.Main.KeyMap.(KeyMap)
 
-    switch msg := msg.(type) {
-    case tea.KeyMsg:
-        switch {
-        case key.Matches(msg, keyMap.RefreshTable):
-            cmd = tabs.RequireMainTableUpdate
-        case key.Matches(msg, keyMap.SelectDBTablesPane):
-            p.SelectDBTables()
-        case key.Matches(msg, keyMap.DeleteSelectedRow):
-            cmd = dialog_pane.RequestConfirmation(tabs.DeleteSelectedRow)
-        case key.Matches(msg, keyMap.UpdateSelectedCell):
-            cmd = dialog_pane.RequestValueUpdate(tabs.UpdateSelectedCell)
-        case key.Matches(msg, keyMap.Filter):
-            cmd = tabs.FocusFilter
-        case key.Matches(msg, keyMap.SendCustomQuery):
-            cmd = tabs.FocusCmd
-        }
-    }
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, keyMap.RefreshTable):
+			cmd = tabs.RequireMainTableUpdate
+		case key.Matches(msg, keyMap.SelectDBTablesPane):
+			p.SelectDBTables()
+		case key.Matches(msg, keyMap.DeleteSelectedRow):
+			cmd = dialog_pane.RequestConfirmation(tabs.DeleteSelectedRow)
+		case key.Matches(msg, keyMap.UpdateSelectedCell):
+			cmd = dialog_pane.RequestValueUpdate(tabs.UpdateSelectedCell)
+		case key.Matches(msg, keyMap.Filter):
+			cmd = tabs.FocusFilter
+		case key.Matches(msg, keyMap.SendCustomQuery):
+			cmd = tabs.FocusCmd
+		}
+	}
 
-    return p, cmd
+	return p, cmd
 }
 
 func New() panes.Pane {
-    return panes.NewPane(
-        table.New(nil, nil, 32, 100),
-        defaultKeyMap(),
-        update,
-        helpView,
-    )
+	return panes.NewPane(
+		table.New(nil, nil, 32, 100),
+		defaultKeyMap(),
+		update,
+		helpView,
+	)
 }

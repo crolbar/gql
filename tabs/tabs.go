@@ -17,361 +17,365 @@ import (
 )
 
 type KeyMap struct {
-    SelectMain     key.Binding
-    SelectDescribe key.Binding
+	SelectMain     key.Binding
+	SelectDescribe key.Binding
 }
 
 func defaultKeyMap() KeyMap {
-    return KeyMap { 
-        SelectMain:     key.NewBinding(key.WithKeys("1")),
-        SelectDescribe: key.NewBinding(key.WithKeys("2")),
-    }
+	return KeyMap{
+		SelectMain:     key.NewBinding(key.WithKeys("1")),
+		SelectDescribe: key.NewBinding(key.WithKeys("2")),
+	}
 }
 
 type tabType int
+
 const (
-    Main tabType = iota
-    Describe
+	Main tabType = iota
+	Describe
 )
 
 type Tabs struct {
-    selected tabType
+	selected tabType
 
-    Main     main_tab.MainTab
-    Describe describe_tab.DescribeTab
+	Main     main_tab.MainTab
+	Describe describe_tab.DescribeTab
 
-    keyMap KeyMap
+	keyMap KeyMap
 
-    currDB      string
-    currDBTable string
+	currDB      string
+	currDBTable string
 
-    whereClauses map[string]string
+	whereClauses map[string]string
 }
 
 func New(
-    DbPane       panes.Pane,
-    DbTablesPane panes.Pane,
-    MainPane     panes.Pane,
+	DbPane panes.Pane,
+	DbTablesPane panes.Pane,
+	MainPane panes.Pane,
 ) Tabs {
-    return Tabs {
-        selected: Main,
+	return Tabs{
+		selected: Main,
 
-        Main: main_tab.New(
-            DbPane,
-            DbTablesPane,
-            MainPane,
-        ),
-        Describe: describe_tab.New(),
+		Main: main_tab.New(
+			DbPane,
+			DbTablesPane,
+			MainPane,
+		),
+		Describe: describe_tab.New(),
 
-        keyMap: defaultKeyMap(),
+		keyMap: defaultKeyMap(),
 
-        currDB:      "",
-        currDBTable: "",
+		currDB:      "",
+		currDBTable: "",
 
-        whereClauses: make(map[string]string),
-    }
+		whereClauses: make(map[string]string),
+	}
 }
 
 type RequireMainTableUpdateMsg struct{}
+
 func RequireMainTableUpdate() tea.Msg {
-    return RequireMainTableUpdateMsg{}
+	return RequireMainTableUpdateMsg{}
 }
 
 type RequireDBTablesUpdateMsg struct{}
+
 func RequireDBTablesUpdate() tea.Msg {
-    return RequireDBTablesUpdateMsg{}
+	return RequireDBTablesUpdateMsg{}
 }
 
 type RequireDBTableUpdateMsg struct{}
+
 func RequireDBTableUpdate() tea.Msg {
-    return RequireDBTableUpdateMsg{}
+	return RequireDBTableUpdateMsg{}
 }
 
 type DeleteSelectedDBMsg struct{}
+
 func DeleteSelectedDB() tea.Msg {
-    return DeleteSelectedDBMsg{}
+	return DeleteSelectedDBMsg{}
 }
 
 type DeleteSelectedDBTableMsg struct{}
+
 func DeleteSelectedDBTable() tea.Msg {
-    return DeleteSelectedDBTableMsg{}
+	return DeleteSelectedDBTableMsg{}
 }
 
 type DeleteSelectedRowMsg struct{}
+
 func DeleteSelectedRow() tea.Msg {
-    return DeleteSelectedRowMsg{}
+	return DeleteSelectedRowMsg{}
 }
 
-type UpdateSelectedCellMsg struct {}
+type UpdateSelectedCellMsg struct{}
+
 func UpdateSelectedCell() tea.Msg {
-    return UpdateSelectedCellMsg{}
+	return UpdateSelectedCellMsg{}
 }
 
-type ChangeDbTableNameMsg struct {}
+type ChangeDbTableNameMsg struct{}
+
 func ChangeDbTableName() tea.Msg {
-    return ChangeDbTableNameMsg{}
+	return ChangeDbTableNameMsg{}
 }
 
-type FocusFilterMsg struct {}
+type FocusFilterMsg struct{}
+
 func FocusFilter() tea.Msg {
-    return FocusFilterMsg{}
+	return FocusFilterMsg{}
 }
 
-type FocusCmdMsg struct {}
+type FocusCmdMsg struct{}
+
 func FocusCmd() tea.Msg {
-    return FocusCmdMsg{}
+	return FocusCmdMsg{}
 }
 
 func (t Tabs) Update(db dbms.DBMS, msg tea.Msg) (Tabs, tea.Cmd) {
-    var cmd tea.Cmd
+	var cmd tea.Cmd
 
-    switch t.selected {
-    case Main:
-        t.Main.Panes, cmd = t.Main.Panes.Update(msg)
-    case Describe:
-        t.Describe, cmd = t.Describe.Update(msg)
-    }
+	switch t.selected {
+	case Main:
+		t.Main.Panes, cmd = t.Main.Panes.Update(msg)
+	case Describe:
+		t.Describe, cmd = t.Describe.Update(msg)
+	}
 
-    switch msg := msg.(type) {
-    case RequireDBTableUpdateMsg:
-        t.UpdateDBTable(db)
-    case RequireDBTablesUpdateMsg:
-        t.UpdateDBTablesTable(db)
-    case RequireMainTableUpdateMsg:
-        t.UpdateMainTable(db)
+	switch msg := msg.(type) {
+	case RequireDBTableUpdateMsg:
+		t.UpdateDBTable(db)
+	case RequireDBTablesUpdateMsg:
+		t.UpdateDBTablesTable(db)
+	case RequireMainTableUpdateMsg:
+		t.UpdateMainTable(db)
 
+	case FocusCmdMsg:
+		t.Main.Panes.SelectCmd()
 
-    case FocusCmdMsg:
-        t.Main.Panes.SelectCmd()
+	case cmd_pane.CancelMsg:
+		t.Main.Panes.DeSelectDialogFilterCmd()
 
-    case cmd_pane.CancelMsg:
-        t.Main.Panes.DeSelectDialogFilterCmd()
+	case cmd_pane.AcceptMsg:
+		t.SendQuery(db, msg.Query)
+		t.Main.Panes.DeSelectDialogFilterCmd()
 
-    case cmd_pane.AcceptMsg:
-        t.SendQuery(db, msg.Query)
-        t.Main.Panes.DeSelectDialogFilterCmd()
+	case FocusFilterMsg:
+		t.Main.Panes.Filter.UpdateValue(t.GetWhereClause())
+		t.Main.Panes.Filter.UpdatePrefix(t.GetWhereClausePrefix())
+		t.Main.Panes.SelectFilter()
+		t.Main.Panes.Filter.SetWidth(t.Main.GetWidth())
 
+	case filter_pane.AcceptMsg:
+		t.Main.Panes.DeSelectDialogFilterCmd()
+		t.UpdateCurrentWhereClause(db, msg.Txt) // after DeSelect !!!
 
-    case FocusFilterMsg:
-        t.Main.Panes.Filter.UpdateValue(t.GetWhereClause())
-        t.Main.Panes.Filter.UpdatePrefix(t.GetWhereClausePrefix())
-        t.Main.Panes.SelectFilter()
-        t.Main.Panes.Filter.SetWidth(t.Main.GetWidth())
+	case filter_pane.CancelMsg:
+		t.Main.Panes.DeSelectDialogFilterCmd()
+		t.UpdateCurrentWhereClause(db, "") // after DeSelect !!!
 
-    case filter_pane.AcceptMsg:
-        t.Main.Panes.DeSelectDialogFilterCmd()
-        t.UpdateCurrentWhereClause(db, msg.Txt) // after DeSelect !!!
+	case dialog_pane.CancelMsg:
+		t.Main.Panes.DeSelectDialogFilterCmd()
+		t.UpdateMainTable(db)
 
-    case filter_pane.CancelMsg:
-        t.Main.Panes.DeSelectDialogFilterCmd()
-        t.UpdateCurrentWhereClause(db, "")      // after DeSelect !!!
+	case dialog_pane.RequestConfirmationMsg:
+		t.Main.Panes.SelectDialog()
 
+		t.Main.Panes.Dialog.SetupConfirmation(
+			msg.Cmd,
+			t.generateDialogHelpMsg(msg.Cmd()),
+		)
 
-    case dialog_pane.CancelMsg:
-        t.Main.Panes.DeSelectDialogFilterCmd()
-        t.UpdateMainTable(db)
+		t.Main.Panes.Dialog.SetWidth(
+			t.Main.GetWidth(),
+			t.Main.Panes.Db.Table.GetWidth(),
+			t.Main.Panes.DbTables.Table.GetWidth(),
+			t.Main.Panes.Main.Table.GetWidth(),
+		)
+	case dialog_pane.RequestValueUpdateMsg:
+		t.Main.Panes.SelectDialog()
 
-    case dialog_pane.RequestConfirmationMsg:
-        t.Main.Panes.SelectDialog()
+		t.Main.Panes.Dialog.SetupValueUpdate(
+			msg.Cmd,
+			t.generateDialogHelpMsg(msg.Cmd()),
+			t.getSelectedValue(msg.Cmd()),
+		)
 
-        t.Main.Panes.Dialog.SetupConfirmation(
-            msg.Cmd,
-            t.generateDialogHelpMsg(msg.Cmd()),
-        )
+		t.Main.Panes.Dialog.SetWidth(
+			t.Main.GetWidth(),
+			t.Main.Panes.Db.Table.GetWidth(),
+			t.Main.Panes.DbTables.Table.GetWidth(),
+			t.Main.Panes.Main.Table.GetWidth(),
+		)
 
-        t.Main.Panes.Dialog.SetWidth(
-            t.Main.GetWidth(),
-            t.Main.Panes.Db.Table.GetWidth(),
-            t.Main.Panes.DbTables.Table.GetWidth(),
-            t.Main.Panes.Main.Table.GetWidth(),
-        )
-    case dialog_pane.RequestValueUpdateMsg:
-        t.Main.Panes.SelectDialog()
+	case DeleteSelectedDBMsg:
+		if t.handleError(
+			t.DeleteSelectedDb(db),
+		) {
+			t.UpdateDBTable(db)
+		}
 
-        t.Main.Panes.Dialog.SetupValueUpdate(
-            msg.Cmd,
-            t.generateDialogHelpMsg(msg.Cmd()),
-            t.getSelectedValue(msg.Cmd()),
-        )
+	case DeleteSelectedDBTableMsg:
+		if t.handleError(
+			t.DeleteSelectedDbTable(db),
+		) {
+			t.UpdateDBTablesTable(db)
+		}
 
-        t.Main.Panes.Dialog.SetWidth(
-            t.Main.GetWidth(),
-            t.Main.Panes.Db.Table.GetWidth(),
-            t.Main.Panes.DbTables.Table.GetWidth(),
-            t.Main.Panes.Main.Table.GetWidth(),
-        )
+	case DeleteSelectedRowMsg:
+		if t.handleError(
+			t.DeleteSelectedRows(db),
+		) {
+			t.UpdateMainTable(db)
+		}
 
+	case dialog_pane.AcceptValueUpdateMsg:
+		switch msg.Cmd().(type) {
+		case UpdateSelectedCellMsg:
+			if t.handleError(
+				t.UpdateSelectedCell(db, msg.Value),
+			) {
+				t.UpdateMainTable(db)
+			}
+		case ChangeDbTableNameMsg:
+			if t.handleError(
+				t.ChangeDbTableName(db, msg.Value),
+			) {
+				t.UpdateDBTablesTable(db)
+			}
+		}
 
-    case DeleteSelectedDBMsg:
-        if t.handleError(
-            t.DeleteSelectedDb(db),
-        ) {
-            t.UpdateDBTable(db)
-        }
+	case tea.KeyMsg:
+		if !t.IsTyting() {
+			switch {
+			case key.Matches(msg, t.keyMap.SelectMain):
+				t.selected = Main
 
-    case DeleteSelectedDBTableMsg:
-        if t.handleError(
-            t.DeleteSelectedDbTable(db),
-        ) {
-            t.UpdateDBTablesTable(db)
-        }
+			case key.Matches(msg, t.keyMap.SelectDescribe):
+				t.selected = Describe
+				t.UpdateDescribeTable(db)
+			}
+		}
+	}
 
-    case DeleteSelectedRowMsg:
-        if t.handleError(
-            t.DeleteSelectedRows(db),
-        ) {
-            t.UpdateMainTable(db)
-        }
-
-    case dialog_pane.AcceptValueUpdateMsg:
-        switch msg.Cmd().(type) {
-        case UpdateSelectedCellMsg:
-            if t.handleError(
-                t.UpdateSelectedCell(db, msg.Value),
-            ) {
-                t.UpdateMainTable(db)
-            }
-        case ChangeDbTableNameMsg:
-            if t.handleError(
-                t.ChangeDbTableName(db, msg.Value),
-            ) {
-                t.UpdateDBTablesTable(db)
-            }
-        }
-
-
-
-    case tea.KeyMsg:
-        if !t.IsTyting() {
-            switch {
-            case key.Matches(msg, t.keyMap.SelectMain):
-                t.selected = Main
-
-            case key.Matches(msg, t.keyMap.SelectDescribe):
-                t.selected = Describe
-                t.UpdateDescribeTable(db)
-            }
-        }
-    }
-
-
-    return t, cmd
+	return t, cmd
 }
 
 func (t Tabs) generateDialogHelpMsg(msg tea.Msg) string {
-    switch msg.(type) {
-    case DeleteSelectedDBMsg:
-        return "Are you sure you want to delete database " + t.currDB
-    case DeleteSelectedRowMsg:
-        return "Are you sure you want to delete this row"
-    case UpdateSelectedCellMsg:
-        return "Set new value for the selected cell"
-    }
-    return ""
+	switch msg.(type) {
+	case DeleteSelectedDBMsg:
+		return "Are you sure you want to delete database " + t.currDB
+	case DeleteSelectedRowMsg:
+		return "Are you sure you want to delete this row"
+	case UpdateSelectedCellMsg:
+		return "Set new value for the selected cell"
+	}
+	return ""
 }
 
 func (t Tabs) getSelectedValue(msg tea.Msg) string {
-    switch msg.(type) {
-    case UpdateSelectedCellMsg:
-        return t.Main.Panes.Main.Table.GetSelectedCell()
-    case ChangeDbTableNameMsg:
-        return t.Main.Panes.DbTables.Table.GetSelectedCell()
-    }
-    return ""
+	switch msg.(type) {
+	case UpdateSelectedCellMsg:
+		return t.Main.Panes.Main.Table.GetSelectedCell()
+	case ChangeDbTableNameMsg:
+		return t.Main.Panes.DbTables.Table.GetSelectedCell()
+	}
+	return ""
 }
 
 func (t *Tabs) handleError(err error) bool {
-    if err != nil {
-        if t.Main.Panes.IsDialogSelected() {
-            t.Main.Panes.Dialog.SetError(err.Error())
+	if err != nil {
+		if t.Main.Panes.IsDialogSelected() {
+			t.Main.Panes.Dialog.SetError(err.Error())
 
-            return false
-        }
+			return false
+		}
 
-        return false
-    }
+		return false
+	}
 
-    if t.Main.Panes.IsDialogSelected() {
-        t.Main.Panes.DeSelectDialogFilterCmd()
-        t.Main.Panes.Dialog.Reset()
-    }
+	if t.Main.Panes.IsDialogSelected() {
+		t.Main.Panes.DeSelectDialogFilterCmd()
+		t.Main.Panes.Dialog.Reset()
+	}
 
-    return true
+	return true
 }
 
 func (t *Tabs) UpdateCurrentWhereClause(db dbms.DBMS, value string) {
-    switch t.Main.Panes.GetSelected() {
-    case panes.Main:
-        t.whereClauses[t.currDB + "/" + t.currDBTable] = value
-        t.UpdateMainTable(db)
+	switch t.Main.Panes.GetSelected() {
+	case panes.Main:
+		t.whereClauses[t.currDB+"/"+t.currDBTable] = value
+		t.UpdateMainTable(db)
 
-    case panes.DBTables:
-        t.whereClauses[t.currDB] = value
-        t.UpdateDBTablesTable(db)
+	case panes.DBTables:
+		t.whereClauses[t.currDB] = value
+		t.UpdateDBTablesTable(db)
 
-    case panes.DB:
-        t.whereClauses["db"] = value
-        t.UpdateDBTable(db)
-    }
+	case panes.DB:
+		t.whereClauses["db"] = value
+		t.UpdateDBTable(db)
+	}
 }
 
 func (t *Tabs) GetWhereClause() string {
-    switch t.Main.Panes.GetSelectedOnlyTables() {
-    case panes.Main:
-        return t.whereClauses[t.currDB + "/" + t.currDBTable]
-    case panes.DBTables:
-        return t.whereClauses[t.currDB]
-    case panes.DB:
-        return t.whereClauses["db"]
-    }
+	switch t.Main.Panes.GetSelectedOnlyTables() {
+	case panes.Main:
+		return t.whereClauses[t.currDB+"/"+t.currDBTable]
+	case panes.DBTables:
+		return t.whereClauses[t.currDB]
+	case panes.DB:
+		return t.whereClauses["db"]
+	}
 
-    return ""
+	return ""
 }
 
 func (t *Tabs) GetWhereClausePrefix() string {
-    switch t.Main.Panes.GetSelectedOnlyTables() {
-    case panes.DBTables:
-        return fmt.Sprintf("Tables_in_%s = ", t.currDB)
-    case panes.DB:
-        return "Database = "
-    }
+	switch t.Main.Panes.GetSelectedOnlyTables() {
+	case panes.DBTables:
+		return fmt.Sprintf("Tables_in_%s = ", t.currDB)
+	case panes.DB:
+		return "Database = "
+	}
 
-    return ""
+	return ""
 }
 
 func (t Tabs) SelectedTabView() string {
-    switch t.selected {
-    case Main:
-        return t.Main.RenderTables()
-    case Describe:
-        return t.Describe.View()
-    }
+	switch t.selected {
+	case Main:
+		return t.Main.RenderTables()
+	case Describe:
+		return t.Describe.View()
+	}
 
-    return ""
+	return ""
 }
 
 func (t Tabs) HelpView() string {
-    switch t.selected {
-    case Main:
-        return lipgloss.JoinHorizontal(lipgloss.Right,
-            t.Main.Panes.HelpView(),
-        )
-    }
+	switch t.selected {
+	case Main:
+		return lipgloss.JoinHorizontal(lipgloss.Right,
+			t.Main.Panes.HelpView(),
+		)
+	}
 
-    return ""
+	return ""
 }
 
 func (t *Tabs) OnWindowResize(msg tea.WindowSizeMsg, isConnected bool) {
-    t.Main.OnWindowResize(msg, isConnected)
-    t.Describe.OnWindowResize(msg, isConnected)
+	t.Main.OnWindowResize(msg, isConnected)
+	t.Describe.OnWindowResize(msg, isConnected)
 }
 
 func (t *Tabs) GetCurrDB() string {
-    return t.currDB
+	return t.currDB
 }
 
 func (t *Tabs) IsTyting() bool {
-    return t.Main.Panes.IsDialogSelected() ||
-    t.Main.Panes.IsFilterSelected() ||
-    t.Main.Panes.IsCmdSelected()
+	return t.Main.Panes.IsDialogSelected() ||
+		t.Main.Panes.IsFilterSelected() ||
+		t.Main.Panes.IsCmdSelected()
 }

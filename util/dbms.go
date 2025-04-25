@@ -8,18 +8,18 @@ import (
 )
 
 func CheckDBMS(uri string) error {
-    var db *sql.DB
-    var err error
+	var db *sql.DB
+	var err error
 
-    if (strings.HasPrefix(uri, "postgresql")) {
-        db, err = sql.Open("postgres", uri)
-    } else {
-        db, err = sql.Open("mysql", uri)
-    }
-
-	if err != nil {
-        return err
+	if strings.HasPrefix(uri, "postgresql") {
+		db, err = sql.Open("postgres", uri)
+	} else {
+		db, err = sql.Open("mysql", uri)
 	}
 
-    return db.Ping()
+	if err != nil {
+		return err
+	}
+
+	return db.Ping()
 }

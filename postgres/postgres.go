@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"gql/table"
-    "net/url"
 	"log"
+	"net/url"
 	"strings"
 	"time"
 
@@ -16,456 +16,452 @@ import (
 )
 
 type Model struct {
-    Db  *sql.DB 
-    Uri string
+	Db  *sql.DB
+	Uri string
 }
 
 func (m Model) HasDb() bool {
-    return m.Db != nil
+	return m.Db != nil
 }
 
 func (m *Model) SetDb(db *sql.DB) {
-    m.Db = db
+	m.Db = db
 }
 
 func (m *Model) CloseDbConnection() {
-    if m.HasDb() {
-        m.Db.Close()
-    }
+	if m.HasDb() {
+		m.Db.Close()
+	}
 }
 
 func (m *Model) HasUri() bool {
-    return m.Uri != ""
+	return m.Uri != ""
 }
 
 func (m *Model) SetUri(uri string) {
-    m.Uri = uri
+	m.Uri = uri
 }
 
 func (m *Model) GetUri() string {
-    return m.Uri
+	return m.Uri
 }
 
 func (m Model) Open() tea.Cmd {
-    db, err := sql.Open("postgres", m.Uri)
+	db, err := sql.Open("postgres", m.Uri)
 
-    err = db.Ping()
+	err = db.Ping()
 	if err != nil {
-        fmt.Println(err)
+		fmt.Println(err)
 		return func() tea.Msg {
-            return dbms.DbConnectMsg{}
-        }
+			return dbms.DbConnectMsg{}
+		}
 	}
-    return func() tea.Msg {
-        return dbms.DbConnectMsg{Db: db}
-    }
+	return func() tea.Msg {
+		return dbms.DbConnectMsg{Db: db}
+	}
 }
 
 func (m Model) GetDatabases(
-    whereClause string,
+	whereClause string,
 ) ([]table.Column, []table.Row, error) {
-    query := "select datname from pg_database"
+	query := "select datname from pg_database"
 
-    if whereClause != "" {
-        query = fmt.Sprintf("%s where datname = '%s'", query, whereClause)
-    }
+	if whereClause != "" {
+		query = fmt.Sprintf("%s where datname = '%s'", query, whereClause)
+	}
 
-    res, err := m.Db.Query(query)
-    if err != nil {
-        return nil, nil, err
-    }
-    defer res.Close()
+	res, err := m.Db.Query(query)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer res.Close()
 
-    var rows []table.Row
+	var rows []table.Row
 
-    width := 0
+	width := 0
 
-    for res.Next() {
-        var dbName string
+	for res.Next() {
+		var dbName string
 
-        if err := res.Scan(&dbName); err != nil {
-            return nil, nil, err
-        }
+		if err := res.Scan(&dbName); err != nil {
+			return nil, nil, err
+		}
 
-        rows = append(rows, []string{dbName})
+		rows = append(rows, []string{dbName})
 
-        l := len(dbName)
-        if (l > width) {
-            width = l
-        }
-    }
+		l := len(dbName)
+		if l > width {
+			width = l
+		}
+	}
 
-    title := fmt.Sprintf("Databases")
+	title := fmt.Sprintf("Databases")
 
-    cols := []table.Column {
-        {
-            Title: title,
-            Width: max(min(width, 20), 10),
-        }, 
-    }
+	cols := []table.Column{
+		{
+			Title: title,
+			Width: max(min(width, 20), 10),
+		},
+	}
 
-    return cols, rows, nil
+	return cols, rows, nil
 }
 
-
 func (m *Model) GetDBTables(
-    dbName,
-    whereClause string,
+	dbName,
+	whereClause string,
 ) ([]table.Column, []table.Row, error) {
-    currDbName, err := m.getCurrentDatabase()
+	currDbName, err := m.getCurrentDatabase()
 
-    if dbName != currDbName {
-        m.switchDatabaseTo(dbName)
-    }
-
-    query := fmt.Sprintf("select tablename from pg_tables where schemaname = 'public'")
-
-    if whereClause != "" {
-        query = fmt.Sprintf("%s and tablename = '%s'", query, whereClause)
-    }
-
-    rowsRes, err := m.Db.Query(query)
-	if err != nil {
-        return nil, nil, err
+	if dbName != currDbName {
+		m.switchDatabaseTo(dbName)
 	}
-    defer rowsRes.Close()
 
-    var rows []table.Row
+	query := fmt.Sprintf("select tablename from pg_tables where schemaname = 'public'")
+
+	if whereClause != "" {
+		query = fmt.Sprintf("%s and tablename = '%s'", query, whereClause)
+	}
+
+	rowsRes, err := m.Db.Query(query)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rowsRes.Close()
+
+	var rows []table.Row
 	for rowsRes.Next() {
 		var tableName string
 
 		if err := rowsRes.Scan(&tableName); err != nil {
-            return nil, nil, err
+			return nil, nil, err
 		}
 
 		rows = append(rows, []string{tableName})
 	}
 
-    title := fmt.Sprintf("tables in %s", dbName)
+	title := fmt.Sprintf("tables in %s", dbName)
 
-    cols := []table.Column {
-        {
-            Title: title,
-            Width: max(len(title), 20),
-        }, 
-    }
+	cols := []table.Column{
+		{
+			Title: title,
+			Width: max(len(title), 20),
+		},
+	}
 
-    return cols, rows, nil
+	return cols, rows, nil
 }
 
-
 func (m Model) GetTable(
-    currDB, // useless
-    selTable,
-    whereClause string,
+	currDB, // useless
+	selTable,
+	whereClause string,
 ) ([]table.Column, []table.Row, error) {
-    query := fmt.Sprintf("select * from public.\"%s\"", selTable)
+	query := fmt.Sprintf("select * from public.\"%s\"", selTable)
 
-    if whereClause != "" {
-        query = fmt.Sprintf("%s where %s", query, whereClause)
-    }
-
-    rowsRes, err := m.Db.Query(query)
-	if err != nil {
-        return nil, nil, err
+	if whereClause != "" {
+		query = fmt.Sprintf("%s where %s", query, whereClause)
 	}
-    defer rowsRes.Close()
+
+	rowsRes, err := m.Db.Query(query)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rowsRes.Close()
 
 	columnsRes, err := rowsRes.Columns()
 	if err != nil {
-        return nil, nil, err
+		return nil, nil, err
 	}
 
-	values        := make([]interface{}, len(columnsRes))
+	values := make([]interface{}, len(columnsRes))
 	valuePointers := make([]interface{}, len(columnsRes))
 
-    var rows []table.Row
+	var rows []table.Row
 
-    for rowsRes.Next() {
-        for i := range columnsRes {
+	for rowsRes.Next() {
+		for i := range columnsRes {
 			valuePointers[i] = &values[i]
 		}
 
-        var currRow table.Row
+		var currRow table.Row
 
-        if err := rowsRes.Scan(valuePointers...); err != nil {
-            return nil, nil, err
+		if err := rowsRes.Scan(valuePointers...); err != nil {
+			return nil, nil, err
 		}
 
-        for i := range columnsRes {
+		for i := range columnsRes {
 			switch val := values[i].(type) {
 			case nil:
-                currRow = append(currRow, "NULL")
-            case string:
-                currRow = append(currRow, strings.ReplaceAll(val, "\n", "\\n"))
-            case time.Time:
-                currRow = append(currRow, val.Format("2006-01-02 15:04:05.999999-07"))
-            case bool:
-                if val {
-                    currRow = append(currRow, "true")
-                } else {
-                    currRow = append(currRow, "false")
-                }
+				currRow = append(currRow, "NULL")
+			case string:
+				currRow = append(currRow, strings.ReplaceAll(val, "\n", "\\n"))
+			case time.Time:
+				currRow = append(currRow, val.Format("2006-01-02 15:04:05.999999-07"))
+			case bool:
+				if val {
+					currRow = append(currRow, "true")
+				} else {
+					currRow = append(currRow, "false")
+				}
 			case []byte:
-                text := string(val)
-                text = strings.ReplaceAll(text, "\\", "\\\\") // replace "\" with "\\"
-                text = strings.ReplaceAll(text, "\n", "\\n") // replace new lines with "\n"
-                currRow = append(currRow, text)
-            case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-                currRow = append(currRow, fmt.Sprintf("%d", val))
-            case float32, float64:
-                currRow = append(currRow, fmt.Sprintf("%f", val))
+				text := string(val)
+				text = strings.ReplaceAll(text, "\\", "\\\\") // replace "\" with "\\"
+				text = strings.ReplaceAll(text, "\n", "\\n")  // replace new lines with "\n"
+				currRow = append(currRow, text)
+			case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+				currRow = append(currRow, fmt.Sprintf("%d", val))
+			case float32, float64:
+				currRow = append(currRow, fmt.Sprintf("%f", val))
 			default:
-                log.Fatalf("Found type that's not supported, val: %v, type: %T", val, val)
+				log.Fatalf("Found type that's not supported, val: %v, type: %T", val, val)
 			}
-        }
+		}
 
-        rows = append(rows, currRow)
-    }
+		rows = append(rows, currRow)
+	}
 
-    columns := make([]table.Column, 0, len(columnsRes))
-    for _, col := range columnsRes {
-        columns = append(columns, table.Column {
-            Title: col,
-            Width: 10,
-        })
-    }
+	columns := make([]table.Column, 0, len(columnsRes))
+	for _, col := range columnsRes {
+		columns = append(columns, table.Column{
+			Title: col,
+			Width: 10,
+		})
+	}
 
-
-    return columns, rows, nil
+	return columns, rows, nil
 }
 
 func (m Model) GetDescribe(
-    currDB,
-    selTable string,
+	currDB,
+	selTable string,
 ) ([]table.Column, []table.Row, error) {
-    rowsRes, err := m.Db.Query(fmt.Sprintf(
-        `SELECT column_name,
+	rowsRes, err := m.Db.Query(fmt.Sprintf(
+		`SELECT column_name,
             data_type,
             character_maximum_length,
             column_default,
             is_nullable
         FROM information_schema.columns 
         WHERE table_name = '%s'`,
-    selTable))
+		selTable))
 
-    if err != nil {
-        return nil, nil, err
+	if err != nil {
+		return nil, nil, err
 	}
-    defer rowsRes.Close()
+	defer rowsRes.Close()
 
 	columnsRes, err := rowsRes.Columns()
 	if err != nil {
-        return nil, nil, err
+		return nil, nil, err
 	}
 
-	values        := make([]interface{}, len(columnsRes))
+	values := make([]interface{}, len(columnsRes))
 	valuePointers := make([]interface{}, len(columnsRes))
 
-    var rows []table.Row
+	var rows []table.Row
 
-    maxColWidth := make([]int, len(columnsRes))
+	maxColWidth := make([]int, len(columnsRes))
 
-    for rowsRes.Next() {
-        for i := range columnsRes {
+	for rowsRes.Next() {
+		for i := range columnsRes {
 			valuePointers[i] = &values[i]
 		}
 
-        var currRow table.Row
+		var currRow table.Row
 
-        if err := rowsRes.Scan(valuePointers...); err != nil {
-            return nil, nil, err
+		if err := rowsRes.Scan(valuePointers...); err != nil {
+			return nil, nil, err
 		}
 
-        var text string
+		var text string
 
-        for i := range columnsRes {
+		for i := range columnsRes {
 			switch val := values[i].(type) {
 			case nil:
-                text = "NULL"
-            case string:
-                text = strings.ReplaceAll(val, "\n", "\\n")
+				text = "NULL"
+			case string:
+				text = strings.ReplaceAll(val, "\n", "\\n")
 			case []byte:
-                text = string(val)
-                text = strings.ReplaceAll(text, "\n", "\\n")
-            case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-                text = fmt.Sprintf("%d", val)
-            case float32, float64:
-                text = fmt.Sprintf("%f", val)
+				text = string(val)
+				text = strings.ReplaceAll(text, "\n", "\\n")
+			case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+				text = fmt.Sprintf("%d", val)
+			case float32, float64:
+				text = fmt.Sprintf("%f", val)
 			default:
-                log.Fatalf("Found type that's not supported, val: %v, type: %T", val, val)
+				log.Fatalf("Found type that's not supported, val: %v, type: %T", val, val)
 			}
 
-            maxColWidth[i] = max(maxColWidth[i], len(text))
+			maxColWidth[i] = max(maxColWidth[i], len(text))
 
-            currRow = append(currRow, text)
-        }
+			currRow = append(currRow, text)
+		}
 
-        rows = append(rows, currRow)
-    }
+		rows = append(rows, currRow)
+	}
 
-    columns := make([]table.Column, 0, len(columnsRes))
-    for i, col := range columnsRes {
-        columns = append(columns, table.Column {
-            Title: col,
-            Width: max(maxColWidth[i], len(col)),
-        })
-    }
+	columns := make([]table.Column, 0, len(columnsRes))
+	for i, col := range columnsRes {
+		columns = append(columns, table.Column{
+			Title: col,
+			Width: max(maxColWidth[i], len(col)),
+		})
+	}
 
-    return columns, rows, nil
+	return columns, rows, nil
 }
 
-
 func (m Model) GetUser() (string, error) {
-    res, err := m.Db.Query(fmt.Sprintf("select user"))
+	res, err := m.Db.Query(fmt.Sprintf("select user"))
 	if err != nil {
-        return "", err
+		return "", err
 	}
-    defer res.Close()
+	defer res.Close()
 
-    var user string
+	var user string
 	for res.Next() {
 		if err := res.Scan(&user); err != nil {
-            return "", err
+			return "", err
 		}
 	}
 
-    return user, nil
+	return user, nil
 }
 
 func (m Model) DeleteDB(dbName string) error { // bit useless..
-    _, err := m.Db.Exec(
-        fmt.Sprintf(
-            "drop database %s",
-            dbName,
-        ),
-    )
-    return err
+	_, err := m.Db.Exec(
+		fmt.Sprintf(
+			"drop database %s",
+			dbName,
+		),
+	)
+	return err
 }
 
 func (m Model) DeleteDBTable(dbName, selTable string) error {
-    _, err := m.Db.Exec(
-        fmt.Sprintf(
-            "drop table \"%s\"",
-            selTable,
-        ),
-    )
-    return err
+	_, err := m.Db.Exec(
+		fmt.Sprintf(
+			"drop table \"%s\"",
+			selTable,
+		),
+	)
+	return err
 }
 
 func (m Model) DeleteRow(
-    dbName,
-    tableName string,
-    row table.Row,
-    cols []table.Column,
+	dbName,
+	tableName string,
+	row table.Row,
+	cols []table.Column,
 ) error {
-    _, err := m.Db.Exec(
-        fmt.Sprintf(
-            "delete from \"%s\" where %s",
-            tableName,
-            buildWhereClause(row, cols),
-        ),
-    )
+	_, err := m.Db.Exec(
+		fmt.Sprintf(
+			"delete from \"%s\" where %s",
+			tableName,
+			buildWhereClause(row, cols),
+		),
+	)
 
-    return err
+	return err
 }
 
 func (m Model) UpdateCell(
-    dbName,
-    tableName string,
-    row table.Row,
-    cols []table.Column,
-    selectedCol int,
-    value string,
+	dbName,
+	tableName string,
+	row table.Row,
+	cols []table.Column,
+	selectedCol int,
+	value string,
 ) error {
-    _, err := m.Db.Exec(
-        fmt.Sprintf(
-            "update \"%s\" set \"%s\" = '%s' where %s",
-            tableName,
-            cols[selectedCol].Title,
-            value,
-            buildWhereClause(row, cols),
-        ),
-    )
+	_, err := m.Db.Exec(
+		fmt.Sprintf(
+			"update \"%s\" set \"%s\" = '%s' where %s",
+			tableName,
+			cols[selectedCol].Title,
+			value,
+			buildWhereClause(row, cols),
+		),
+	)
 
-    return err
+	return err
 }
 
 func (m Model) ChangeDbTableName(
-    dbName,
-    tableName string,
-    value string,
+	dbName,
+	tableName string,
+	value string,
 ) error {
-    _, err := m.Db.Exec(
-        fmt.Sprintf(
-            "alter table \"%s\" rename to \"%s\"",
-            tableName,
-            value,
-        ),
-    )
+	_, err := m.Db.Exec(
+		fmt.Sprintf(
+			"alter table \"%s\" rename to \"%s\"",
+			tableName,
+			value,
+		),
+	)
 
-    return err
+	return err
 }
 
 func (m *Model) switchDatabaseTo(dbName string) error {
-    url, err := url.Parse(m.Uri)
-    if err != nil {
-        return err
-    }
-    url.Path = dbName
+	url, err := url.Parse(m.Uri)
+	if err != nil {
+		return err
+	}
+	url.Path = dbName
 
-    m.Uri = url.String()
+	m.Uri = url.String()
 
-    db, err := sql.Open("postgres", m.Uri)
-    if err != nil {
-        return err
-    }
+	db, err := sql.Open("postgres", m.Uri)
+	if err != nil {
+		return err
+	}
 
-    err = m.Db.Close()
-    if err != nil {
-        return err
-    }
+	err = m.Db.Close()
+	if err != nil {
+		return err
+	}
 
-    m.Db = db
+	m.Db = db
 
-    return nil
+	return nil
 }
 
 func (m Model) getCurrentDatabase() (string, error) {
-    var name string
-    err := m.Db.QueryRow("select current_database()").Scan(&name);
+	var name string
+	err := m.Db.QueryRow("select current_database()").Scan(&name)
 
-    if err != nil {
-        return "", err
-    }
+	if err != nil {
+		return "", err
+	}
 
-    return name, nil
+	return name, nil
 }
 
 func (m Model) SendQuery(query string) error {
-    _, err := m.Db.Exec(query)
-    return err
+	_, err := m.Db.Exec(query)
+	return err
 }
 
 func buildWhereClause(
-    row table.Row,
-    cols []table.Column,
+	row table.Row,
+	cols []table.Column,
 ) string {
-    var sb strings.Builder
+	var sb strings.Builder
 
-    for i := 0; i < len(cols); i++ {
-        if row[i] == "NULL" {
-            sb.WriteString(fmt.Sprintf("\"%s\" IS NULL", cols[i].Title))
-        } else {
-            col := strings.ReplaceAll(row[i], "'", "\\'") // replace "'" with "\'"
+	for i := 0; i < len(cols); i++ {
+		if row[i] == "NULL" {
+			sb.WriteString(fmt.Sprintf("\"%s\" IS NULL", cols[i].Title))
+		} else {
+			col := strings.ReplaceAll(row[i], "'", "\\'") // replace "'" with "\'"
 
-            sb.WriteString(fmt.Sprintf("\"%s\" = '%s'", cols[i].Title, col))
-        }
+			sb.WriteString(fmt.Sprintf("\"%s\" = '%s'", cols[i].Title, col))
+		}
 
-        if i != len(cols) - 1 {
-            sb.WriteString(" and ")
-        }
-    }
+		if i != len(cols)-1 {
+			sb.WriteString(" and ")
+		}
+	}
 
-    return sb.String()
+	return sb.String()
 }

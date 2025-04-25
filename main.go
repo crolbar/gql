@@ -20,58 +20,58 @@ import (
 )
 
 type model struct {
-    keyMap KeyMap
-    help   help.Model
+	keyMap KeyMap
+	help   help.Model
 
-    tabs tabs.Tabs
+	tabs tabs.Tabs
 
-    auth auth.Auth
-    user string
-    dbms dbms.DBMS
+	auth auth.Auth
+	user string
+	dbms dbms.DBMS
 
-    width  int
-    height int
+	width  int
+	height int
 }
 
 type KeyMap struct {
-    Quit        key.Binding
-    ChangeCreds key.Binding
+	Quit        key.Binding
+	ChangeCreds key.Binding
 }
 
 func main() {
-    help := help.New()
+	help := help.New()
 
-    help.ShowAll               = true
-    help.Styles.FullKey        = lipgloss.NewStyle().Bold(true)
-    help.Styles.FullDesc       = lipgloss.NewStyle().Italic(true)
-    help.Styles.FullSeparator  = lipgloss.NewStyle()
-    help.FullSeparator         = ""
+	help.ShowAll = true
+	help.Styles.FullKey = lipgloss.NewStyle().Bold(true)
+	help.Styles.FullDesc = lipgloss.NewStyle().Italic(true)
+	help.Styles.FullSeparator = lipgloss.NewStyle()
+	help.FullSeparator = ""
 
-    uri := getDBUriFromCache()
-    m := model {
-        keyMap: defaultKeyMap(),
-        help:   help,
+	uri := getDBUriFromCache()
+	m := model{
+		keyMap: defaultKeyMap(),
+		help:   help,
 
-        tabs: tabs.New(
-            db_pane.New(),
-            db_tables_pane.New(),
-            main_pane.New(),
-        ),
+		tabs: tabs.New(
+			db_pane.New(),
+			db_tables_pane.New(),
+			main_pane.New(),
+		),
 
-        auth: auth.InitialAuth(),
-        dbms: InitDBMS(uri),
-    }
+		auth: auth.InitialAuth(),
+		dbms: InitDBMS(uri),
+	}
 
-    if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
-        fmt.Println("Error running program:", err)
-        os.Exit(1)
-    }
+	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
+		fmt.Println("Error running program:", err)
+		os.Exit(1)
+	}
 }
 
 func (m model) Init() tea.Cmd {
-    if m.requiresAuth() {
-        return nil
-    }
+	if m.requiresAuth() {
+		return nil
+	}
 
-    return m.dbms.Open()
+	return m.dbms.Open()
 }
