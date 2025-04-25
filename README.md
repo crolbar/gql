@@ -1,11 +1,11 @@
 # gql - TUI database management tool
 
+![](.github/assets/TUI_Screenshot1.png)
+
 > [!NOTE]
 > This tool does not have to do anything with GraphQL or Graph Query Language \
 > I just needed a name and in 5 seconds came up with this and i started to like it \
 > before i knew GraphQL or Graph Query Language were a thing
-
-![](.github/assets/TUI_Screenshot1.png)
 
 ## Example for connection string / URI
 - after an successful connection the uri is saved in `~/.cache/gql/gql_creds` \

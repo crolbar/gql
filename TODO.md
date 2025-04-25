@@ -36,7 +36,7 @@
     -   [x] string (non confirmation) dialog for updating names / columns
 
 -   [x] send a custom sql query
-    -   [ ] show result
+    -   [x] show result
 
 -   postgresql support fixes
     -   [x] fix update.go on line 26
@@ -45,7 +45,7 @@
     -   [x] use exec instead of query on non queries
     -   [x] close db connection on uri change
 
--   [ ] cp to clipboard button
+-   [x] cp to clipboard button
 -   [x] when dialog is selected don't process any char buttons
 -   [x] fix crash on none tables in db
 -   [x] fix crashes on empty main table
