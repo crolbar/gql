@@ -378,9 +378,8 @@ func (m Model) ChangeDbTableName(
 	return err
 }
 
-func (m Model) SendQuery(query string) error {
-	_, err := m.Db.Exec(query)
-	return err
+func (m Model) SendQuery(query string) (*sql.Rows, error) {
+	return m.Db.Query(query)
 }
 
 func buildWhereClause(

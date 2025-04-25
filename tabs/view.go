@@ -6,11 +6,11 @@ import (
 )
 
 func (t Tabs) View() string {
-	tabs := make([]string, Describe)
+	tabs := make([]string, __LAST_TAB-1)
 	separator := " | "
 	inactiveColor := lipgloss.Color("240")
 
-	for i := Main; i <= Describe; i++ {
+	for i := Main; i < __LAST_TAB; i++ {
 		s := lipgloss.NewStyle()
 
 		if t.selected != i {
@@ -20,7 +20,7 @@ func (t Tabs) View() string {
 		tab := fmt.Sprintf("[%d]", i+1)
 		tabs = append(tabs, s.Render(tab))
 
-		if i != Describe {
+		if i != __LAST_TAB-1 {
 			tabs = append(tabs, separator)
 		}
 	}

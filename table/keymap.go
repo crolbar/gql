@@ -96,7 +96,7 @@ func (km KeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{km.LineUp, km.LineDown},
 		{km.LineLeft, km.LineRight},
-		{km.SelectColumn, km.SelectRow},
+		{km.CopyCellText, km.SelectRow},
 	}
 }
 

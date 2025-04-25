@@ -150,5 +150,13 @@ func (t *Tabs) ChangeDbTableName(db dbms.DBMS, value string) error {
 }
 
 func (t *Tabs) SendQuery(db dbms.DBMS, query string) {
-	t.Main.SetError(db.SendQuery(query))
+	rowRes, err := db.SendQuery(query)
+	t.Main.SetError(err)
+	if err == nil {
+		t.CmdOut.UpdateTable(rowRes)
+		if len(t.CmdOut.Table.GetRows()) != 0 {
+			t.selected = CmdOut
+		}
+		rowRes.Close()
+	}
 }

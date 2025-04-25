@@ -66,5 +66,5 @@ type DBMS interface {
 		value string,
 	) error
 
-	SendQuery(query string) error
+	SendQuery(query string) (*sql.Rows, error)
 }

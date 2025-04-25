@@ -9,8 +9,7 @@ import (
 	"gql/tabs/main_tab/panes/cmd_pane"
 	"gql/tabs/main_tab/panes/dialog_pane"
 	"gql/tabs/main_tab/panes/filter_pane"
-
-	"github.com/charmbracelet/lipgloss"
+	"gql/tabs/cmd_out_tab"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -19,12 +18,13 @@ import (
 type KeyMap struct {
 	SelectMain     key.Binding
 	SelectDescribe key.Binding
+	SelectCmdOut   key.Binding
 }
-
 func defaultKeyMap() KeyMap {
 	return KeyMap{
 		SelectMain:     key.NewBinding(key.WithKeys("1")),
 		SelectDescribe: key.NewBinding(key.WithKeys("2")),
+		SelectCmdOut:   key.NewBinding(key.WithKeys("3")),
 	}
 }
 
@@ -33,6 +33,8 @@ type tabType int
 const (
 	Main tabType = iota
 	Describe
+	CmdOut
+	__LAST_TAB
 )
 
 type Tabs struct {
@@ -40,6 +42,7 @@ type Tabs struct {
 
 	Main     main_tab.MainTab
 	Describe describe_tab.DescribeTab
+	CmdOut   cmd_out_tab.CmdOutTab
 
 	keyMap KeyMap
 
@@ -63,6 +66,7 @@ func New(
 			MainPane,
 		),
 		Describe: describe_tab.New(),
+		CmdOut:   cmd_out_tab.New(),
 
 		keyMap: defaultKeyMap(),
 
@@ -141,6 +145,8 @@ func (t Tabs) Update(db dbms.DBMS, msg tea.Msg) (Tabs, tea.Cmd) {
 		t.Main.Panes, cmd = t.Main.Panes.Update(msg)
 	case Describe:
 		t.Describe, cmd = t.Describe.Update(msg)
+	case CmdOut:
+		t.CmdOut, cmd = t.CmdOut.Update(msg)
 	}
 
 	switch msg := msg.(type) {
@@ -255,6 +261,9 @@ func (t Tabs) Update(db dbms.DBMS, msg tea.Msg) (Tabs, tea.Cmd) {
 			case key.Matches(msg, t.keyMap.SelectDescribe):
 				t.selected = Describe
 				t.UpdateDescribeTable(db)
+
+			case key.Matches(msg, t.keyMap.SelectCmdOut):
+				t.selected = CmdOut
 			}
 		}
 	}
@@ -349,6 +358,8 @@ func (t Tabs) SelectedTabView() string {
 		return t.Main.RenderTables()
 	case Describe:
 		return t.Describe.View()
+	case CmdOut:
+		return t.CmdOut.View()
 	}
 
 	return ""
@@ -357,17 +368,19 @@ func (t Tabs) SelectedTabView() string {
 func (t Tabs) HelpView() string {
 	switch t.selected {
 	case Main:
-		return lipgloss.JoinHorizontal(lipgloss.Right,
-			t.Main.Panes.HelpView(),
-		)
+		return t.Main.Panes.HelpView()
+	case Describe:
+		return t.Describe.Table.HelpView()
+	case CmdOut:
+		return t.CmdOut.Table.HelpView()
 	}
-
 	return ""
 }
 
 func (t *Tabs) OnWindowResize(msg tea.WindowSizeMsg, isConnected bool) {
 	t.Main.OnWindowResize(msg, isConnected)
 	t.Describe.OnWindowResize(msg, isConnected)
+	t.CmdOut.OnWindowResize(msg, isConnected)
 }
 
 func (t *Tabs) GetCurrDB() string {

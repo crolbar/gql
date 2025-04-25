@@ -11,8 +11,10 @@ type DescribeTab struct {
 }
 
 func New() DescribeTab {
+	t := table.New(nil, nil, 100, 100)
+	t.Focus()
 	return DescribeTab{
-		Table: table.New(nil, nil, 100, 100),
+		Table: t,
 	}
 }
 
