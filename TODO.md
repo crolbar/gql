@@ -52,3 +52,6 @@
 -   [x] refresh dbs and db tables button
 -   [ ] more to help menu
 -   [ ] fix binary data
+-   [ ] fix setting cell to NULL to actually set it to NULL not the string NULL
+-   [ ] last used connection strings list
+-   [ ] fix non english chars
