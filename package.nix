@@ -9,5 +9,5 @@ buildGoModule {
     go test -v -short ./...
   '';
 
-  vendorHash = "sha256-yNBzWcSZzb+yywLaOtBd9sS0DP8XfkUAsnpBykFp5jI=";
+  vendorHash = "sha256-5zShQBdpZ9RacQn1yKsxPAJMgfYKMM4WvRdVtRLLC/0=";
 }
