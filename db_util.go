@@ -5,6 +5,7 @@ import (
 	"gql/dbms"
 	"gql/mysql"
 	"gql/postgres"
+	"gql/sqlite"
 	"gql/util"
 	"strings"
 )
@@ -42,6 +43,10 @@ func InitDBMS(uri string) dbms.DBMS {
 
 	if strings.HasPrefix(uri, "postgresql") {
 		return &postgres.Model{Uri: uri}
+	}
+
+	if strings.HasPrefix(uri, "file:") {
+		return &sqlite.Model{Uri: uri}
 	}
 
 	return &mysql.Model{Uri: uri}

@@ -9,6 +9,7 @@ require (
 	github.com/charmbracelet/lipgloss v0.13.0
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/lib/pq v1.10.9
+	github.com/mattn/go-sqlite3 v1.14.28
 	github.com/stretchr/testify v1.9.0
 )
 

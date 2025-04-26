@@ -20,7 +20,10 @@ postgres: \
 `postgresql://crolbar:aoeu@localhost:5432/t?sslmode=disable`
 - if you have db's that give "don't accept connection" errors, you can add "&connect_timeout=1" to you're connection string to reduce the halt.
 
+sqlite: \
+`file:path/to/sqlite/db` \
+
 ## Support
 -   [x] MySQL
 -   [x] PostgreSQL
--   [ ] SQLite
+-   [x] SQLite
