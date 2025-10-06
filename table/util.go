@@ -1,6 +1,9 @@
 package table
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"github.com/charmbracelet/lipgloss"
+	"strings"
+)
 
 func isBetween(v, i, j int) bool {
 	min := min(i, j)
@@ -24,5 +27,14 @@ func truncate(s string, width int) string {
 		return s
 	}
 
-	return s[:width-1] + "…"
+	var ret strings.Builder
+	for i, r := range []rune(s) {
+		if i >= width-1 {
+			break
+		}
+		ret.WriteRune(r)
+	}
+
+	ret.WriteRune('…')
+	return ret.String()
 }
