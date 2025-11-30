@@ -195,6 +195,7 @@ func (t Table) GetSelectedCell() string {
 
 	selCell := t.rows[t.cursor.Y][t.cursor.X]
 
+	// TODO: fix?
 	return strings.ReplaceAll(selCell, "\\n", "\n")
 }
 

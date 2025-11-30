@@ -174,6 +174,11 @@ func (m Model) GetTable(
 		return nil, nil, err
 	}
 
+	columnTypesRes, err := rowsRes.ColumnTypes()
+	if err != nil {
+		return nil, nil, err
+	}
+
 	values := make([]interface{}, len(columnsRes))
 	valuePointers := make([]interface{}, len(columnsRes))
 
@@ -191,6 +196,8 @@ func (m Model) GetTable(
 		}
 
 		for i := range columnsRes {
+			psType := columnTypesRes[i].DatabaseTypeName()
+
 			switch val := values[i].(type) {
 			case nil:
 				currRow = append(currRow, "NULL")
@@ -206,8 +213,13 @@ func (m Model) GetTable(
 				}
 			case []byte:
 				text := string(val)
-				text = strings.ReplaceAll(text, "\\", "\\\\") // replace "\" with "\\"
-				text = strings.ReplaceAll(text, "\n", "\\n")  // replace new lines with "\n"
+
+				// not needed in json type
+				if psType != "JSONB" {
+					text = strings.ReplaceAll(text, "\\", "\\\\") // replace "\" with "\\"
+					text = strings.ReplaceAll(text, "\n", "\\n")  // replace new lines with "\n"
+				}
+
 				currRow = append(currRow, text)
 			case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 				currRow = append(currRow, fmt.Sprintf("%d", val))
@@ -218,8 +230,7 @@ func (m Model) GetTable(
 			}
 		}
 
-		rows = append(rows, currRow)
-	}
+		rows = append(rows, currRow) }
 
 	columns := make([]table.Column, 0, len(columnsRes))
 	for _, col := range columnsRes {
